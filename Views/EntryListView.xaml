@@ -7,7 +7,9 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
 
-    <ListView x:Name="SelectedEntries" SelectionMode="Extended" HorizontalAlignment="Stretch" GridViewColumnHeader.Click="SelectedEntries_Click_1"  ItemsSource="{Binding ToRender}">
+    <ListView x:Name="SelectedEntries" SelectionMode="Extended" 
+              HorizontalAlignment="Stretch" GridViewColumnHeader.Click="SelectedEntries_Click_1" 
+              ItemsSource="{Binding ToRender}" BorderThickness="0">
         <ListView.ItemContainerStyle>
             <Style TargetType="ListViewItem">
                 <Style.Resources>

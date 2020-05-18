@@ -7,10 +7,11 @@
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:local="clr-namespace:DieselBundleViewer"
         prism:ViewModelLocator.AutoWireViewModel="True"
-        Title="{Binding Title}" Icon="/Assets/favicon.ico" Width="1000" Height="600" MouseMove="Window_MouseMove" MouseLeftButtonUp="Window_MouseLeftButtonUp">
+        Title="{Binding Title}" Background="#f0f0f0" Icon="/Assets/favicon.ico" Width="1000" Height="600" MouseMove="Window_MouseMove" MouseLeftButtonUp="Window_MouseLeftButtonUp">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="300"></ColumnDefinition>
+            <ColumnDefinition Width="2"></ColumnDefinition>
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
@@ -21,7 +22,7 @@
             <RowDefinition Height="24"></RowDefinition>
         </Grid.RowDefinitions>
 
-        <Canvas Grid.Row="0" Grid.ColumnSpan="2">
+        <Canvas Grid.Row="0" Grid.ColumnSpan="3">
             <TextBlock Canvas.Right="4" Text="{Binding Status}"/>
             <Menu>
                 <MenuItem Header="File" Height="24">
@@ -34,14 +35,15 @@
             </Menu>
         </Canvas>
 
-        <DockPanel Grid.Row="1" Grid.ColumnSpan="2" DockPanel.Dock="Top">
+        <DockPanel Grid.Row="1" Grid.ColumnSpan="3" DockPanel.Dock="Top">
             <Button Background="Transparent" BorderThickness="0" Command="{Binding BackDir}">
                 <Image Width="25" Height="25" Source="/Assets/arrow-left-dark.png"></Image>
             </Button>
             <Button Background="Transparent" BorderThickness="0" Command="{Binding ForwardDir}">
                 <Image Width="25" Height="25" Source="/Assets/arrow-right-dark.png"></Image>
             </Button>
-            <TextBox Text="{Binding CurrentDir, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Stretch" VerticalContentAlignment="Center" HorizontalAlignment="Stretch"/>
+            <TextBox Text="{Binding CurrentDir, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                     VerticalAlignment="Stretch" VerticalContentAlignment="Center" HorizontalAlignment="Stretch" Margin="2"/>
         </DockPanel>
 
         <TreeView Margin="0 1" Grid.Row="2" Grid.Column="0" BorderThickness="0" ItemsSource="{Binding FoldersToRender}">
@@ -58,10 +60,9 @@
             </TreeView.ItemTemplate>
         </TreeView>
 
-        <ContentPresenter Grid.Column="1" Grid.Row="2" Content="{Binding EntriesStyle}"/>
+        <ContentPresenter Grid.Column="2" Grid.Row="2" PreviewMouseWheel="ContentPresenter_MouseWheel" Content="{Binding EntriesStyle}"/>
 
-
-        <Canvas Grid.Row="3" Grid.ColumnSpan="2">
+        <Canvas Grid.Row="3" Grid.ColumnSpan="3" Background="#ebebeb">
             <WrapPanel Canvas.Right="0">
                 <Button Background="Transparent" BorderThickness="0" Command="{Binding SetViewStyle}" CommandParameter="list">
                     <Image Width="20" Height="20" Source="/Assets/list.png"></Image>

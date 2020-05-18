@@ -34,6 +34,10 @@ namespace DieselBundleViewer.ViewModels
         public string AssetsDir { get; set; }
         public string Status { get => _Status; set => SetProperty(ref _Status, value); }
 
+        private int gridViewScale = 32;
+        public int GridViewScale { get => gridViewScale; set => SetProperty(ref gridViewScale, value); }
+
+
         public Dictionary<Idstring, PackageHeader> PackageHeaders;
 
         Dictionary<uint, FileEntry> FileEntries { get; set; }
@@ -87,7 +91,7 @@ namespace DieselBundleViewer.ViewModels
             OpenFileDialog = new DelegateCommand(OpenFileDialogExec);
             BackDir = new DelegateCommand(BackDirExec, ()=>!string.IsNullOrEmpty(CurrentDir));
             ForwardDir = new DelegateCommand(ForwardDirExec, ()=>BackDirs.Count > 0);
-            SetViewStyle = new DelegateCommand<string>(SetViewStyleExec);
+            SetViewStyle = new DelegateCommand<string>(style => SetViewStyleExec(style, true));
 
             CurrentDir = "";
             PackageHeaders = new Dictionary<Idstring, PackageHeader>();
@@ -111,12 +115,40 @@ namespace DieselBundleViewer.ViewModels
             });
         }
 
-        void SetViewStyleExec(string style)
+        void SetViewStyleExec(string style, bool resetScale=false)
         {
-            if (style == "grid")
+            bool isGrid = style == "grid";
+            if (resetScale)
+                GridViewScale = isGrid ? 64 : 32;
+            if (isGrid)
                 EntriesStyle = new EntryGridView();
             else
                 EntriesStyle = new EntryListView();
+        }
+
+        public void OnMouseWheel(MouseWheelEventArgs e)
+        {
+            if(Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
+            {
+                e.Handled = true;
+
+                int scale = GridViewScale;
+
+                if(e.Delta > 0)
+                    scale += 8;
+                else if(e.Delta < 0)
+                    scale -= 8;
+
+                GridViewScale = Math.Clamp(scale, 32, 128);
+                Console.WriteLine(GridViewScale);
+                if (GridViewScale == 32)
+                {
+                    if(EntriesStyle is EntryGridView)
+                        SetViewStyleExec("list");
+                }
+                else if(EntriesStyle is EntryListView)
+                    SetViewStyleExec("grid");
+            }
         }
 
         public void OnMouseMoved(Point pos)

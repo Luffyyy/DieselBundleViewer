@@ -28,5 +28,10 @@ namespace DieselBundleViewer.Views
         {
             (DataContext as MainWindowViewModel).OnRelease();
         }
+
+        private void ContentPresenter_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            (DataContext as MainWindowViewModel).OnMouseWheel(e);
+        }
     }
 }
