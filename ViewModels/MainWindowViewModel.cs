@@ -199,7 +199,7 @@ namespace DieselBundleViewer.ViewModels
 
             await Task.Run(() =>
             {
-                Root = new TreeEntryViewModel(this, new FolderEntry { EntryPath = "assets", Name = "assets" });
+                Root = new TreeEntryViewModel(this, new FolderEntry { EntryPath = "", Name = "assets" });
 
                 Status = "Preparing to open blb file...";
                 AssetsDir = Path.GetDirectoryName(filePath);
