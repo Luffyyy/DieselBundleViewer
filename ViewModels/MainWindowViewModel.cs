@@ -64,6 +64,7 @@ namespace DieselBundleViewer.ViewModels
         public Stack<string> BackDirs = new Stack<string>();
         public DelegateCommand OpenFileDialog { get; }
         public DelegateCommand OpenAboutDialog { get; }
+        public DelegateCommand OpenSettingsDialog { get; }
         public DelegateCommand ForwardDir { get; }
         public DelegateCommand BackDir { get; }
         public DelegateCommand<string> SetViewStyle { get; }
@@ -103,6 +104,10 @@ namespace DieselBundleViewer.ViewModels
             OpenAboutDialog = new DelegateCommand(() =>
             {
                 dialogService.ShowDialog("AboutDialog", new DialogParameters(), r => { });
+            });
+            OpenSettingsDialog = new DelegateCommand(() =>
+            {
+                dialogService.ShowDialog("SettingsDialog", new DialogParameters(), r => { });
             });
         }
 
