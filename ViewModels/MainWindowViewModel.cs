@@ -242,9 +242,12 @@ namespace DieselBundleViewer.ViewModels
 
             // RenderNewItemsFolders(Root);
             var children = Root.Owner.GetEntriesByDirectory(CurrentDir);
+
+            bool disEmpty = Settings.Data.DisplayEmptyFiles;
             foreach (var entry in children)
             {
-                ToRender.Add(new EntryViewModel(this, entry));
+                if(!(entry is FileEntry) || disEmpty || ((entry as FileEntry).Size > 0))
+                    ToRender.Add(new EntryViewModel(this, entry));
             }
 
             /*Items.Sort((a,b) => {
