@@ -18,7 +18,7 @@ namespace DieselBundleViewer.Models
         public IParent Parent { get; set; }
         public string EntryPath { get; set; }
         public string Name { get; set; }
-        public string Size => "";
+        public string SizeStr => "";
         public MainWindowViewModel DataContext { get; set; }
 
         public string Type => "File folder";

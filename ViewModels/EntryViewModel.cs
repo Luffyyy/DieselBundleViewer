@@ -36,7 +36,7 @@ namespace DieselBundleViewer.ViewModels
 
         public string Name => Owner.Name;
         public string Type => Owner.Type;
-        public string Size => Owner.Size;
+        public string Size => Owner.SizeStr;
 
         private bool isSelected;
 
