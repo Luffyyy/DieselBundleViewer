@@ -4,7 +4,7 @@ DieselBundleViewer is a program that allows you to view the files of all diesel 
 The program is mostly based of DieselToolBox with some code taken from there.
 
 ## What's the difference between DieselToolBox and this?
-* This version hopes to eliminate most of the bugs that the previous had and make it a viable option against DieselBundleModder.
+* This version hopes to eliminate most of the bugs that the previous had and make it a viable option to DieselBundleModder.
 * Hopefully more user friendly.
 * New features!
   * Pressing the list headers actually sorts the items!
