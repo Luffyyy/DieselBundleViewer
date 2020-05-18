@@ -28,10 +28,12 @@ namespace DieselBundleViewer.ViewModels
         private TreeEntryViewModel Root { get; set; }
 
         private string _CurrentDir;
-        private string _Status;
 
         public string Title{ get => _title; set => SetProperty(ref _title, value); }
+
         public string AssetsDir { get; set; }
+
+        private string _Status;
         public string Status { get => _Status; set => SetProperty(ref _Status, value); }
 
         private int gridViewScale = 32;
@@ -48,21 +50,6 @@ namespace DieselBundleViewer.ViewModels
         public string CurrentDir { 
             get => _CurrentDir;
             set => SetDir(value, true);
-        }
-
-        public void SetDir(string dir, bool clearForward)
-        {
-            SetProperty(ref _CurrentDir, dir, "CurrentDir");
-            if (clearForward)
-                BackDirs.Clear();
-            DirChanged();
-        }
-
-        public void DirChanged()
-        {
-            BackDir.RaiseCanExecuteChanged();
-            ForwardDir.RaiseCanExecuteChanged();
-            RenderNewItems();
         }
 
         public Stack<string> BackDirs = new Stack<string>();
@@ -158,15 +145,11 @@ namespace DieselBundleViewer.ViewModels
             {
                 if (Math.Abs(diff.X) > 8 && Math.Abs(diff.Y) > 8)
                 {
-                    Debug.Print("Begin Drag!");
                     DragDropController controller = new DragDropController(false);
                     foreach(EntryViewModel vm in ToRender)
                     {
                         if (vm.IsSelected)
-                        {
-                            Debug.Print("Selected!");
                             controller.DoDragDrop(vm.Owner);
-                        }
                     }
                     Dragging = false;
                 }
@@ -249,6 +232,21 @@ namespace DieselBundleViewer.ViewModels
             FoldersToRender.Add(Root);
         }
 
+        public void SetDir(string dir, bool clearForward)
+        {
+            SetProperty(ref _CurrentDir, dir, "CurrentDir");
+            if (clearForward)
+                BackDirs.Clear();
+            DirChanged();
+        }
+
+        public void DirChanged()
+        {
+            BackDir.RaiseCanExecuteChanged();
+            ForwardDir.RaiseCanExecuteChanged();
+            RenderNewItems();
+        }
+
         public void ForwardDirExec()
         {
             if (BackDirs.Count > 0)
@@ -287,7 +285,6 @@ namespace DieselBundleViewer.ViewModels
                 Debug.Write(ret);
                 return ret == 0 ? a.Name.CompareTo(b.Name) : ret;
             });*/
-
         }
 
         public Dictionary<uint, FileEntry> DatabaseEntryToFileEntry(List<DatabaseEntry> entries)

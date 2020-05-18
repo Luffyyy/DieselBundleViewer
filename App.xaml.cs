@@ -33,6 +33,13 @@ namespace DieselBundleViewer
             LoadConverters();
         }
 
+        protected override void RegisterTypes(IContainerRegistry containerRegistry)
+        {
+            containerRegistry.RegisterDialog<ConvertFileDialog, ConvertFileDialogViewModel>();
+            containerRegistry.RegisterDialog<AboutDialog, AboutDialogViewModel>();
+            containerRegistry.RegisterDialog<SettingsDialog, SettingsDialogViewModel>();
+        }
+
         private void LoadConverters()
         {
             ScriptActions.AddConverter(new FormatConverter
@@ -147,12 +154,6 @@ namespace DieselBundleViewer
         protected override Window CreateShell()
         {
             return Container.Resolve<MainWindow>();
-        }
-
-        protected override void RegisterTypes(IContainerRegistry containerRegistry)
-        {
-            containerRegistry.RegisterDialog<ConvertFileDialog, ConvertFileDialogViewModel>();
-            containerRegistry.RegisterDialog<AboutDialog, AboutDialogViewModel>();
         }
     }
 }
