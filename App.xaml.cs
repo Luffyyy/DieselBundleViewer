@@ -59,10 +59,30 @@ namespace DieselBundleViewer
 
             ScriptActions.AddConverter(new FormatConverter
             {
+                Key = "movie",
+                Title = "Bink Video",
+                Extension = "bik",
+                Type = "movie",
+                RequiresAttention = false
+            });
+
+            //Loop each XML format to have it automatically get .xml suffix
+
+            ScriptActions.AddConverter(new FormatConverter
+            {
+                Key = "xmL_conversion",
+                Type = "text",
+                Extension = "xml",
+                RequiresAttention = false
+            });
+
+            ScriptActions.AddConverter(new FormatConverter
+            {
                 Key = "texture_dds",
                 Title = "DDS",
                 Extension = "dds",
-                Type = "texture"
+                Type = "texture",
+                RequiresAttention = false
             });
 
             ScriptActions.AddConverter(new FormatConverter

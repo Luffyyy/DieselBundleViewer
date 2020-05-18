@@ -170,6 +170,18 @@ namespace DieselBundleViewer.Services
             if (ScriptActions.Converters.ContainsKey(typ))
             {
                 var convs = ScriptActions.Converters[typ];
+
+                //Don't open the dialog for things that are just an extension change
+                if(convs.Count == 1)
+                {
+                    FormatConverter format = convs.First().Value;
+                    if (!format.RequiresAttention)
+                    {
+                        DoViewFile(entry, be, format);
+                        return;
+                    }
+                }
+
                 var formats = convs.Values.ToList();
                 formats.Insert(0, new FormatConverter { Title = "None" });
 

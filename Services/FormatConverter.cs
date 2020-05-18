@@ -10,6 +10,7 @@ namespace DieselBundleViewer.Services
         public string Key { get; set; }
         public string Title { get; set; }
         public string Extension { get; set; }
+        public bool RequiresAttention { get; set; } = true;
         public string Type { get; set; }
 
         public delegate object ExportEventDel(MemoryStream ms, bool arg0);
