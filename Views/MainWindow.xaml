@@ -1,0 +1,75 @@
+﻿<Window x:Class="DieselBundleViewer.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:prism="http://prismlibrary.com/" 
+        xmlns:views="clr-namespace:DieselBundleViewer.Views" 
+        xmlns:vm="clr-namespace:DieselBundleViewer.ViewModels" 
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:local="clr-namespace:DieselBundleViewer"
+        prism:ViewModelLocator.AutoWireViewModel="True"
+        Title="{Binding Title}" Icon="/Assets/favicon.ico" Width="1000" Height="600" MouseMove="Window_MouseMove" MouseLeftButtonUp="Window_MouseLeftButtonUp">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="24"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="24"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <Canvas Grid.Row="0" Grid.ColumnSpan="2">
+            <TextBlock Canvas.Right="4" Text="{Binding Status}"/>
+            <Menu>
+                <MenuItem Header="File" Height="24">
+                    <MenuItem Header="Open" Command="{Binding OpenFileDialog}"/>
+                    <MenuItem Header="Settings" Command="{Binding OpenSettingsDialog}"/>
+                </MenuItem>
+                <MenuItem Header="Help" >
+                    <MenuItem Header="About" Command="{Binding OpenAboutDialog}"/>
+                </MenuItem>
+            </Menu>
+        </Canvas>
+
+        <DockPanel Grid.Row="1" Grid.ColumnSpan="2" DockPanel.Dock="Top">
+            <Button Background="Transparent" BorderThickness="0" Command="{Binding BackDir}">
+                <Image Width="25" Height="25" Source="/Assets/arrow-left-dark.png"></Image>
+            </Button>
+            <Button Background="Transparent" BorderThickness="0" Command="{Binding ForwardDir}">
+                <Image Width="25" Height="25" Source="/Assets/arrow-right-dark.png"></Image>
+            </Button>
+            <TextBox Text="{Binding CurrentDir, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Stretch" VerticalContentAlignment="Center" HorizontalAlignment="Stretch"/>
+        </DockPanel>
+
+        <TreeView Margin="0 1" Grid.Row="2" Grid.Column="0" BorderThickness="0" ItemsSource="{Binding FoldersToRender}">
+            <TreeView.ItemContainerStyle>
+                <Style TargetType="{x:Type TreeViewItem}">
+                    <Setter Property="IsExpanded" Value="{Binding IsExpanded}"/>
+                    <Setter Property="IsSelected" Value="{Binding IsSelected}"/>
+                </Style>
+            </TreeView.ItemContainerStyle>
+            <TreeView.ItemTemplate>
+                <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                    <views:TreeEntry/>
+                </HierarchicalDataTemplate>
+            </TreeView.ItemTemplate>
+        </TreeView>
+
+        <ContentPresenter Grid.Column="1" Grid.Row="2" Content="{Binding EntriesStyle}"/>
+
+
+        <Canvas Grid.Row="3" Grid.ColumnSpan="2">
+            <WrapPanel Canvas.Right="0">
+                <Button Background="Transparent" BorderThickness="0" Command="{Binding SetViewStyle}" CommandParameter="list">
+                    <Image Width="20" Height="20" Source="/Assets/list.png"></Image>
+                </Button>
+                <Button Background="Transparent" BorderThickness="0" Command="{Binding SetViewStyle}" CommandParameter="grid">
+                    <Image Width="20" Height="20" Source="/Assets/image.png"></Image>
+                </Button>
+            </WrapPanel>
+        </Canvas>
+    </Grid>
+</Window>

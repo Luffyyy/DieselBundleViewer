@@ -1,0 +1,24 @@
+﻿<UserControl x:Class="DieselBundleViewer.Views.Entry"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             Height="20"
+             >
+    <Grid>
+        <Grid.InputBindings>
+            <MouseBinding Gesture="LeftDoubleClick" Command="{Binding OnDoubleClick}"/>
+        </Grid.InputBindings>
+        <i:Interaction.Triggers>
+            <i:EventTrigger EventName="MouseLeftButtonDown">
+                <i:InvokeCommandAction Command="{Binding OnClick}"/>
+            </i:EventTrigger>
+        </i:Interaction.Triggers>
+        
+        <Grid Background="Transparent">
+            <StackPanel Height="20" Orientation="Horizontal">
+                <Image Height="20" Width="20" Source="{Binding Icon}"/>
+                <TextBlock Margin="2 0" Text="{Binding Name, FallbackValue='TEXT'}"></TextBlock>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>
