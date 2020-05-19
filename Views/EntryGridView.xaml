@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
              xmlns:local="clr-namespace:DieselBundleViewer.Views" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
@@ -33,7 +34,7 @@ AncestorType={x:Type Window}}, Path=DataContext.GridViewScale}" HorizontalAlignm
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                     <Image Source="{Binding Icon}"/>
-                    <TextBlock TextAlignment="Center" TextWrapping="Wrap" Text="{Binding Name}"/>
+                    <TextBlock TextAlignment="Center" Foreground="{DynamicResource {x:Static adonisUi:Brushes.ForegroundBrush}}" TextWrapping="Wrap" Text="{Binding Name}"/>
                 </StackPanel>
             </DataTemplate>
         </ListBox.ItemTemplate>

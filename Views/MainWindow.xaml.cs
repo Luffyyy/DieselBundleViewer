@@ -1,4 +1,5 @@
-﻿using DieselBundleViewer.Services;
+﻿using AdonisUI.Controls;
+using DieselBundleViewer.Services;
 using DieselBundleViewer.ViewModels;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -12,7 +13,7 @@ namespace DieselBundleViewer.Views
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : AdonisWindow
     {
         public MainWindow()
         {

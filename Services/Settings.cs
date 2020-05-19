@@ -13,6 +13,7 @@ namespace DieselBundleViewer.Services
     {
         public bool DisplayEmptyFiles = false;
         public bool ExtractFullDir = false;
+        public bool DarkMode = true;
     }
 
     public static class Settings
@@ -35,11 +36,11 @@ namespace DieselBundleViewer.Services
             } else
             {
                 XmlSerializer xml = new XmlSerializer(typeof(SettingsData));
+                using var fs = new FileStream(FILE, FileMode.Open, FileAccess.Read);
                 try
                 {
-                    using var fs = new FileStream(FILE, FileMode.Open, FileAccess.Read);
                     Data = (SettingsData)xml.Deserialize(fs);
-                } catch (InvalidOperationException e)
+                } catch (Exception e)
                 {
                     Console.WriteLine("Error while reading settings file: "+e.Message);
                 }
@@ -58,9 +59,15 @@ namespace DieselBundleViewer.Services
                 File.Create(FILE).Close();
 
             XmlSerializer xml = new XmlSerializer(typeof(SettingsData));
-            using var fs = new FileStream(FILE, FileMode.Open, FileAccess.Write);
-            xml.Serialize(fs, Data);
-            Console.WriteLine("Saved settings");
+            try
+            {
+                using var fs = new FileStream(FILE, FileMode.Open, FileAccess.Write);
+                xml.Serialize(fs, Data);
+                Console.WriteLine("Saved settings");
+            } catch (Exception e)
+            {
+                Console.WriteLine("Failed saving settings " + e.Message);
+            }
         }
     }
 }

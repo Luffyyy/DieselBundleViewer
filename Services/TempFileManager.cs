@@ -187,13 +187,13 @@ namespace DieselBundleViewer.Services
 
                 DialogParameters pms = new DialogParameters
                 {
-                    { "formats", formats }
+                    { "Formats", formats }
                 };
                 Utils.CurrentDialogService.ShowDialog("ConvertFileDialog", pms, r =>
                 {
                     if (r.Result == ButtonResult.OK)
                     {
-                        FormatConverter selected = pms.GetValue<FormatConverter>("format");
+                        FormatConverter selected = pms.GetValue<FormatConverter>("Format");
                         DoViewFile(entry, be, selected.Title == "None" ? null : selected);
                     }
                 });

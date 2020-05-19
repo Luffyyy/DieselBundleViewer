@@ -21,5 +21,6 @@
             Icons from <Hyperlink>https://icons8.com/</Hyperlink>
         </TextBlock>
         <TextBlock DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Grid.Row="3" FontSize="18" Margin="16" Text="{Binding Version}"/>
+        <Button Height="0" Command="{Binding CloseDialog}" IsCancel="true" CommandParameter="False"/>
     </Grid>
 </UserControl>

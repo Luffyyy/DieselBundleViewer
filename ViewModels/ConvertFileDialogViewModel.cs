@@ -8,10 +8,9 @@ using System.Linq;
 
 namespace DieselBundleViewer.ViewModels
 {
-    public class ConvertFileDialogViewModel : BindableBase, IDialogAware
+    public class ConvertFileDialogViewModel : DialogBase
     {
-        public string Title => "Choose a format for the file";
-        public event Action<IDialogResult> RequestClose;
+        public override string Title => "Choose a format for the file";
 
         private List<FormatConverter> formats;
         public List<FormatConverter> Formats { get => formats; set => SetProperty(ref formats, value); }
@@ -19,38 +18,16 @@ namespace DieselBundleViewer.ViewModels
         private FormatConverter format;
         public FormatConverter Format { get => format; set => SetProperty(ref format, value); }
 
-        IDialogParameters Params;
-
-        public DelegateCommand<string> CloseDialog { get; }
-
-        public ConvertFileDialogViewModel()
+        public override void OnDialogOpened(IDialogParameters parameters)
         {
-            CloseDialog = new DelegateCommand<string>(CloseDialogExec);
-        }
-
-        public void OnDialogOpened(IDialogParameters parameters)
-        {
-            Params = parameters;
-            Formats = parameters.GetValue<List<FormatConverter>>("formats");
+            Formats = parameters.GetValue<List<FormatConverter>>("Formats");
             Format = formats.First();
         }
 
-        private void CloseDialogExec(string success)
+        protected override void PreCloseDialog(string success)
         {
-            bool succ = success == "True";
-            if (succ)
-                Params.Add("format", Format);
-            RequestClose?.Invoke(new DialogResult(success == "True" ? ButtonResult.OK : ButtonResult.Cancel));
-        }
-
-        public bool CanCloseDialog()
-        {
-            return true;
-        }
-
-        public void OnDialogClosed()
-        {
-            
+            if (success == "True")
+                Params.Add("Format", Format);
         }
     }
 }

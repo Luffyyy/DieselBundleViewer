@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
              xmlns:local="clr-namespace:DieselBundleViewer.Views" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
@@ -13,7 +14,7 @@
         <ListView.ItemContainerStyle>
             <Style TargetType="ListViewItem">
                 <Style.Resources>
-                    <SolidColorBrush x:Key="ListItemHoverFill" Color="#FFB2B2B2"/>
+                    <SolidColorBrush x:Key="ListItemHoverFill" Color="{DynamicResource {x:Static adonisUi:Colors.AccentColor}}"/>
                 </Style.Resources>
                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                 <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=OneWayToSource}"/>
@@ -25,7 +26,7 @@
                             <Border CornerRadius="0" SnapsToDevicePixels="True" Background="{TemplateBinding Background}">
                                 <Border Name="InnerBorder" CornerRadius="0" BorderThickness="0">
                                     <Grid>
-                                        <Rectangle Name="UpperHighlight" Visibility="Collapsed" Fill="Transparent"/>
+                                        <Rectangle Name="UpperHighlight" Visibility="Collapsed" Fill="{DynamicResource {x:Static adonisUi:Brushes.AccentBrush}}"/>
                                         <GridViewRowPresenter Grid.RowSpan="0"
                                     VerticalAlignment="{TemplateBinding VerticalContentAlignment}"   
                                     SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
@@ -35,17 +36,19 @@
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
                                     <Setter Property="Background" Value="{StaticResource ListItemHoverFill}" />
+                                    <Setter Property="Foreground" Value="{DynamicResource {x:Static adonisUi:Brushes.AccentForegroundBrush}}"/>
                                     <Setter Property="BorderBrush" Value="Transparent"/>
                                     <Setter TargetName="UpperHighlight" Property="Visibility" Value="Visible" />
                                 </Trigger>
                                 <Trigger Property="IsSelected" Value="True">
-                                    <Setter Property="Background" Value="#FFC9C9C9"/>
+                                    <Setter Property="Background" Value="{DynamicResource {x:Static adonisUi:Brushes.AccentHighlightBrush}}"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource {x:Static adonisUi:Brushes.AccentForegroundBrush}}"/>
+                                    <Setter TargetName="UpperHighlight" Property="Visibility" Value="Visible" />
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
-
             </Style>
         </ListView.ItemContainerStyle>
         <ListView.View>

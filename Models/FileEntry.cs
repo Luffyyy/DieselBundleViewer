@@ -132,7 +132,6 @@ namespace DieselBundleViewer.Models
             }
 
             string bundle_path = Path.Combine(DataContext.AssetsDir, entry.Parent.Name.HashedString + ".bundle");
-            Console.WriteLine(DataContext.AssetsDir);
             if (!File.Exists(bundle_path))
             {
                 Console.WriteLine("Bundle: {0}, does not exist", bundle_path);

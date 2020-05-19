@@ -8,26 +8,9 @@ using System.Linq;
 
 namespace DieselBundleViewer.ViewModels
 {
-    public class AboutDialogViewModel : BindableBase, IDialogAware
+    public partial class AboutDialogViewModel : DialogBase
     {
-        public string Title => "About";
+        public override string Title => "About";
         public string Version => $"Version {Utils.Version}";
-
-        public event Action<IDialogResult> RequestClose;
-
-        public bool CanCloseDialog()
-        {
-            return true;
-        }
-
-        public void OnDialogClosed()
-        {
-            
-        }
-
-        public void OnDialogOpened(IDialogParameters parameters)
-        {
-            
-        }
     }
 }

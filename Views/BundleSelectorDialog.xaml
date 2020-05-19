@@ -1,17 +1,21 @@
-﻿<UserControl x:Class="DieselBundleViewer.Views.ConvertFileDialog"
+﻿<UserControl x:Class="DieselBundleViewer.Views.BundleSelectorDialog"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:prism="http://prismlibrary.com/"             
-             prism:ViewModelLocator.AutoWireViewModel="True"
-             Width="350" Height="90">
+             prism:ViewModelLocator.AutoWireViewModel="True" Width="500" Height="300">
     <DockPanel Margin="8" LastChildFill="False">
-        <ComboBox DockPanel.Dock="Top" Height="30" VerticalContentAlignment="Center" 
-                  ItemsSource="{Binding Formats}" DisplayMemberPath="Title" SelectedValue="{Binding Format, Mode=TwoWay}"
-                  />
-
+        <Grid DockPanel.Dock="Top">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="24"/>
+                <RowDefinition Height="4"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <TextBox Grid.Row="0" VerticalContentAlignment="Center" Text="{Binding Search, Mode=TwoWay}"/>
+            <ListBox Grid.Row="2" Height="220" ItemsSource="{Binding Bundles}"/>
+        </Grid>
         <StackPanel Orientation="Horizontal"  HorizontalAlignment="Center" DockPanel.Dock="Bottom">
             <Button Content="Confirm" Padding="8" Command="{Binding CloseDialog}" CommandParameter="True"/>
             <Button Margin="2 0" Padding="8" Content="Cancel" Command="{Binding CloseDialog}" IsCancel="true" CommandParameter="False"/>
         </StackPanel>
-    </DockPanel>
+    </DockPanel> 
 </UserControl>

@@ -16,12 +16,7 @@ namespace DieselBundleViewer.ViewModels
         public bool IsExpanded { get; set; }
 
         private bool isSelected;
-
-        public bool IsSelected
-        {
-            get => isSelected;
-            set => SetProperty(ref isSelected, value);
-        }
+        public bool IsSelected { get => isSelected; set => SetProperty(ref isSelected, value); }
 
         public MainWindowViewModel ParentWindow { get; set; }
         public DelegateCommand<MouseButtonEventArgs> OnClick { get; }
@@ -55,7 +50,7 @@ namespace DieselBundleViewer.ViewModels
         void OnClickExec(MouseButtonEventArgs e)
         {
             ParentWindow.OnClick();
-            ParentWindow.CurrentDir = Owner.EntryPath;
+            ParentWindow.Navigate(Owner.EntryPath);
             IsSelected = true;
         }
     }

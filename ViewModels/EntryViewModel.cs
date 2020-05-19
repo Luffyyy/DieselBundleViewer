@@ -65,10 +65,8 @@ namespace DieselBundleViewer.ViewModels
 
         void OnDoubleClickExec()
         {
-            Console.WriteLine("ok");
-
             if (Owner is FolderEntry)
-                ParentWindow.CurrentDir = Owner.EntryPath;
+                ParentWindow.Navigate(Owner.EntryPath);
             else if (Owner is FileEntry)
                 ParentWindow.FileManager.ViewFile((FileEntry)Owner);
         }

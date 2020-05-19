@@ -182,6 +182,31 @@ namespace DieselBundleViewer.Models
             return entries;
         }
 
+
+        public List<IEntry> GetEntriesByConiditions(Func<IEntry, bool> check, List<IEntry> entries = null)
+        {
+            if (entries == null)
+                entries = new List<IEntry>();
+
+            foreach (KeyValuePair<string, IEntry> pairEntry in this.Children)
+            {
+                IEntry entry = pairEntry.Value;
+
+                if (check(entry))
+                {
+                    if (pairEntry.Value is FolderEntry)
+                        entries.Insert(0, entry);
+                    else
+                        entries.Add(entry);
+                }
+                if (entry is FolderEntry)
+                    (entry as FolderEntry).GetEntriesByConiditions(check, entries);
+
+            }
+            return entries;
+        }
+
+
         public int GetTotalSize()
         {
             Dictionary<string, FileEntry> files = new Dictionary<string, FileEntry>();

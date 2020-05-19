@@ -27,6 +27,20 @@ namespace DieselBundleViewer.Services
             }
         }
 
+        public static void ShowDialog(string name, Action<IDialogResult> res=null)
+        {
+            ShowDialog(name, new DialogParameters(), res ?? (r => { }));
+        }
+        public static void ShowDialog(string name, DialogParameters pms, Action<IDialogResult> res)
+        {
+            if(CurrentDialogService == null)
+            {
+                Console.WriteLine("Couldn't open dialog. Dialog service was not found.");
+                return;
+            }
+            CurrentDialogService.Show(name, pms, res);
+        }
+
         public static string GetDirectory(string path)
         {
             string[] splt = path.Split("/");

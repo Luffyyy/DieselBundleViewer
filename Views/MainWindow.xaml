@@ -1,4 +1,4 @@
-﻿<Window x:Class="DieselBundleViewer.Views.MainWindow"
+﻿<controls:AdonisWindow  xmlns:controls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI" x:Class="DieselBundleViewer.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:prism="http://prismlibrary.com/" 
@@ -7,50 +7,94 @@
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:local="clr-namespace:DieselBundleViewer"
         prism:ViewModelLocator.AutoWireViewModel="True"
-        Title="{Binding Title}" Background="#f0f0f0" Icon="/Assets/favicon.ico" Width="1000" Height="600" MouseMove="Window_MouseMove" MouseLeftButtonUp="Window_MouseLeftButtonUp">
+        xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
+        Focusable="True"
+        Title="{Binding Title}" Icon="/favicon.ico" MinHeight="500" MinWidth="700" 
+        Width="1000" Height="600" MouseMove="Window_MouseMove" MouseLeftButtonUp="Window_MouseLeftButtonUp">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="KeyDown">
+            <i:InvokeCommandAction Command="{Binding OnKeyDown}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="300"></ColumnDefinition>
-            <ColumnDefinition Width="2"></ColumnDefinition>
-            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="300"/>
+            <ColumnDefinition Width="2"/>
+            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
-            <RowDefinition Height="24"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="*"></RowDefinition>
-            <RowDefinition Height="24"></RowDefinition>
+            <RowDefinition Height="26"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="4"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="28"/>
         </Grid.RowDefinitions>
 
-        <Canvas Grid.Row="0" Grid.ColumnSpan="3">
+        <Canvas Grid.Row="0" Grid.ColumnSpan="4">
             <TextBlock Canvas.Right="4" Text="{Binding Status}"/>
             <Menu>
                 <MenuItem Header="File" Height="24">
-                    <MenuItem Header="Open" Command="{Binding OpenFileDialog}"/>
+                    <MenuItem Header="Open (Ctrl+O)" Command="{Binding OpenFileDialog}"/>
                     <MenuItem Header="Settings" Command="{Binding OpenSettingsDialog}"/>
                 </MenuItem>
-                <MenuItem Header="Help" >
+                <MenuItem Header="Edit">
+                    <MenuItem Header="Find (Ctrl+F)" Command="{Binding OpenFindDialog}"/>
+                    <MenuItem Header="Select Bundles (Ctrl+B)" Command="{Binding OpenBundleSelectorDialog}"/>
+                </MenuItem>
+                <MenuItem Header="Help">
                     <MenuItem Header="About" Command="{Binding OpenAboutDialog}"/>
                 </MenuItem>
             </Menu>
         </Canvas>
 
-        <DockPanel Grid.Row="1" Grid.ColumnSpan="3" DockPanel.Dock="Top">
-            <Button Background="Transparent" BorderThickness="0" Command="{Binding BackDir}">
-                <Image Width="25" Height="25" Source="/Assets/arrow-left-dark.png"></Image>
+        <DockPanel FocusManager.IsFocusScope="False" Grid.Row="1" Grid.ColumnSpan="4">
+            <DockPanel.Resources>
+                <Style TargetType="Button" x:Key="ArrowButton">
+                    <Setter Property="Background" Value="#a0b3b3b3"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsEnabled" Value="True">
+                            <Setter Property="Opacity" Value="1"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.2"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </DockPanel.Resources>
+            <Button BorderThickness="0" Command="{Binding BackDir}" Style="{StaticResource ArrowButton}">
+                <Image Width="25" Height="25" Source="/Assets/arrow-left-dark.png"/>
             </Button>
-            <Button Background="Transparent" BorderThickness="0" Command="{Binding ForwardDir}">
-                <Image Width="25" Height="25" Source="/Assets/arrow-right-dark.png"></Image>
+            <Button BorderThickness="0" Command="{Binding ForwardDir}" Style="{StaticResource ArrowButton}">
+                <Image Width="25" Height="25" Source="/Assets/arrow-right-dark.png"/>
             </Button>
-            <TextBox Text="{Binding CurrentDir, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                     VerticalAlignment="Stretch" VerticalContentAlignment="Center" HorizontalAlignment="Stretch" Margin="2"/>
+            <TextBox Text="{Binding CurrentDir, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" 
+                     VerticalAlignment="Stretch" VerticalContentAlignment="Center" HorizontalAlignment="Stretch"/>
         </DockPanel>
 
-        <TreeView Margin="0 1" Grid.Row="2" Grid.Column="0" BorderThickness="0" ItemsSource="{Binding FoldersToRender}">
+        <TreeView Margin="0,1,0,1" Grid.Row="3" Grid.Column="0" BorderThickness="0" ItemsSource="{Binding FoldersToRender}" Grid.ColumnSpan="2">
+            <TreeView.Resources>
+                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}"
+                     Color="{DynamicResource {x:Static adonisUi:Colors.AccentColor}}" />
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}"
+                     Color="{DynamicResource {x:Static adonisUi:Colors.AccentColor}}" />
+                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey }"
+                     Color="{DynamicResource {x:Static adonisUi:Colors.AccentForegroundColor}}" />
+                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrush }"
+                     Color="{DynamicResource {x:Static adonisUi:Brushes.AccentForegroundBrush}}" />
+            </TreeView.Resources>
             <TreeView.ItemContainerStyle>
                 <Style TargetType="{x:Type TreeViewItem}">
                     <Setter Property="IsExpanded" Value="{Binding IsExpanded}"/>
                     <Setter Property="IsSelected" Value="{Binding IsSelected}"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Foreground" Value="{DynamicResource {x:Static adonisUi:Brushes.AccentForegroundBrush}}"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="False">
+                            <Setter Property="Foreground" Value="{DynamicResource {x:Static adonisUi:Brushes.ForegroundBrush}}"/>
+                        </Trigger>
+                    </Style.Triggers>
                 </Style>
             </TreeView.ItemContainerStyle>
             <TreeView.ItemTemplate>
@@ -60,9 +104,9 @@
             </TreeView.ItemTemplate>
         </TreeView>
 
-        <ContentPresenter Grid.Column="2" Grid.Row="2" PreviewMouseWheel="ContentPresenter_MouseWheel" Content="{Binding EntriesStyle}"/>
+        <ContentPresenter Grid.Column="3" Grid.Row="3" PreviewMouseWheel="ContentPresenter_MouseWheel" Content="{Binding EntriesStyle}"/>
 
-        <Canvas Grid.Row="3" Grid.ColumnSpan="3" Background="#ebebeb">
+        <Canvas Grid.Row="4" Grid.ColumnSpan="3" Background="#52b3b3b3">
             <WrapPanel Canvas.Right="0">
                 <Button Background="Transparent" BorderThickness="0" Command="{Binding SetViewStyle}" CommandParameter="list">
                     <Image Width="20" Height="20" Source="/Assets/list.png"></Image>
@@ -73,4 +117,4 @@
             </WrapPanel>
         </Canvas>
     </Grid>
-</Window>
+</controls:AdonisWindow>

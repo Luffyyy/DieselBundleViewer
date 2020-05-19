@@ -6,16 +6,17 @@
              Width="400" Height="200">
     <DockPanel Margin="8" LastChildFill="False">
         <StackPanel DockPanel.Dock="Top">
-            <CheckBox Content="Extract the full directory of files when saving" IsChecked="{Binding ExtractFullDir, Mode=TwoWay}"/>
-            <CheckBox Content="Display 0 byte files" IsChecked="{Binding DisplayEmptyFiles, Mode=TwoWay}">
+            <CheckBox FontSize="14" Content="Extract the full directory of files when saving" IsChecked="{Binding ExtractFullDir, Mode=TwoWay}"/>
+            <CheckBox FontSize="14" Content="Display 0 byte files" IsChecked="{Binding DisplayEmptyFiles, Mode=TwoWay}">
                 <CheckBox.ToolTip>
                     There are certain files that show up inside the game but they don't really exist in the bundles. The option toggles their visiblity.
                 </CheckBox.ToolTip>
             </CheckBox>
+            <CheckBox FontSize="14" Content="Dark Mode" IsChecked="{Binding DarkMode, Mode=TwoWay}"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal"  HorizontalAlignment="Center" DockPanel.Dock="Bottom">
             <Button Content="Save" Padding="8" Command="{Binding CloseDialog}" CommandParameter="True"/>
-            <Button Margin="2 0" Padding="8" Content="Cancel" Command="{Binding CloseDialog}" CommandParameter="False"/>
+            <Button Margin="4 0" Padding="8" Content="Cancel" Command="{Binding CloseDialog}" IsCancel="true" CommandParameter="False"/>
         </StackPanel>
     </DockPanel>
 </UserControl>

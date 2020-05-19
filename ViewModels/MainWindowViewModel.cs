@@ -1,4 +1,6 @@
-﻿using DieselBundleViewer.Models;
+﻿using AdonisUI;
+using DieselBundleViewer.Models;
+using DieselBundleViewer.Objects;
 using DieselBundleViewer.Services;
 using DieselBundleViewer.Views;
 using DieselEngineFormats.Bundle;
@@ -10,9 +12,9 @@ using Prism.Services.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -27,9 +29,7 @@ namespace DieselBundleViewer.ViewModels
         private PackageDatabase db;
         private TreeEntryViewModel Root { get; set; }
 
-        private string _CurrentDir;
-
-        public string Title{ get => _title; set => SetProperty(ref _title, value); }
+        public string Title { get => _title; set => SetProperty(ref _title, value); }
 
         public string AssetsDir { get; set; }
 
@@ -39,25 +39,28 @@ namespace DieselBundleViewer.ViewModels
         private int gridViewScale = 32;
         public int GridViewScale { get => gridViewScale; set => SetProperty(ref gridViewScale, value); }
 
-
         public Dictionary<Idstring, PackageHeader> PackageHeaders;
 
         Dictionary<uint, FileEntry> FileEntries { get; set; }
 
         public ObservableCollection<EntryViewModel> ToRender { get; set; }
         public ObservableCollection<TreeEntryViewModel> FoldersToRender { get; set; }
+        private List<Idstring> bundlesToRender;
 
-        public string CurrentDir { 
-            get => _CurrentDir;
-            set => SetDir(value, true);
-        }
+        public List<Idstring> BundlesToRender { get => bundlesToRender; set => SetProperty(ref bundlesToRender, value); }
 
-        public Stack<string> BackDirs = new Stack<string>();
+        public LinkedList<PageData> Pages = new LinkedList<PageData>();
+        private LinkedListNode<PageData> CurrentPage;
+        public string CurrentDir { get => CurrentPage.Value.Path; set => Navigate(value); }
+
         public DelegateCommand OpenFileDialog { get; }
         public DelegateCommand OpenAboutDialog { get; }
         public DelegateCommand OpenSettingsDialog { get; }
+        public DelegateCommand OpenFindDialog { get; }
+        public DelegateCommand OpenBundleSelectorDialog { get; }
         public DelegateCommand ForwardDir { get; }
         public DelegateCommand BackDir { get; }
+        public DelegateCommand OnKeyDown { get; }
         public DelegateCommand<string> SetViewStyle { get; }
 
         private Point DragStartLocation;
@@ -76,29 +79,74 @@ namespace DieselBundleViewer.ViewModels
             EntriesStyle = new EntryListView();
             Utils.CurrentDialogService = dialogService;
             OpenFileDialog = new DelegateCommand(OpenFileDialogExec);
-            BackDir = new DelegateCommand(BackDirExec, ()=>!string.IsNullOrEmpty(CurrentDir));
-            ForwardDir = new DelegateCommand(ForwardDirExec, ()=>BackDirs.Count > 0);
+            OpenBundleSelectorDialog = new DelegateCommand(OpenBundleSelectorDialogExec, () => Root != null);
+            OpenFindDialog = new DelegateCommand(OpenFindDialogExec, () => Root != null);
+            BackDir = new DelegateCommand(BackDirExec, ()=> CurrentPage.Previous != null);
+            ForwardDir = new DelegateCommand(ForwardDirExec, ()=> CurrentPage.Next != null);
+            OnKeyDown = new DelegateCommand(OnKeyDownExec);
             SetViewStyle = new DelegateCommand<string>(style => SetViewStyleExec(style, true));
 
             CurrentDir = "";
             PackageHeaders = new Dictionary<Idstring, PackageHeader>();
+            BundlesToRender = new List<Idstring>();
             ToRender = new ObservableCollection<EntryViewModel>();
             FoldersToRender = new ObservableCollection<TreeEntryViewModel>();
 
-            ToRender.Add(new EntryViewModel(this, new FileEntry { Name = "test" }));
+            //ToRender.Add(new EntryViewModel(this, new FileEntry { Name = "test" }));
 
             FileManager = new TempFileManager();
 
-            Status = "Start by opening a blb file. Press 'Open' and navigate to the assets directory of the game";
+            Status = "Start by opening a blb file. Press 'File->Open' and navigate to the assets directory of the game";
 
             Utils.OnMouseMoved += OnMouseMoved;
-            OpenAboutDialog = new DelegateCommand(() =>
+            OpenAboutDialog = new DelegateCommand(() => Utils.ShowDialog("AboutDialog"));
+            OpenSettingsDialog = new DelegateCommand(() => Utils.ShowDialog("SettingsDialog", r => SetTheme()));
+
+            SetTheme();
+        }
+
+        void OnKeyDownExec()
+        {
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
             {
-                dialogService.ShowDialog("AboutDialog", new DialogParameters(), r => { });
+                if (Keyboard.IsKeyDown(Key.F) && OpenFindDialog.CanExecute())
+                    OpenFindDialog.Execute();
+                else if (Keyboard.IsKeyDown(Key.O) && OpenFileDialog.CanExecute())
+                    OpenFileDialog.Execute();
+                else if(Keyboard.IsKeyDown(Key.B) && OpenBundleSelectorDialog.CanExecute())
+                    OpenBundleSelectorDialog.Execute();
+            }
+        }
+
+        void SetTheme()
+        {
+            ResourceLocator.SetColorScheme(App.Current.Resources, 
+                Settings.Data.DarkMode ? ResourceLocator.DarkColorScheme : ResourceLocator.LightColorScheme);
+        }
+
+        void OpenFindDialogExec()
+        {
+            Utils.ShowDialog("FindDialog", r => {
+                string search = r.Parameters.GetValue<string>("Search");
+                if (!string.IsNullOrEmpty(search))
+                {
+                    bool useRegex = FindDialogViewModel.UseRegex;
+                    bool matchWord = FindDialogViewModel.MatchWord;
+                    Navigate(new PageData($"Search Results: '{search}' (Use Regex: {useRegex}, Match Word: {matchWord})")
+                    {
+                        Search = search,
+                        UseRegex = useRegex,
+                        MatchWord = matchWord
+                    });
+                }
             });
-            OpenSettingsDialog = new DelegateCommand(() =>
+        }
+
+        void OpenBundleSelectorDialogExec()
+        {
+            Utils.ShowDialog("BundleSelectorDialog", r =>
             {
-                dialogService.ShowDialog("SettingsDialog", new DialogParameters(), r => { });
+
             });
         }
 
@@ -127,7 +175,6 @@ namespace DieselBundleViewer.ViewModels
                     scale -= 8;
 
                 GridViewScale = Math.Clamp(scale, 32, 128);
-                Console.WriteLine(GridViewScale);
                 if (GridViewScale == 32)
                 {
                     if(EntriesStyle is EntryGridView)
@@ -183,20 +230,20 @@ namespace DieselBundleViewer.ViewModels
             await Task.Run(() =>
             {
                 Root = new TreeEntryViewModel(this, new FolderEntry { EntryPath = "", Name = "assets" });
+                OpenFindDialog.RaiseCanExecuteChanged();
+                OpenBundleSelectorDialog.RaiseCanExecuteChanged();
 
                 Status = "Preparing to open blb file...";
                 AssetsDir = Path.GetDirectoryName(filePath);
                 Status = "Reading blb file";
-                Console.WriteLine("one");
+
                 db = new PackageDatabase(filePath);
                 General.LoadHashlist(AssetsDir, db);
                 Status = "Getting bundle headers";
-                Console.WriteLine("two");
 
                 List<string> Files = Directory.EnumerateFiles(AssetsDir, "*.bundle").ToList();
 
                 FileEntries = DatabaseEntryToFileEntry(db.GetDatabaseEntries());
-                Console.WriteLine("three");
 
                 List<string> FilterFiles = new List<string>();
                 for (int i = 0; i < Files.Count; i++)
@@ -228,15 +275,18 @@ namespace DieselBundleViewer.ViewModels
             Status = "Done";
 
             RenderNewItems();
+
+            Pages.Clear();
+            CurrentDir = "";
+
+            BundlesToRender = PackageHeaders.Keys.ToList();
             FoldersToRender.Clear();
             FoldersToRender.Add(Root);
         }
 
-        public void SetDir(string dir, bool clearForward)
+        public void SetDir(LinkedListNode<PageData> dir)
         {
-            SetProperty(ref _CurrentDir, dir, "CurrentDir");
-            if (clearForward)
-                BackDirs.Clear();
+            SetProperty(ref CurrentPage, dir, "CurrentDir");
             DirChanged();
         }
 
@@ -247,31 +297,57 @@ namespace DieselBundleViewer.ViewModels
             RenderNewItems();
         }
 
+        public void Navigate(string dir) => Navigate(new PageData(dir));
+         
+        public void Navigate(PageData dir)
+        {
+            if (CurrentPage != null && CurrentPage.Next != null)
+            {
+                var node = CurrentPage.Next;
+                while(node != null) {
+                    var next = node.Next;
+                    Pages.Remove(node);
+                    node = next;
+                }
+            }
+            SetDir(Pages.AddLast(dir));
+        }
+
         public void ForwardDirExec()
         {
-            if (BackDirs.Count > 0)
-                SetDir(Utils.CombineDir(CurrentDir, BackDirs.Pop()), false);
+            if (CurrentPage.Next != null)
+                SetDir(CurrentPage.Next);
         }
 
         public void BackDirExec()
         {
-            if (CurrentDir != "" && CurrentDir != "/")
-            {
-                BackDirs.Push(Path.GetFileName(CurrentDir));
-                SetDir(Utils.GetDirectory(CurrentDir), false);
-            }
-            else
-                Debug.Print("Should not be called " + CurrentDir);
+            var next = CurrentPage.Previous;
+            if (next != null)
+                SetDir(next);
         }
 
         public void RenderNewItems()
         {
-            if (ToRender == null)
+            if (ToRender == null || Root == null)
                 return;
             ToRender.Clear();
 
-            // RenderNewItemsFolders(Root);
-            var children = Root.Owner.GetEntriesByDirectory(CurrentDir);
+            List<IEntry> children;
+
+            string search = CurrentPage.Value.Search;
+            if (!string.IsNullOrEmpty(search))
+            {
+                children = Root.Owner.GetEntriesByConiditions(entry =>
+                {
+                    if (CurrentPage.Value.UseRegex)
+                        return Regex.IsMatch(entry.Name, search);
+                    else if (CurrentPage.Value.MatchWord)
+                        return entry.Name == search;
+                    else
+                        return entry.Name.Contains(search);
+                });
+            } else
+                children = Root.Owner.GetEntriesByDirectory(CurrentDir);
 
             bool disEmpty = Settings.Data.DisplayEmptyFiles;
             foreach (var entry in children)
@@ -279,12 +355,6 @@ namespace DieselBundleViewer.ViewModels
                 if(!(entry is FileEntry) || disEmpty || ((entry as FileEntry).Size > 0))
                     ToRender.Add(new EntryViewModel(this, entry));
             }
-
-            /*Items.Sort((a,b) => {
-                var ret = (a is FolderEntry).CompareTo(b is FolderEntry);
-                Debug.Write(ret);
-                return ret == 0 ? a.Name.CompareTo(b.Name) : ret;
-            });*/
         }
 
         public Dictionary<uint, FileEntry> DatabaseEntryToFileEntry(List<DatabaseEntry> entries)

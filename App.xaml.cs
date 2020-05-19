@@ -11,6 +11,7 @@ using DieselEngineFormats;
 using DieselEngineFormats.ScriptData;
 using System.Text;
 using System.Collections.Generic;
+using AdonisUI;
 
 namespace DieselBundleViewer
 {
@@ -27,9 +28,10 @@ namespace DieselBundleViewer
 
         public App()
         {
-            //AllocConsole();
+            AllocConsole();
             HashIndex.Load("Data/hashlist", HashIndex.HashType.Path);
             HashIndex.Load("Data/extensions");
+
             LoadConverters();
         }
 
@@ -38,6 +40,10 @@ namespace DieselBundleViewer
             containerRegistry.RegisterDialog<ConvertFileDialog, ConvertFileDialogViewModel>();
             containerRegistry.RegisterDialog<AboutDialog, AboutDialogViewModel>();
             containerRegistry.RegisterDialog<SettingsDialog, SettingsDialogViewModel>();
+            containerRegistry.RegisterDialog<FindDialog, FindDialogViewModel>();
+            containerRegistry.RegisterDialog<BundleSelectorDialog, BundleSelectorDialogViewModel>();
+
+            containerRegistry.RegisterDialogWindow<DialogWindow>();
         }
 
         private void LoadConverters()
