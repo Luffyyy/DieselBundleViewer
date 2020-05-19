@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <UseWPF>true</UseWPF>
     <AssemblyName>DieselBundleViewer</AssemblyName>
+    <ApplicationIcon>favicon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Assets\arrow-left-dark.png" />
@@ -14,7 +15,6 @@
     <None Remove="Assets\arrow_left_dark.png" />
     <None Remove="Assets\arrow_right.png" />
     <None Remove="Assets\arrow_right_dark.png" />
-    <None Remove="Assets\favicon.ico" />
     <None Remove="Assets\file.png" />
     <None Remove="Assets\file_dark.png" />
     <None Remove="Assets\folder.png" />
@@ -24,6 +24,7 @@
     <None Remove="Assets\list.png" />
     <None Remove="Assets\lua.png" />
     <None Remove="Assets\video.png" />
+    <None Remove="favicon.ico" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AdonisUI" Version="1.15.0" />
@@ -42,7 +43,6 @@
     <Resource Include="Assets\arrow-left.png" />
     <Resource Include="Assets\arrow-right-dark.png" />
     <Resource Include="Assets\arrow-right.png" />
-    <Resource Include="Assets\favicon.ico" />
     <Resource Include="Assets\file.png" />
     <Resource Include="Assets\folder.png" />
     <Resource Include="Assets\grid.png" />
@@ -50,6 +50,7 @@
     <Resource Include="Assets\list.png" />
     <Resource Include="Assets\lua.png" />
     <Resource Include="Assets\video.png" />
+    <Resource Include="favicon.ico" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Converter\" />
