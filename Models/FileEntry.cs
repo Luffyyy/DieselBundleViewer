@@ -70,7 +70,7 @@ namespace DieselBundleViewer.Models
             set => _name = value;
         }
 
-        public List<PackageFileEntry> BundleEntries = new List<PackageFileEntry>();
+        public List<PackageFileEntry> BundleEntries { get; set; }
 
         public DatabaseEntry DBEntry { get; set; }
 
@@ -102,6 +102,7 @@ namespace DieselBundleViewer.Models
         }
 
         public FileEntry(DatabaseEntry dbEntry, PackageDatabase db, MainWindowViewModel dataContext) {
+            BundleEntries = new List<PackageFileEntry>();
             DataContext = dataContext;
             SetDBEntry(dbEntry, db);
         }
@@ -131,7 +132,7 @@ namespace DieselBundleViewer.Models
                 return null;
             }
 
-            string bundle_path = Path.Combine(DataContext.AssetsDir, entry.Parent.Name.HashedString + ".bundle");
+            string bundle_path = Path.Combine(DataContext.AssetsDir, entry.Parent.BundleName + ".bundle");
             if (!File.Exists(bundle_path))
             {
                 Console.WriteLine("Bundle: {0}, does not exist", bundle_path);

@@ -263,8 +263,10 @@ namespace DieselBundleViewer.ViewModels
                         continue;
 
                     foreach (PackageFileEntry be in bundle.Entries)
+                    {
                         if (FileEntries.ContainsKey(be.ID))
                             FileEntries[be.ID].AddBundleEntry(be);
+                    }
 
                     PackageHeaders.Add(bundle.Name, bundle);
                 }

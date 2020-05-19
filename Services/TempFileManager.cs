@@ -23,8 +23,8 @@ namespace DieselBundleViewer.Services
 
             public TempFile(FileEntry entry, PackageFileEntry be = null, FormatConverter exporter = null)
             {
-                string path = entry._path.UnHashed.Replace("/", "\\");
-                FilePath = Path.Combine(Path.GetTempPath(), "DBV", $"{path}.{entry._extension.UnHashed}");
+                string path = entry.EntryPath.Replace("/", "\\");
+                FilePath = Path.Combine(Path.GetTempPath(), "DBV", path);
 
                 if (exporter != null && exporter.Extension != null)
                     FilePath += "." + exporter.Extension;
