@@ -23,12 +23,12 @@ namespace DieselBundleViewer.ViewModels
                 if (Owner == null || Owner is FolderEntry)
                     return "/Assets/folder.png";
 
-                Console.WriteLine(Owner.Type);
                 return Owner.Type switch
                 {
                     "texture" => "/Assets/image.png",
                     "lua" => "/Assets/lua.png",
                     "movie" => "/Assets/video.png",
+                    "font" => "/Assets/font.png",
                     _ => "/Assets/file.png",
                 };
             }

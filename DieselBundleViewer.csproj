@@ -19,12 +19,16 @@
     <None Remove="Assets\file_dark.png" />
     <None Remove="Assets\folder.png" />
     <None Remove="Assets\folder_dark.png" />
+    <None Remove="Assets\font.png" />
     <None Remove="Assets\grid.png" />
     <None Remove="Assets\image.png" />
     <None Remove="Assets\list.png" />
     <None Remove="Assets\lua.png" />
     <None Remove="Assets\video.png" />
     <None Remove="favicon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\font.png" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AdonisUI" Version="1.15.0" />
