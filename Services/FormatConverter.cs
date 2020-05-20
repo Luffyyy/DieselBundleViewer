@@ -23,6 +23,10 @@ namespace DieselBundleViewer.Services
             return ms;
         }
 
+        //TEMPORARY
+        public delegate void SaveEventDel(Stream ms, string toPath);
+        public SaveEventDel SaveEvent { get; set; }
+
         public delegate object ImportEventDel(string path);
         public ImportEventDel ImportEvent { get; set; }
 

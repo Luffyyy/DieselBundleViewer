@@ -12,6 +12,8 @@ using DieselEngineFormats.ScriptData;
 using System.Text;
 using System.Collections.Generic;
 using AdonisUI;
+using WwiseSoundLib;
+using Orangelynx.Multimedia;
 
 namespace DieselBundleViewer
 {
@@ -59,6 +61,22 @@ namespace DieselBundleViewer
                     return new CustomXMLNode("table", root, "").ToString(0, escape);
                 },
                 Type = "scriptdata"
+            });
+
+            //Temporary until I get source code of this DLL, hopefully.
+            ScriptActions.AddConverter(new FormatConverter
+            {
+                Key = "stream",
+                Title = "Stream to Wav",
+                RequiresAttention = false,
+                Extension = "wav",
+                Type = "stream",
+                SaveEvent = (Stream stream, string toPath) =>
+                {
+                    WavFile file = new WavFile(stream);
+                    WavProcessor.ConvertToPCM(file);
+                    file.WriteFile(toPath);
+                },
             });
 
             ScriptActions.AddConverter(new FormatConverter

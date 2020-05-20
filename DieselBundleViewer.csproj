@@ -5,6 +5,7 @@
     <UseWPF>true</UseWPF>
     <AssemblyName>DieselBundleViewer</AssemblyName>
     <ApplicationIcon>favicon.ico</ApplicationIcon>
+    <StartupObject>DieselBundleViewer.App</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Assets\arrow-left-dark.png" />
@@ -57,6 +58,9 @@
   <ItemGroup>
     <Reference Include="DieselEngineFormats">
       <HintPath>dlls\DieselEngineFormats.dll</HintPath>
+    </Reference>
+    <Reference Include="Wwise Sound Library">
+      <HintPath>dlls\Wwise Sound Library.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>

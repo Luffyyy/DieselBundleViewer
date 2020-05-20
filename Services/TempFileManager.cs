@@ -41,10 +41,15 @@ namespace DieselBundleViewer.Services
                 }
                 else if (file_data is Stream)
                 {
-                    using (FileStream file_stream = File.Create(FilePath))
-                        ((Stream)file_data).CopyTo(file_stream);
+                    if (exporter.SaveEvent != null)
+                        exporter.SaveEvent((Stream)file_data, FilePath);
+                    else
+                    {
+                        using (FileStream file_stream = File.Create(FilePath))
+                            ((Stream)file_data).CopyTo(file_stream);
 
-                    ((Stream)file_data).Close();
+                        ((Stream)file_data).Close();
+                    }
                 }
                 else if (file_data is string)
                     File.WriteAllText(FilePath, (string)file_data);
