@@ -76,16 +76,11 @@ namespace DieselBundleViewer.Models
 
         public MainWindowViewModel DataContext { get; set; }
 
-
         public string Type => _extension?.ToString();
 
-        public string TempPath { get; set; }
-
-        public PackageFileEntry TempEntry { get; set; }
         public IParent Parent { get; set; }
 
-        public FileEntry() {
-        }
+        public FileEntry() { }
 
         public FileEntry(DatabaseEntry dbEntry, PackageDatabase db, MainWindowViewModel dataContext) {
             BundleEntries = new List<PackageFileEntry>();
@@ -127,20 +122,15 @@ namespace DieselBundleViewer.Models
 
             try
             {
-                using (FileStream fs = new FileStream(bundle_path, FileMode.Open, FileAccess.Read))
+                using FileStream fs = new FileStream(bundle_path, FileMode.Open, FileAccess.Read);
+                using BinaryReader br = new BinaryReader(fs);
+                if (entry.Length != 0)
                 {
-                    using (BinaryReader br = new BinaryReader(fs))
-                    {
-                        if (entry.Length != 0)
-                        {
-                            fs.Position = entry.Address;
-                            return br.ReadBytes((int)(entry.Length == -1 ? fs.Length - fs.Position : entry.Length));
-                        }
-                        else
-                            return new byte[0];
-                        
-                    }
+                    fs.Position = entry.Address;
+                    return br.ReadBytes((int)(entry.Length == -1 ? fs.Length - fs.Position : entry.Length));
                 }
+                else
+                    return new byte[0];
             }
             catch (Exception exc)
             {

@@ -1,4 +1,4 @@
-﻿<controls:AdonisWindow  xmlns:controls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI" x:Class="DieselBundleViewer.Views.MainWindow"
+﻿<controls:AdonisWindow xmlns:controls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI" x:Class="DieselBundleViewer.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:prism="http://prismlibrary.com/" 
