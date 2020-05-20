@@ -8,7 +8,7 @@ namespace DieselBundleViewer.Models
     {
         string Name { get; }
         string Type { get; }
-        string SizeStr { get; }
+        uint Size { get; }
         string EntryPath { get; }
     }
 

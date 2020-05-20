@@ -36,8 +36,22 @@ namespace DieselBundleViewer.ViewModels
 
         public string Name => Owner.Name;
         public string Type => Owner.Type;
-        public string Size => Owner.SizeStr;
+        public string Size
+        {
+            get
+            {
+                uint size = Owner.Size;
+                string str_size;
+                if (Owner is FolderEntry)
+                    return "";
+                else if (size < 1024)
+                    str_size = size.ToString() + " B";
+                else
+                    str_size = string.Format("{0:n0}", size / 1024) + " KB";
 
+                return str_size;
+            }
+        }
         private bool isSelected;
 
         public bool IsSelected

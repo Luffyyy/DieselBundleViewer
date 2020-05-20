@@ -18,7 +18,7 @@ namespace DieselBundleViewer.Models
         public IParent Parent { get; set; }
         public string EntryPath { get; set; }
         public string Name { get; set; }
-        public string SizeStr => "";
+        public uint Size => 0;
         public MainWindowViewModel DataContext { get; set; }
 
         public string Type => "File folder";
@@ -41,7 +41,7 @@ namespace DieselBundleViewer.Models
             return objs;
         }
 
-        uint folderLevel;
+        private uint folderLevel;
 
         public FolderEntry(uint level = 0) {
             folderLevel = level;

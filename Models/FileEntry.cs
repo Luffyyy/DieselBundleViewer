@@ -76,20 +76,6 @@ namespace DieselBundleViewer.Models
 
         public MainWindowViewModel DataContext { get; set; }
 
-        public string SizeStr
-        {
-            get
-            {
-                uint size = Size;
-                string str_size;
-                if (size < 1024)
-                    str_size = size.ToString() + " B";
-                else
-                    str_size = string.Format("{0:n0}", size / 1024) + " KB";
-
-                return str_size;
-            }
-        }
 
         public string Type => _extension?.ToString();
 
