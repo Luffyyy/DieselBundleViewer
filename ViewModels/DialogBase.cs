@@ -21,9 +21,14 @@ namespace DieselBundleViewer.ViewModels
             CloseDialog = new DelegateCommand<string>(CloseDialogExec);
         }
 
-        public virtual void OnDialogOpened(IDialogParameters parameters)
+        public void OnDialogOpened(IDialogParameters pms)
         {
-            Params = parameters;
+            Params = pms;
+            PostDialogOpened(pms);
+        }
+
+        public virtual void PostDialogOpened(IDialogParameters pms) {
+
         }
 
         public virtual bool CanCloseDialog() => true;

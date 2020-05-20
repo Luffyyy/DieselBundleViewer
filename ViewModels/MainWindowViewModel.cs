@@ -45,9 +45,9 @@ namespace DieselBundleViewer.ViewModels
 
         public ObservableCollection<EntryViewModel> ToRender { get; set; }
         public ObservableCollection<TreeEntryViewModel> FoldersToRender { get; set; }
-        private List<Idstring> bundlesToRender;
 
-        public List<Idstring> BundlesToRender { get => bundlesToRender; set => SetProperty(ref bundlesToRender, value); }
+        public List<Idstring> Bundles { get; set; }
+        public List<Idstring> SelectedBundles { get; set; }
 
         public LinkedList<PageData> Pages = new LinkedList<PageData>();
         private LinkedListNode<PageData> CurrentPage;
@@ -74,7 +74,7 @@ namespace DieselBundleViewer.ViewModels
 
         #endregion
 
-        public MainWindowViewModel(IDialogService dialogService)
+        public MainWindowViewModel(DialogService dialogService)
         {
             EntriesStyle = new EntryListView();
             Utils.CurrentDialogService = dialogService;
@@ -88,10 +88,10 @@ namespace DieselBundleViewer.ViewModels
 
             CurrentDir = "";
             PackageHeaders = new Dictionary<Idstring, PackageHeader>();
-            BundlesToRender = new List<Idstring>();
+            Bundles = new List<Idstring>();
             ToRender = new ObservableCollection<EntryViewModel>();
             FoldersToRender = new ObservableCollection<TreeEntryViewModel>();
-
+            SelectedBundles = new List<Idstring>();
             //ToRender.Add(new EntryViewModel(this, new FileEntry { Name = "test" }));
 
             FileManager = new TempFileManager();
@@ -144,9 +144,14 @@ namespace DieselBundleViewer.ViewModels
 
         void OpenBundleSelectorDialogExec()
         {
-            Utils.ShowDialog("BundleSelectorDialog", r =>
+            DialogParameters pms = new DialogParameters
             {
-
+                { "Bundles", Bundles }
+            };
+            Utils.ShowDialog("BundleSelectorDialog", pms ,r =>
+            {
+                SelectedBundles = pms.GetValue<List<Idstring>>("SelectedBundles");
+                RenderNewItems();
             });
         }
 
@@ -281,7 +286,7 @@ namespace DieselBundleViewer.ViewModels
             Pages.Clear();
             CurrentDir = "";
 
-            BundlesToRender = PackageHeaders.Keys.ToList();
+            Bundles = PackageHeaders.Keys.ToList();
             FoldersToRender.Clear();
             FoldersToRender.Add(Root);
         }
@@ -341,6 +346,19 @@ namespace DieselBundleViewer.ViewModels
             {
                 children = Root.Owner.GetEntriesByConiditions(entry =>
                 {
+                    if (SelectedBundles.Count > 0 && entry is FileEntry) //TEMP, check folders too.
+                    {
+                        var bundleEntires = (entry as FileEntry).BundleEntries;
+                        bool found = false;
+                        foreach(var bundle in bundleEntires)
+                        {
+                            if (SelectedBundles.Contains(bundle.PackageName))
+                                found = true;
+                        }
+                        if (!found)
+                            return false;
+                    }
+
                     if (CurrentPage.Value.UseRegex)
                         return Regex.IsMatch(entry.Name, search);
                     else if (CurrentPage.Value.MatchWord)
@@ -354,7 +372,19 @@ namespace DieselBundleViewer.ViewModels
             bool disEmpty = Settings.Data.DisplayEmptyFiles;
             foreach (var entry in children)
             {
-                if(!(entry is FileEntry) || disEmpty || ((entry as FileEntry).Size > 0))
+                if (SelectedBundles.Count > 0 && entry is FileEntry) //TEMP, check folders too.
+                {
+                    var bundleEntires = (entry as FileEntry).BundleEntries;
+                    bool found = false;
+                    foreach (var bundle in bundleEntires)
+                    {
+                        if (SelectedBundles.Contains(bundle.PackageName))
+                            found = true;
+                    }
+                    if (!found)
+                        continue;
+                }
+                if (!(entry is FileEntry) || disEmpty || ((entry as FileEntry).Size > 0))
                     ToRender.Add(new EntryViewModel(this, entry));
             }
         }

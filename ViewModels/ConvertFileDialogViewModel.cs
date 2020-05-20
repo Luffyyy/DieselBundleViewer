@@ -18,7 +18,7 @@ namespace DieselBundleViewer.ViewModels
         private FormatConverter format;
         public FormatConverter Format { get => format; set => SetProperty(ref format, value); }
 
-        public override void OnDialogOpened(IDialogParameters parameters)
+        public override void PostDialogOpened(IDialogParameters parameters)
         {
             Formats = parameters.GetValue<List<FormatConverter>>("Formats");
             Format = formats.First();

@@ -21,7 +21,7 @@ namespace DieselBundleViewer.ViewModels
 
         public override string Title => "Settings";
 
-        public override void OnDialogOpened(IDialogParameters parameters)
+        public override void PostDialogOpened(IDialogParameters parameters)
         {
             DisplayEmptyFiles = Settings.Data.DisplayEmptyFiles;
             ExtractFullDir = Settings.Data.ExtractFullDir;

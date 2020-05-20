@@ -9,7 +9,7 @@
         prism:ViewModelLocator.AutoWireViewModel="True"
         xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
         Focusable="True"
-        Title="{Binding Title}" Icon="/favicon.ico" MinHeight="500" MinWidth="700" 
+        Title="{Binding Title}" Icon="/favicon.ico" MinHeight="400" MinWidth="800" 
         Width="1000" Height="600" MouseMove="Window_MouseMove" MouseLeftButtonUp="Window_MouseLeftButtonUp">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="KeyDown">
