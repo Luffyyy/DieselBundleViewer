@@ -270,7 +270,11 @@ namespace DieselBundleViewer.ViewModels
                     foreach (PackageFileEntry be in bundle.Entries)
                     {
                         if (FileEntries.ContainsKey(be.ID))
-                            FileEntries[be.ID].AddBundleEntry(be);
+                        {
+                            FileEntry fileEntry = FileEntries[be.ID];
+                            fileEntry.AddBundleEntry(be);
+                            FolderEntry folderEntry = fileEntry.Parent;
+                        }
                     }
 
                     PackageHeaders.Add(bundle.Name, bundle);
@@ -346,20 +350,9 @@ namespace DieselBundleViewer.ViewModels
             {
                 children = Root.Owner.GetEntriesByConiditions(entry =>
                 {
-                    if (SelectedBundles.Count > 0 && entry is FileEntry) //TEMP, check folders too.
-                    {
-                        var bundleEntires = (entry as FileEntry).BundleEntries;
-                        bool found = false;
-                        foreach(var bundle in bundleEntires)
-                        {
-                            if (SelectedBundles.Contains(bundle.PackageName))
-                                found = true;
-                        }
-                        if (!found)
-                            return false;
-                    }
-
-                    if (CurrentPage.Value.UseRegex)
+                    if (SelectedBundles.Count > 0 && !entry.InBundles(SelectedBundles))
+                        return false;
+                    else if (CurrentPage.Value.UseRegex)
                         return Regex.IsMatch(entry.Name, search);
                     else if (CurrentPage.Value.MatchWord)
                         return entry.Name == search;
@@ -370,21 +363,11 @@ namespace DieselBundleViewer.ViewModels
                 children = Root.Owner.GetEntriesByDirectory(CurrentDir);
 
             bool disEmpty = Settings.Data.DisplayEmptyFiles;
+            Console.WriteLine(SelectedBundles.Count);
             foreach (var entry in children)
             {
-                if (SelectedBundles.Count > 0 && entry is FileEntry) //TEMP, check folders too.
-                {
-                    var bundleEntires = (entry as FileEntry).BundleEntries;
-                    bool found = false;
-                    foreach (var bundle in bundleEntires)
-                    {
-                        if (SelectedBundles.Contains(bundle.PackageName))
-                            found = true;
-                    }
-                    if (!found)
-                        continue;
-                }
-                if (!(entry is FileEntry) || disEmpty || ((entry as FileEntry).Size > 0))
+                bool generalPass = SelectedBundles.Count == 0 || entry.InBundles(SelectedBundles);
+                if (generalPass && (!(entry is FileEntry) || disEmpty || ((entry as FileEntry).Size > 0)))
                     ToRender.Add(new EntryViewModel(this, entry));
             }
         }

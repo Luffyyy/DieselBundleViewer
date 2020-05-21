@@ -10,7 +10,7 @@ using System.Text;
 
 namespace DieselBundleViewer.Models
 {
-    public class FileEntry : IEntry, IChild
+    public class FileEntry : IEntry
     {
         private string _name, _fullpath;
         private PackageFileEntry _max_entry = null;
@@ -24,8 +24,10 @@ namespace DieselBundleViewer.Models
             get {
                 if (_size == 0 && BundleEntries.Count > 0)
                 {
-                    foreach (PackageFileEntry be in BundleEntries)
-                        _size += (uint)be.Length;
+                    foreach (var be in BundleEntries)
+                    {
+                        _size += (uint)(be.Value).Length;
+                    }
 
                     _size = (uint)(_size / Math.Max(BundleEntries.Count, 1));
                 }
@@ -70,7 +72,7 @@ namespace DieselBundleViewer.Models
             set => _name = value;
         }
 
-        public List<PackageFileEntry> BundleEntries { get; set; }
+        public Dictionary<Idstring, PackageFileEntry> BundleEntries { get; set; }
 
         public DatabaseEntry DBEntry { get; set; }
 
@@ -78,20 +80,35 @@ namespace DieselBundleViewer.Models
 
         public string Type => _extension?.ToString();
 
-        public IParent Parent { get; set; }
+        public FolderEntry Parent { get; set; }
 
-        public FileEntry() { }
+        public FileEntry() {
+            BundleEntries = new Dictionary<Idstring, PackageFileEntry>();
+        }
 
-        public FileEntry(DatabaseEntry dbEntry, PackageDatabase db, MainWindowViewModel dataContext) {
-            BundleEntries = new List<PackageFileEntry>();
+        public FileEntry(DatabaseEntry dbEntry, PackageDatabase db, MainWindowViewModel dataContext) : this() {
             DataContext = dataContext;
             SetDBEntry(dbEntry, db);
         }
 
         public void AddBundleEntry(PackageFileEntry entry)
         {
-            BundleEntries.Add(entry);
-            _max_entry = null;
+            if(!BundleEntries.ContainsKey(entry.PackageName))
+            {
+                BundleEntries.Add(entry.PackageName, entry);
+                _max_entry = null;
+            }
+        }
+        public bool InBundle(Idstring name) => BundleEntries.ContainsKey(name);
+
+        public bool InBundles(List<Idstring> names)
+        {
+            foreach (var bundle in names)
+            {
+                if (BundleEntries.ContainsKey(bundle))
+                    return true;
+            }
+            return false;
         }
 
         public object FileData(PackageFileEntry be = null, FormatConverter exporter = null)
@@ -175,8 +192,9 @@ namespace DieselBundleViewer.Models
             if (_max_entry == null)
             {
                 _max_entry = null;
-                foreach (PackageFileEntry entry in BundleEntries)
+                foreach (var pair in BundleEntries)
                 {
+                    PackageFileEntry entry = pair.Value;
                     if (_max_entry == null)
                     {
                         _max_entry = entry;

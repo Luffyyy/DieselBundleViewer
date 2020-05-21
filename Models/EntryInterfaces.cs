@@ -10,12 +10,9 @@ namespace DieselBundleViewer.Models
         string Type { get; }
         uint Size { get; }
         string EntryPath { get; }
-    }
-
-    public interface IChild
-    {
-        IParent Parent { get; set; }
         MainWindowViewModel DataContext { get; set; }
+        bool InBundle(Idstring name);
+        bool InBundles(List<Idstring> names);
     }
 
     public interface IParent
