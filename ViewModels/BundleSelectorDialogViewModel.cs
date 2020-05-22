@@ -52,7 +52,7 @@ namespace DieselBundleViewer.ViewModels
             }
         }
 
-        public override void PostDialogOpened(IDialogParameters pms)
+        protected override void PostDialogOpened(IDialogParameters pms)
         {
             Bundles = new List<ListBundle>();
             var bundles = pms.GetValue<List<Idstring>>("Bundles");

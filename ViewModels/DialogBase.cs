@@ -27,7 +27,7 @@ namespace DieselBundleViewer.ViewModels
             PostDialogOpened(pms);
         }
 
-        public virtual void PostDialogOpened(IDialogParameters pms) {
+        protected virtual void PostDialogOpened(IDialogParameters pms) {
 
         }
 

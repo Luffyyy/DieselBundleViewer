@@ -17,7 +17,6 @@ namespace DieselBundleViewer.ViewModels
 
         protected override void PreCloseDialog(string success)
         {
-            Console.WriteLine("Search is now: " + Search);
             Params.Add("Search", Search);
             Params.Add("MatchWord", MatchWord);
             Params.Add("UseRegex", UseRegex);
