@@ -6,9 +6,10 @@
     <AssemblyName>DieselBundleViewer</AssemblyName>
     <ApplicationIcon>favicon.ico</ApplicationIcon>
     <StartupObject>DieselBundleViewer.App</StartupObject>
-    <Version>0.5</Version>
+    <Version>0.6</Version>
     <Company>ModWorkshop</Company>
     <Authors>https://github.com/Luffyyy</Authors>
+    <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Assets\arrow-left-dark.png" />
@@ -64,5 +65,8 @@
     <Reference Include="Wwise Sound Library">
       <HintPath>dlls\Wwise Sound Library.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Converter\" />
   </ItemGroup>
 </Project>

@@ -2,11 +2,11 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:DieselBundleViewer.Views">
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
-        <ContextMenu x:Key="EntryContextMenu">
-            <MenuItem Header="Open"/>
-            <MenuItem Header="Save Raw"/>
-            <MenuItem Header="Save As"/>
-            <MenuItem Header="Open Location" Visibility="{Binding FileLocationVis, Converter={StaticResource BoolToVis}}" Command="{Binding OpenFileLocation}"/>
-            <MenuItem Header="Properties" Command="{Binding OpenFileInfo}"/>
-        </ContextMenu>
+    <ContextMenu x:Key="EntryContextMenu">
+        <MenuItem Header="Open" Command="{Binding OnDoubleClick}"/>
+        <MenuItem Header="Save As" Command="{Binding SaveAs}" CommandParameter="False"/>
+        <MenuItem Header="Convert and Save As" Visibility="{Binding ConvertSaveVis, Converter={StaticResource BoolToVis}}" Command="{Binding SaveAs}" CommandParameter="True"/>
+        <MenuItem Header="Open Location" Visibility="{Binding FileLocationVis, Converter={StaticResource BoolToVis}}" Command="{Binding OpenFileLocation}"/>
+        <MenuItem Header="Properties" Command="{Binding OpenFileInfo}"/>
+    </ContextMenu>
 </ResourceDictionary>

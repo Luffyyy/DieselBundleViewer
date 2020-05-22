@@ -2,7 +2,6 @@
 using DieselBundleViewer.Services;
 using Prism.Commands;
 using Prism.Mvvm;
-using Prism.Services.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,7 +9,9 @@ using System.IO;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Forms;
 using System.Windows.Input;
+using static DieselBundleViewer.Services.FileManager;
 
 namespace DieselBundleViewer.ViewModels
 {
@@ -42,6 +43,18 @@ namespace DieselBundleViewer.ViewModels
         public string Size => (Owner is FolderEntry) ? "" : Utils.FriendlySize(Owner.Size);
 
         public bool FileLocationVis => ParentWindow.CurrentPage.Value.IsSearch;
+        public bool ConvertSaveVis
+        {
+            get
+            {
+                if (Owner is FileEntry entry)
+                {
+                    string typ = Definitions.TypeFromExtension(entry.ExtensionIds.ToString());
+                    return ScriptActions.Converters.ContainsKey(typ);
+                }
+                return false;
+            }
+        }
 
         private bool isSelected;
         public bool IsSelected {
@@ -60,6 +73,7 @@ namespace DieselBundleViewer.ViewModels
         public DelegateCommand<MouseButtonEventArgs> OnClick { get; }
         public DelegateCommand OpenFileInfo { get; }
         public DelegateCommand OpenFileLocation { get; }
+        public DelegateCommand<string> SaveAs { get; }
 
         public EntryViewModel(MainWindowViewModel parentWindow, IEntry owner)
         {
@@ -69,6 +83,7 @@ namespace DieselBundleViewer.ViewModels
             OnClick = new DelegateCommand<MouseButtonEventArgs>(OnClickExec);
             OpenFileInfo = new DelegateCommand(OpenFileInfoExec);
             OpenFileLocation = new DelegateCommand(OpenFileLocationExec);
+            SaveAs = new DelegateCommand<string>(SaveAsExec);
         }
 
         void OpenFileLocationExec()
@@ -78,7 +93,7 @@ namespace DieselBundleViewer.ViewModels
 
         void OpenFileInfoExec()
         {
-            DialogParameters pms = new DialogParameters
+            var pms = new Prism.Services.Dialogs.DialogParameters
             {
                 { "Entry", this }
             };
@@ -94,8 +109,22 @@ namespace DieselBundleViewer.ViewModels
         {
             if (Owner is FolderEntry)
                 ParentWindow.Navigate(Owner.EntryPath);
-            else if (Owner is FileEntry)
-                ParentWindow.FileManager.ViewFile((FileEntry)Owner);
+            else if (Owner is FileEntry entry)
+                FileManager.ViewFile(entry);
+        }
+
+        void SaveAsExec(string convert)
+        {
+            if (convert == "True")
+                FileManager.SaveFileConvert((FileEntry)Owner);
+            else if (Owner is FileEntry entry)
+            {
+                SaveFileDialog sfd = new SaveFileDialog { FileName = Owner.Name, Filter = "All files (*.*)|*.*" };
+                if (sfd.ShowDialog() == DialogResult.OK)
+                    new TempFile(entry, null, null, sfd.FileName) { Disposed = true };
+            }
+            else if(Owner is FolderEntry fEntry)
+                FileManager.SaveFolder(fEntry);
         }
     }
 }

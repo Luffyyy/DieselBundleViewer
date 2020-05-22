@@ -1,6 +1,7 @@
 ﻿using AdonisUI.Controls;
 using DieselBundleViewer.Services;
 using DieselBundleViewer.ViewModels;
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
@@ -33,6 +34,11 @@ namespace DieselBundleViewer.Views
         private void ContentPresenter_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             (DataContext as MainWindowViewModel).OnMouseWheel(e);
+        }
+
+        private void AdonisWindow_Closing(object sender, CancelEventArgs e)
+        {
+            FileManager.DeleteAllTempFiles();
         }
     }
 }

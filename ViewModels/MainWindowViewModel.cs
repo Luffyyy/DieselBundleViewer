@@ -75,8 +75,6 @@ namespace DieselBundleViewer.ViewModels
         private Point DragStartLocation;
         private bool Dragging;
 
-        public TempFileManager FileManager { get; set; }
-
         private UserControl entriesStyle;
         public UserControl EntriesStyle { get => entriesStyle; set => SetProperty(ref entriesStyle, value); }
 
@@ -116,7 +114,6 @@ namespace DieselBundleViewer.ViewModels
 
             //Grid or list?
             EntriesStyle = new EntryListView();
-            FileManager = new TempFileManager();
 
             UpdateSettings();
         }

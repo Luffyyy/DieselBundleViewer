@@ -7,10 +7,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Windows.Forms;
+using FDialogResult = System.Windows.Forms.DialogResult;
 
 namespace DieselBundleViewer.Services
 {
-    public class TempFileManager : IDisposable
+    public static class FileManager
     {
         public class TempFile : IDisposable
         {
@@ -21,44 +23,27 @@ namespace DieselBundleViewer.Services
             public string ExporterKey { get; set; }
             public bool Disposed { get; set; }
 
-            public TempFile(FileEntry entry, PackageFileEntry be = null, FormatConverter exporter = null)
+            public TempFile(FileEntry entry, PackageFileEntry be = null, FormatConverter converter = null, string filePath = null, bool includeInnerPath=true)
             {
-                string path = entry.EntryPath.Replace("/", "\\");
-                FilePath = Path.Combine(Path.GetTempPath(), "DBV", path);
+                string path;
+                if (includeInnerPath)
+                    path = entry.EntryPath.Replace("/", "\\");
+                else
+                    path = entry.Name;
 
-                if (exporter != null && exporter.Extension != null)
-                    FilePath += "." + exporter.Extension;
-
-                object file_data = entry.FileData(be, exporter);
-
-                string dir = Path.GetDirectoryName(FilePath);
-                if (!Directory.Exists(dir))
-                    Directory.CreateDirectory(dir);
-
-                if (file_data is byte[])
+                if(filePath == null)
                 {
-                    File.WriteAllBytes(FilePath, (byte[])file_data);
-                }
-                else if (file_data is Stream)
-                {
-                    if (exporter.SaveEvent != null)
-                        exporter.SaveEvent((Stream)file_data, FilePath);
-                    else
-                    {
-                        using (FileStream file_stream = File.Create(FilePath))
-                            ((Stream)file_data).CopyTo(file_stream);
+                    FilePath = Path.Combine(Path.GetTempPath(), "DBV", path);
+                    if (converter != null && converter.Extension != null)
+                        FilePath += "." + converter.Extension;
+                } else
+                   FilePath = filePath;
 
-                        ((Stream)file_data).Close();
-                    }
-                }
-                else if (file_data is string)
-                    File.WriteAllText(FilePath, (string)file_data);
-                else if (file_data is string[])
-                    File.WriteAllLines(FilePath, (string[])file_data);
+                SaveFile(entry, filePath, converter);
 
                 Entry = be;
-                if (exporter != null)
-                    ExporterKey = exporter.Key;
+                if (converter != null)
+                    ExporterKey = converter.Key;
             }
 
             ~TempFile()
@@ -92,17 +77,16 @@ namespace DieselBundleViewer.Services
             }
         }
 
-        private Dictionary<FileEntry, TempFile> TempFiles = new Dictionary<FileEntry, TempFile>();
+        private static Dictionary<FileEntry, TempFile> TempFiles = new Dictionary<FileEntry, TempFile>();
 
-        public bool Disposed { get; set; }
+        public static bool Disposed { get; set; }
 
-        public TempFileManager()
+        public static void UpdateTempDirectory()
         {
             string temp_path;
 
             try
             {
-
                 if (!Directory.Exists(temp_path = Path.Combine(Path.GetTempPath(), "DBV")))
                     Directory.CreateDirectory(temp_path);
                 else
@@ -119,12 +103,7 @@ namespace DieselBundleViewer.Services
             }
         }
 
-        ~TempFileManager()
-        {
-            this.Dispose();
-        }
-
-        private bool IsFileAvailable(string path)
+        private static bool IsFileAvailable(string path)
         {
             try
             {
@@ -137,12 +116,12 @@ namespace DieselBundleViewer.Services
             }
         }
 
-        private bool ShouldDeleteFile(TempFile file)
+        private static bool ShouldDeleteFile(TempFile file)
         {
             return file.RunProcess != null && file.RunProcess.HasExited && IsFileAvailable(file.FilePath);
         }
 
-        private void Update(object sender, EventArgs e)
+        private static void Update(object sender, EventArgs e)
         {
             if (TempFiles.Count == 0)
                 return;
@@ -160,7 +139,7 @@ namespace DieselBundleViewer.Services
             }
         }
 
-        public void ViewFile(FileEntry entry, PackageFileEntry be = null)
+        public static void ConvertFile(FileEntry entry, Action<FormatConverter> done)
         {
             if (entry.BundleEntries.Count == 0)
             {
@@ -182,7 +161,7 @@ namespace DieselBundleViewer.Services
                     FormatConverter format = convs.First().Value;
                     if (!format.RequiresAttention)
                     {
-                        DoViewFile(entry, be, format);
+                        done(format);
                         return;
                     }
                 }
@@ -199,15 +178,94 @@ namespace DieselBundleViewer.Services
                     if (r.Result == ButtonResult.OK)
                     {
                         FormatConverter selected = pms.GetValue<FormatConverter>("Format");
-                        DoViewFile(entry, be, selected.Title == "None" ? null : selected);
+                        done(selected.Title == "None" ? null : selected);
                     }
                 });
             } else
             {
-                DoViewFile(entry, be);
+                done(null);
             }
         }
-        public void DoViewFile(FileEntry entry, PackageFileEntry be = null, FormatConverter exporter=null)
+
+        public static void SaveFileConvert(FileEntry entry)
+        {
+            SaveFileDialog sfd = new SaveFileDialog { FileName = entry.Name };
+
+            string typ = Definitions.TypeFromExtension(entry.ExtensionIds.ToString());
+            if (ScriptActions.Converters.ContainsKey(typ))
+            {
+                var convs = ScriptActions.Converters[typ];
+                string filter = "";
+                var conerters = new List<FormatConverter>();
+                foreach (var pair in convs)
+                {
+                    FormatConverter conv = pair.Value;
+                    filter += $"{conv.Title} (*.{conv.Extension})|*.{conv.Extension}|";
+                    conerters.Add(conv);
+                }
+                sfd.Filter = filter.Remove(filter.Length - 1); // + "|All files (*.*)|*.*";
+                if (sfd.ShowDialog() == FDialogResult.OK)
+                    SaveFile(entry, sfd.FileName, conerters[sfd.FilterIndex - 1]);
+            }
+        }
+
+        public static void SaveFile(FileEntry file, string path, FormatConverter converter=null, PackageFileEntry be = null)
+        {
+            object file_data = file.FileData(be, converter);
+
+            string dir = Path.GetDirectoryName(path);
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+
+            if (file_data is byte[] v)
+                File.WriteAllBytes(path, v);
+            else if (file_data is Stream fs)
+            {
+                if (converter != null && converter.SaveEvent != null)
+                    converter.SaveEvent(fs, path);
+                else
+                {
+                    using (FileStream file_stream = File.Create(path))
+                        fs.CopyTo(file_stream);
+
+                    fs.Close();
+                }
+            }
+            else if (file_data is string dataStr)
+                File.WriteAllText(path, dataStr);
+            else if (file_data is string[] dataArr)
+                File.WriteAllLines(path, dataArr);
+        }
+
+        public static void SaveFolder(FolderEntry folder, string path=null)
+        {
+            if (path == null)
+            {
+                FolderBrowserDialog fbd = new FolderBrowserDialog();
+                if (fbd.ShowDialog() == FDialogResult.OK)
+                    path = Path.Combine(fbd.SelectedPath, folder.Name);
+                else
+                    return;
+            }
+            foreach(var pair in folder.Children)
+            {
+                if (pair.Value is FileEntry childFile)
+                    SaveFile(childFile, Path.Combine(path, childFile.Name));
+                else if (pair.Value is FolderEntry childFolder)
+                {
+                    string childPath = Path.Combine(path, childFolder.Name);
+                    Directory.CreateDirectory(childPath);
+                    SaveFolder(childFolder, childPath);
+                }
+            }
+        }
+
+        public static void ViewFile(FileEntry entry, PackageFileEntry be = null)
+        {
+            ConvertFile(entry, converter => DoViewFile(entry, be, converter));
+        }
+
+        public static void DoViewFile(FileEntry entry, PackageFileEntry be = null, FormatConverter exporter=null)
         {
             try
             {
@@ -230,7 +288,7 @@ namespace DieselBundleViewer.Services
             }
         }
 
-        public TempFile CreateTempFile(FileEntry entry, PackageFileEntry be = null, FormatConverter exporter = null)
+        public static TempFile CreateTempFile(FileEntry entry, PackageFileEntry be = null, FormatConverter exporter = null)
         {
             if (TempFiles.ContainsKey(entry))
                 DeleteTempFile(entry);
@@ -240,7 +298,7 @@ namespace DieselBundleViewer.Services
             return temp;
         }
 
-        public TempFile GetTempFile(FileEntry file, PackageFileEntry entry = null, FormatConverter exporter = null)
+        public static TempFile GetTempFile(FileEntry file, PackageFileEntry entry = null, FormatConverter exporter = null)
         {
             TempFile path;
             if (!TempFiles.ContainsKey(file) || TempFiles[file].Disposed || !File.Exists(TempFiles[file].FilePath) || (exporter != null && TempFiles[file].ExporterKey != exporter.Key) || TempFiles[file].Entry != entry)
@@ -256,7 +314,7 @@ namespace DieselBundleViewer.Services
             return path;
         }
 
-        public void DeleteTempFile(FileEntry entry)
+        public static void DeleteTempFile(FileEntry entry)
         {
             if (!TempFiles.ContainsKey(entry))
                 return;
@@ -268,25 +326,16 @@ namespace DieselBundleViewer.Services
             TempFiles.Remove(entry);
         }
 
-        public void DeleteAllTempFiles()
+        public static void DeleteAllTempFiles()
         {
+            Console.WriteLine("Deleting temporary files.");
             List<TempFile> key_list = TempFiles.Values.ToList();
             for (int i = 0; i < TempFiles.Count; i++)
             {
                 key_list[i].Dispose();
             }
 
-            TempFiles = new Dictionary<FileEntry, TempFile>();
-        }
-
-        public void Dispose()
-        {
-            if (Disposed)
-                return;
-
-            DeleteAllTempFiles();
-
-            Disposed = true;
+            TempFiles.Clear();
         }
     }
 
