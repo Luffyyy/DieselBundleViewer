@@ -13,6 +13,11 @@
         <ListBox.ItemContainerStyle>
             <Style TargetType="ListBoxItem">
                 <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=OneWayToSource}"/>
+                <Setter Property="ContextMenu">
+                    <Setter.Value>
+                        <StaticResource ResourceKey="EntryContextMenu"/>
+                    </Setter.Value>
+                </Setter>
             </Style>
         </ListBox.ItemContainerStyle>
         <!-- https://stackoverflow.com/questions/35203817/wpf-responsive-listbox-grid -->
@@ -23,8 +28,8 @@
         </ListBox.ItemsPanel>
         <ListBox.ItemTemplate>
             <DataTemplate>
-                <StackPanel Margin="16" Width="{Binding RelativeSource={RelativeSource FindAncestor, 
-AncestorType={x:Type Window}}, Path=DataContext.GridViewScale}" HorizontalAlignment="Center" ToolTip="{Binding EntryPath}" ToolTipService.InitialShowDelay="1000" ToolTipService.BetweenShowDelay="100">
+                <StackPanel Margin="16" Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.GridViewScale}"
+                            HorizontalAlignment="Center" ToolTip="{Binding EntryPath}" ToolTipService.InitialShowDelay="1000" ToolTipService.BetweenShowDelay="100">
                     <StackPanel.InputBindings>
                         <MouseBinding Gesture="LeftDoubleClick" Command="{Binding OnDoubleClick}"/>
                     </StackPanel.InputBindings>

@@ -9,6 +9,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/AdonisUI;component/ColorSchemes/Light.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/AdonisUI.ClassicTheme;component/Resources.xaml"/>
+                <ResourceDictionary Source="Views/SmallStuff.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <Color x:Key="{x:Static adonisUi:Colors.AccentColor}">#0458de</Color>
         </ResourceDictionary>

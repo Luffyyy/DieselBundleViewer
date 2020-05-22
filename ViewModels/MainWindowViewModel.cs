@@ -53,7 +53,7 @@ namespace DieselBundleViewer.ViewModels
         public List<Idstring> SelectedBundles { get; set; }
 
         public LinkedList<PageData> Pages = new LinkedList<PageData>();
-        private LinkedListNode<PageData> CurrentPage;
+        public LinkedListNode<PageData> CurrentPage;
         public string CurrentDir { get => CurrentPage?.Value.Path; set => Navigate(value); }
 
         public DelegateCommand OpenFileDialog { get; }
@@ -145,6 +145,7 @@ namespace DieselBundleViewer.ViewModels
                     bool matchWord = FindDialogViewModel.MatchWord;
                     Navigate(new PageData($"Search Results: '{search}' (Use Regex: {useRegex}, Match Word: {matchWord})")
                     {
+                        IsSearch = true,
                         Search = search,
                         UseRegex = useRegex,
                         MatchWord = matchWord

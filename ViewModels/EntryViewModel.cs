@@ -41,6 +41,8 @@ namespace DieselBundleViewer.ViewModels
         public string Type => Owner.Type;
         public string Size => (Owner is FolderEntry) ? "" : Utils.FriendlySize(Owner.Size);
 
+        public Visibility FileLocationVis => ParentWindow.CurrentPage.Value.IsSearch ? Visibility.Visible : Visibility.Collapsed;
+
         private bool isSelected;
         public bool IsSelected {
             get => isSelected;
@@ -57,6 +59,7 @@ namespace DieselBundleViewer.ViewModels
         public DelegateCommand OnDoubleClick { get; }
         public DelegateCommand<MouseButtonEventArgs> OnClick { get; }
         public DelegateCommand OpenFileInfo { get; }
+        public DelegateCommand OpenFileLocation { get; }
 
         public EntryViewModel(MainWindowViewModel parentWindow, IEntry owner)
         {
@@ -65,6 +68,12 @@ namespace DieselBundleViewer.ViewModels
             OnDoubleClick = new DelegateCommand(OnDoubleClickExec);
             OnClick = new DelegateCommand<MouseButtonEventArgs>(OnClickExec);
             OpenFileInfo = new DelegateCommand(OpenFileInfoExec);
+            OpenFileLocation = new DelegateCommand(OpenFileLocationExec);
+        }
+
+        void OpenFileLocationExec()
+        {
+            ParentWindow.Navigate(Owner.Parent.EntryPath);
         }
 
         void OpenFileInfoExec()

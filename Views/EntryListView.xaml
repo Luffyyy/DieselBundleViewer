@@ -26,14 +26,9 @@
                             <Border CornerRadius="0" SnapsToDevicePixels="True" Background="{TemplateBinding Background}" 
                                     ToolTip="{Binding EntryPath}" ToolTipService.InitialShowDelay="1000" ToolTipService.BetweenShowDelay="100">
                                 <Border.ContextMenu>
-                                    <ContextMenu>
-                                        <MenuItem Header="Open"/>
-                                        <MenuItem Header="Save Raw"/>
-                                        <MenuItem Header="Save As"/>
-                                        <MenuItem Header="Properties" Command="{Binding OpenFileInfo}"/>
-                                    </ContextMenu>
+                                    <StaticResource ResourceKey="EntryContextMenu"/>
                                 </Border.ContextMenu>
-                                <Border Name="InnerBorder" CornerRadius="0" BorderThickness="0">
+                                    <Border Name="InnerBorder" CornerRadius="0" BorderThickness="0">
                                     <Grid>
                                         <Rectangle Name="UpperHighlight" Visibility="Collapsed" Fill="{DynamicResource {x:Static adonisUi:Brushes.AccentBrush}}"/>
                                         <GridViewRowPresenter Grid.RowSpan="0"

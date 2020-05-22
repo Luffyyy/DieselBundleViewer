@@ -10,7 +10,7 @@ namespace DieselBundleViewer.Objects
         public string Search { get; set; }
         public bool MatchWord { get; set; }
         public bool UseRegex { get; set; }
-
+        public bool IsSearch { get; set; }
         public PageData(string path)
         {
             Path = path;
