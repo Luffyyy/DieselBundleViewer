@@ -36,6 +36,14 @@
                 <MenuItem Header="File" Height="24">
                     <MenuItem Header="Open (Ctrl+O)" Command="{Binding OpenFileDialog}"/>
                     <MenuItem Header="Settings" Command="{Binding OpenSettingsDialog}"/>
+                    <MenuItem Header="Scripts" ItemsSource="{Binding Scripts}" Visibility="{Binding ScriptsVisible, Converter={StaticResource BoolToVis}}">
+                        <MenuItem.ItemContainerStyle>
+                            <Style TargetType="{x:Type MenuItem}">
+                                <Setter Property="Command" Value="{Binding OpenScript}"/>
+                                <Setter Property="Header" Value="{Binding Name, FallbackValue='Err: No Script Title'}"/>
+                            </Style>
+                        </MenuItem.ItemContainerStyle>
+                    </MenuItem>
                     <MenuItem Header="Close" Command="{Binding CloseBLB}"/>
                 </MenuItem>
                 <MenuItem Header="Edit">

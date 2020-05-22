@@ -24,7 +24,7 @@ namespace DieselBundleViewer.ViewModels
 {
     public class MainWindowViewModel : BindableBase
     {
-        #region properties
+        #region Properties / Fields
         private string _title = "Diesel Bundle Viewer";
         private PackageDatabase db;
         private TreeEntryViewModel Root { get; set; }
@@ -44,10 +44,15 @@ namespace DieselBundleViewer.ViewModels
 
         public Dictionary<Idstring, PackageHeader> PackageHeaders;
 
-        Dictionary<uint, FileEntry> FileEntries { get; set; }
+        public Dictionary<uint, FileEntry> FileEntries { get; set; }
+
+        //Used by scripts.
+        public Dictionary<Tuple<Idstring, Idstring, Idstring>, FileEntry> RawFiles;
 
         public ObservableCollection<EntryViewModel> ToRender { get; set; }
         public ObservableCollection<TreeEntryViewModel> FoldersToRender { get; set; }
+        public List<Script> Scripts => ScriptActions.Scripts;
+        public bool ScriptsVisible => Scripts.Count > 0;
 
         public List<Idstring> Bundles { get; set; }
         public List<Idstring> SelectedBundles { get; set; }
@@ -73,7 +78,6 @@ namespace DieselBundleViewer.ViewModels
         public TempFileManager FileManager { get; set; }
 
         private UserControl entriesStyle;
-
         public UserControl EntriesStyle { get => entriesStyle; set => SetProperty(ref entriesStyle, value); }
 
         #endregion
@@ -81,6 +85,7 @@ namespace DieselBundleViewer.ViewModels
         public MainWindowViewModel(DialogService dialogService)
         {
             Utils.CurrentDialogService = dialogService;
+            Utils.CurrentWindow = this;
 
             //Lists and stuff for the bundles/files/etc
             PackageHeaders = new Dictionary<Idstring, PackageHeader>();
@@ -88,6 +93,7 @@ namespace DieselBundleViewer.ViewModels
             ToRender = new ObservableCollection<EntryViewModel>();
             FoldersToRender = new ObservableCollection<TreeEntryViewModel>();
             SelectedBundles = new List<Idstring>();
+            RawFiles = new Dictionary<Tuple<Idstring, Idstring, Idstring>, FileEntry>();
 
             //Commands / Events
             OpenFileDialog = new DelegateCommand(OpenFileDialogExec);
@@ -115,6 +121,7 @@ namespace DieselBundleViewer.ViewModels
             UpdateSettings();
         }
 
+        #region Commands
         void OnKeyDownExec()
         {
             if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
@@ -262,6 +269,7 @@ namespace DieselBundleViewer.ViewModels
                 OpenBundleSelectorDialog.RaiseCanExecuteChanged();
             }
         }
+        #endregion
 
         public async Task OpenBLBFile(string filePath)
         {
@@ -442,6 +450,8 @@ namespace DieselBundleViewer.ViewModels
             foreach (DatabaseEntry ne in entries)
             {
                 FileEntry fe = new FileEntry(ne, db, this);
+
+                RawFiles.Add(new Tuple<Idstring, Idstring, Idstring>(fe.PathIds, fe.LanguageIds, fe.ExtensionIds), fe);
                 Root.Owner.AddFileEntry(fe);
                 fileEntries.Add(ne.ID, fe);
             }

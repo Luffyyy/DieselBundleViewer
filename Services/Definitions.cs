@@ -5,10 +5,11 @@ using System.Text;
 
 namespace DieselBundleViewer.Services
 {
-    class Definitions
+    public class Definitions
     {
+        public static string DataDir = "Data";
         public static string[] ScriptDataExtensions =
-{
+        {
             "sequence_manager",
             "environment",
             "menu",

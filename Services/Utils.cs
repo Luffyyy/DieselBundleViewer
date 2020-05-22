@@ -1,4 +1,6 @@
-﻿using Prism.Ioc;
+﻿using DieselBundleViewer.ViewModels;
+using DieselBundleViewer.Views;
+using Prism.Ioc;
 using Prism.Services.Dialogs;
 using System;
 using System.Collections.Generic;
@@ -9,7 +11,7 @@ using System.Windows;
 
 namespace DieselBundleViewer.Services
 {
-    static class Utils
+    public static class Utils
     {
         public static string Version {
             get
@@ -23,6 +25,7 @@ namespace DieselBundleViewer.Services
         public delegate void OnMouseMovedEvent(Point move);
         public static OnMouseMovedEvent OnMouseMoved;
 
+        public static MainWindowViewModel CurrentWindow { get; set; }
         public static IDialogService CurrentDialogService { get; set; }
 
         public static Point MousePos

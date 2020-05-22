@@ -55,18 +55,18 @@
                     <TextBlock Grid.Row="3" Text="Size:"  VerticalAlignment="Center"/>
                     <TextBox Grid.Row="3" Style="{StaticResource SelectableTextBlock}" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Size, Mode=OneWay}"/>
 
-                    <TextBlock Grid.Row="4" Text="Hashed:" Visibility="{Binding FileVisibility}"  VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="4" Text="Hashed:" Visibility="{Binding FileVisibility, Converter={StaticResource BoolToVis}}"  VerticalAlignment="Center"/>
                     <TextBox Grid.Row="4" Style="{StaticResource SelectableTextBlock}" Grid.Column="1"
-                             Grid.ColumnSpan="2" Text="{Binding HashedName, Mode=OneWay}" Visibility="{Binding FileVisibility}"/>
+                             Grid.ColumnSpan="2" Text="{Binding HashedName, Mode=OneWay}" Visibility="{Binding FileVisibility, Converter={StaticResource BoolToVis}}"/>
 
-                    <TextBlock Grid.Row="5" Text="Contains:" Visibility="{Binding FolderVisibility}"  VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="5" Text="Contains:" Visibility="{Binding FolderVisibility, Converter={StaticResource BoolToVis}}"  VerticalAlignment="Center"/>
                     <TextBox Grid.Row="5" Style="{StaticResource SelectableTextBlock}" Grid.Column="1"
-                             Grid.ColumnSpan="2" Text="{Binding FolderContains, Mode=OneWay}" Visibility="{Binding FolderVisibility}"/>
+                             Grid.ColumnSpan="2" Text="{Binding FolderContains, Mode=OneWay}" Visibility="{Binding FolderVisibility, Converter={StaticResource BoolToVis}}"/>
 
                     <Border Grid.Row="6" Grid.ColumnSpan="3" BorderThickness="0 0 0 1" BorderBrush="#a8a8a88c"/>
                 </Grid>
             </TabItem>
-            <TabItem Header="Bundles" Visibility="{Binding FileVisibility}">
+            <TabItem Header="Bundles" Visibility="{Binding FileVisibility, Converter={StaticResource BoolToVis}}">
                 <ListView ItemsSource="{Binding Bundles}" Background="AntiqueWhite">
                     <ListView.View>
                         <GridView>

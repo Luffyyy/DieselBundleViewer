@@ -12,6 +12,7 @@
                 <ResourceDictionary Source="Views/SmallStuff.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <Color x:Key="{x:Static adonisUi:Colors.AccentColor}">#0458de</Color>
+            <BooleanToVisibilityConverter x:Key="BoolToVis"/>
         </ResourceDictionary>
     </Application.Resources>
 </prism:PrismApplication>

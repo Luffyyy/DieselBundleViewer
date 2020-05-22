@@ -41,7 +41,7 @@ namespace DieselBundleViewer.ViewModels
         public string Type => Owner.Type;
         public string Size => (Owner is FolderEntry) ? "" : Utils.FriendlySize(Owner.Size);
 
-        public Visibility FileLocationVis => ParentWindow.CurrentPage.Value.IsSearch ? Visibility.Visible : Visibility.Collapsed;
+        public bool FileLocationVis => ParentWindow.CurrentPage.Value.IsSearch;
 
         private bool isSelected;
         public bool IsSelected {
