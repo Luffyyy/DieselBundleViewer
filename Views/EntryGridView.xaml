@@ -24,7 +24,7 @@
         <ListBox.ItemTemplate>
             <DataTemplate>
                 <StackPanel Margin="16" Width="{Binding RelativeSource={RelativeSource FindAncestor, 
-AncestorType={x:Type Window}}, Path=DataContext.GridViewScale}" HorizontalAlignment="Center">
+AncestorType={x:Type Window}}, Path=DataContext.GridViewScale}" HorizontalAlignment="Center" ToolTip="{Binding EntryPath}" ToolTipService.InitialShowDelay="1000" ToolTipService.BetweenShowDelay="100">
                     <StackPanel.InputBindings>
                         <MouseBinding Gesture="LeftDoubleClick" Command="{Binding OnDoubleClick}"/>
                     </StackPanel.InputBindings>
