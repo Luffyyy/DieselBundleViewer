@@ -3,6 +3,7 @@ using Prism.Services.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Windows;
 
@@ -10,7 +11,14 @@ namespace DieselBundleViewer.Services
 {
     static class Utils
     {
-        public static string Version => "0.1";
+        public static string Version {
+            get
+            {
+                Version ver = Assembly.GetEntryAssembly().GetName().Version;
+                string hotfix = ver.Build != 0 ? ("."+ver.Build) : "";
+                return $"{ver.Major}.{ver.Minor}{hotfix}";
+            }
+        }
         private static Point mousePos;
         public delegate void OnMouseMovedEvent(Point move);
         public static OnMouseMovedEvent OnMouseMoved;
