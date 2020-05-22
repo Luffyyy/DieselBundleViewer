@@ -8,7 +8,6 @@
         xmlns:local="clr-namespace:DieselBundleViewer"
         prism:ViewModelLocator.AutoWireViewModel="True"
         xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
-        Focusable="True"
         Title="{Binding Title}" Icon="/favicon.ico" MinHeight="400" MinWidth="800" 
         Width="1000" Height="600" MouseMove="Window_MouseMove" MouseLeftButtonUp="Window_MouseLeftButtonUp">
     <i:Interaction.Triggers>
@@ -37,6 +36,7 @@
                 <MenuItem Header="File" Height="24">
                     <MenuItem Header="Open (Ctrl+O)" Command="{Binding OpenFileDialog}"/>
                     <MenuItem Header="Settings" Command="{Binding OpenSettingsDialog}"/>
+                    <MenuItem Header="Close" Command="{Binding CloseBLB}"/>
                 </MenuItem>
                 <MenuItem Header="Edit">
                     <MenuItem Header="Find (Ctrl+F)" Command="{Binding OpenFindDialog}"/>
@@ -78,9 +78,9 @@
                      Color="{DynamicResource {x:Static adonisUi:Colors.AccentColor}}" />
                 <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}"
                      Color="{DynamicResource {x:Static adonisUi:Colors.AccentColor}}" />
-                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey }"
+                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}"
                      Color="{DynamicResource {x:Static adonisUi:Colors.AccentForegroundColor}}" />
-                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrush }"
+                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrush}"
                      Color="{DynamicResource {x:Static adonisUi:Brushes.AccentForegroundBrush}}" />
             </TreeView.Resources>
             <TreeView.ItemContainerStyle>
@@ -107,6 +107,9 @@
         <ContentPresenter Grid.Column="3" Grid.Row="3" PreviewMouseWheel="ContentPresenter_MouseWheel" Content="{Binding EntriesStyle}"/>
 
         <Canvas Grid.Row="4" Grid.ColumnSpan="3" Background="#52b3b3b3">
+            <Grid Margin="8 0" Height="28">
+                <TextBlock VerticalAlignment="Center" Text="{Binding FileStatus}"/>
+            </Grid>
             <WrapPanel Canvas.Right="0">
                 <Button Background="Transparent" BorderThickness="0" Command="{Binding SetViewStyle}" CommandParameter="list">
                     <Image Width="20" Height="20" Source="/Assets/list.png"></Image>

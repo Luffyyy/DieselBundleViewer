@@ -44,6 +44,7 @@ namespace DieselBundleViewer
             containerRegistry.RegisterDialog<SettingsDialog, SettingsDialogViewModel>();
             containerRegistry.RegisterDialog<FindDialog, FindDialogViewModel>();
             containerRegistry.RegisterDialog<BundleSelectorDialog, BundleSelectorDialogViewModel>();
+            containerRegistry.RegisterDialog<PropertiesDialog, PropertiesViewModel>();
 
             containerRegistry.RegisterDialogWindow<DialogWindow>();
         }

@@ -25,7 +25,7 @@ namespace DieselBundleViewer.ViewModels
     {
         public override string Title => "Select Bundles";
 
-        public List<ListBundle> Bundles;
+        public static List<ListBundle> Bundles;
         public ObservableCollection<ListBundle> BundlesToRender { get; set; }
 
         public BundleSelectorDialogViewModel() : base()
@@ -54,12 +54,16 @@ namespace DieselBundleViewer.ViewModels
 
         protected override void PostDialogOpened(IDialogParameters pms)
         {
-            Bundles = new List<ListBundle>();
-            var bundles = pms.GetValue<List<Idstring>>("Bundles");
-
-            foreach (var bundle in bundles)
+            if(Bundles == null)
             {
-                Bundles.Add(new ListBundle(bundle));
+                Bundles = new List<ListBundle>();
+
+                var bundles = pms.GetValue<List<Idstring>>("Bundles");
+
+                foreach (var bundle in bundles)
+                {
+                    Bundles.Add(new ListBundle(bundle));
+                }
             }
 
             RenderList();

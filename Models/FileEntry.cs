@@ -105,6 +105,11 @@ namespace DieselBundleViewer.Models
             return false;
         }
 
+        public bool HasData()
+        {
+            return Settings.Data.DisplayEmptyFiles || Size > 0;
+        }
+
         public object FileData(PackageFileEntry be = null, FormatConverter exporter = null)
         {
            if (exporter == null)

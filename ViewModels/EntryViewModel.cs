@@ -18,6 +18,8 @@ namespace DieselBundleViewer.ViewModels
     {
         public IEntry Owner { get; set; }
 
+        public bool IsFolder => Owner is FolderEntry;
+
         public string Icon {
             get {
                 if (Owner == null || Owner is FolderEntry)
@@ -35,41 +37,43 @@ namespace DieselBundleViewer.ViewModels
         }
 
         public string Name => Owner.Name;
+        public string EntryPath => Owner.EntryPath;
         public string Type => Owner.Type;
-        public string Size
-        {
-            get
-            {
-                uint size = Owner.Size;
-                string str_size;
-                if (Owner is FolderEntry)
-                    return "";
-                else if (size < 1024)
-                    str_size = size.ToString() + " B";
-                else
-                    str_size = string.Format("{0:n0}", size / 1024) + " KB";
+        public string Size => (Owner is FolderEntry) ? "" : Utils.FriendlySize(Owner.Size);
 
-                return str_size;
-            }
-        }
         private bool isSelected;
-
-        public bool IsSelected
-        {
+        public bool IsSelected {
             get => isSelected;
-            set => SetProperty(ref isSelected, value);
+            set {
+                bool wasSelected = isSelected;
+                SetProperty(ref isSelected, value);
+                if(wasSelected != value)
+                    ParentWindow.UpdateFileStatus();
+            }
         }
 
         public MainWindowViewModel ParentWindow { get; set; }
 
         public DelegateCommand OnDoubleClick { get; }
         public DelegateCommand<MouseButtonEventArgs> OnClick { get; }
+        public DelegateCommand OpenFileInfo { get; }
+
         public EntryViewModel(MainWindowViewModel parentWindow, IEntry owner)
         {
             Owner = owner;
             ParentWindow = parentWindow;
             OnDoubleClick = new DelegateCommand(OnDoubleClickExec);
             OnClick = new DelegateCommand<MouseButtonEventArgs>(OnClickExec);
+            OpenFileInfo = new DelegateCommand(OpenFileInfoExec);
+        }
+
+        void OpenFileInfoExec()
+        {
+            DialogParameters pms = new DialogParameters
+            {
+                { "Entry", this }
+            };
+            Utils.ShowDialog("PropertiesDialog", pms);
         }
 
         void OnClickExec(MouseButtonEventArgs e)

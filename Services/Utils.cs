@@ -39,14 +39,14 @@ namespace DieselBundleViewer.Services
         {
             ShowDialog(name, new DialogParameters(), res ?? (r => { }));
         }
-        public static void ShowDialog(string name, DialogParameters pms, Action<IDialogResult> res)
+        public static void ShowDialog(string name, DialogParameters pms, Action<IDialogResult> res=null)
         {
             if(CurrentDialogService == null)
             {
                 Console.WriteLine("Couldn't open dialog. Dialog service was not found.");
                 return;
             }
-            CurrentDialogService.Show(name, pms, res);
+            CurrentDialogService.Show(name, pms, res ?? (r => { }));
         }
 
         public static string GetDirectory(string path)
@@ -63,5 +63,24 @@ namespace DieselBundleViewer.Services
                 return dir + "/" + dir2;
         }
 
+        public static string FriendlySize(uint size)
+        {
+            if (size < 1024)
+                return size.ToString() + " B";
+            else
+            {
+                double mb = Math.Pow(1024, 2);
+                if (size < mb)
+                    return string.Format("{0:n1}", (float)size / 1024) + " KB";
+                else
+                {
+                    double gb = Math.Pow(1024, 3);
+                    if(size < gb)
+                        return string.Format("{0:n1}", (float)size / mb) + " MB";
+                    else
+                        return string.Format("{0:n1}", (float)size / gb) + " GB";
+                }
+            }
+        }
     }
 }

@@ -33,8 +33,11 @@ namespace DieselBundleViewer.ViewModels
 
         public string AssetsDir { get; set; }
 
-        private string _Status;
-        public string Status { get => _Status; set => SetProperty(ref _Status, value); }
+        private string status;
+        public string Status { get => status; set => SetProperty(ref status, value); }
+
+        private string fileStatus;
+        public string FileStatus { get => fileStatus; set => SetProperty(ref fileStatus, value); }
 
         private int gridViewScale = 32;
         public int GridViewScale { get => gridViewScale; set => SetProperty(ref gridViewScale, value); }
@@ -51,7 +54,7 @@ namespace DieselBundleViewer.ViewModels
 
         public LinkedList<PageData> Pages = new LinkedList<PageData>();
         private LinkedListNode<PageData> CurrentPage;
-        public string CurrentDir { get => CurrentPage.Value.Path; set => Navigate(value); }
+        public string CurrentDir { get => CurrentPage?.Value.Path; set => Navigate(value); }
 
         public DelegateCommand OpenFileDialog { get; }
         public DelegateCommand OpenAboutDialog { get; }
@@ -61,6 +64,7 @@ namespace DieselBundleViewer.ViewModels
         public DelegateCommand ForwardDir { get; }
         public DelegateCommand BackDir { get; }
         public DelegateCommand OnKeyDown { get; }
+        public DelegateCommand CloseBLB { get; }
         public DelegateCommand<string> SetViewStyle { get; }
 
         private Point DragStartLocation;
@@ -76,33 +80,39 @@ namespace DieselBundleViewer.ViewModels
 
         public MainWindowViewModel(DialogService dialogService)
         {
-            EntriesStyle = new EntryListView();
             Utils.CurrentDialogService = dialogService;
-            OpenFileDialog = new DelegateCommand(OpenFileDialogExec);
-            OpenBundleSelectorDialog = new DelegateCommand(OpenBundleSelectorDialogExec, () => Root != null);
-            OpenFindDialog = new DelegateCommand(OpenFindDialogExec, () => Root != null);
-            BackDir = new DelegateCommand(BackDirExec, ()=> CurrentPage.Previous != null);
-            ForwardDir = new DelegateCommand(ForwardDirExec, ()=> CurrentPage.Next != null);
-            OnKeyDown = new DelegateCommand(OnKeyDownExec);
-            SetViewStyle = new DelegateCommand<string>(style => SetViewStyleExec(style, true));
 
-            CurrentDir = "";
+            //Lists and stuff for the bundles/files/etc
             PackageHeaders = new Dictionary<Idstring, PackageHeader>();
             Bundles = new List<Idstring>();
             ToRender = new ObservableCollection<EntryViewModel>();
             FoldersToRender = new ObservableCollection<TreeEntryViewModel>();
             SelectedBundles = new List<Idstring>();
+
+            //Commands / Events
+            OpenFileDialog = new DelegateCommand(OpenFileDialogExec);
+            CloseBLB = new DelegateCommand(CloseBLBExec);
+            OpenBundleSelectorDialog = new DelegateCommand(OpenBundleSelectorDialogExec, () => Root != null);
+            OpenFindDialog = new DelegateCommand(OpenFindDialogExec, () => Root != null);
+            BackDir = new DelegateCommand(BackDirExec, ()=> CurrentPage?.Previous != null);
+            ForwardDir = new DelegateCommand(ForwardDirExec, ()=> CurrentPage?.Next != null);
+            OnKeyDown = new DelegateCommand(OnKeyDownExec);
+            SetViewStyle = new DelegateCommand<string>(style => SetViewStyleExec(style, true));
+            OpenAboutDialog = new DelegateCommand(() => Utils.ShowDialog("AboutDialog"));
+            OpenSettingsDialog = new DelegateCommand(() => Utils.ShowDialog("SettingsDialog", r => UpdateSettings()));
+            Utils.OnMouseMoved += OnMouseMoved;
+
+            //Set status to default
+            CloseBLBExec();
+
+            //Testing
             //ToRender.Add(new EntryViewModel(this, new FileEntry { Name = "test" }));
 
+            //Grid or list?
+            EntriesStyle = new EntryListView();
             FileManager = new TempFileManager();
 
-            Status = "Start by opening a blb file. Press 'File->Open' and navigate to the assets directory of the game";
-
-            Utils.OnMouseMoved += OnMouseMoved;
-            OpenAboutDialog = new DelegateCommand(() => Utils.ShowDialog("AboutDialog"));
-            OpenSettingsDialog = new DelegateCommand(() => Utils.ShowDialog("SettingsDialog", r => SetTheme()));
-
-            SetTheme();
+            UpdateSettings();
         }
 
         void OnKeyDownExec()
@@ -118,10 +128,11 @@ namespace DieselBundleViewer.ViewModels
             }
         }
 
-        void SetTheme()
+        void UpdateSettings()
         {
             ResourceLocator.SetColorScheme(App.Current.Resources, 
                 Settings.Data.DarkMode ? ResourceLocator.DarkColorScheme : ResourceLocator.LightColorScheme);
+            RenderNewItems();
         }
 
         void OpenFindDialogExec()
@@ -148,9 +159,11 @@ namespace DieselBundleViewer.ViewModels
             {
                 { "Bundles", Bundles }
             };
-            Utils.ShowDialog("BundleSelectorDialog", pms ,r =>
+            Utils.ShowDialog("BundleSelectorDialog", pms, r =>
             {
-                SelectedBundles = pms.GetValue<List<Idstring>>("SelectedBundles");
+                var selectedBundles = pms.GetValue<List<Idstring>>("SelectedBundles");
+                if(selectedBundles != null)
+                    SelectedBundles = selectedBundles;
                 RenderNewItems();
             });
         }
@@ -228,13 +241,36 @@ namespace DieselBundleViewer.ViewModels
                 await OpenBLBFile(ofd.FileName);
         }
 
+        public void CloseBLBExec()
+        {
+            Status = "Start by opening a blb file. Press 'File->Open' and navigate to the assets directory of the game";
+            Pages.Clear();
+            CurrentDir = "";
+
+            if (Root != null)
+            {
+                Bundles = null;
+                FileEntries = null;
+                Root = null;
+                db = null;
+                PackageHeaders.Clear();
+                ToRender.Clear();
+                FoldersToRender.Clear();
+                GC.Collect();
+                OpenFindDialog.RaiseCanExecuteChanged();
+                OpenBundleSelectorDialog.RaiseCanExecuteChanged();
+            }
+        }
+
         public async Task OpenBLBFile(string filePath)
         {
-            PackageHeaders.Clear();
+            CloseBLBExec();
 
             await Task.Run(() =>
             {
+                //Create the root tree entry, here all other folders will reside.
                 Root = new TreeEntryViewModel(this, new FolderEntry { EntryPath = "", Name = "assets" });
+
                 OpenFindDialog.RaiseCanExecuteChanged();
                 OpenBundleSelectorDialog.RaiseCanExecuteChanged();
 
@@ -279,20 +315,44 @@ namespace DieselBundleViewer.ViewModels
 
                     PackageHeaders.Add(bundle.Name, bundle);
                 }
+
+                GC.Collect();
             });
 
-            GC.Collect();
-
             Status = "Done";
-
-            RenderNewItems();
-
-            Pages.Clear();
-            CurrentDir = "";
 
             Bundles = PackageHeaders.Keys.ToList();
             FoldersToRender.Clear();
             FoldersToRender.Add(Root);
+
+            //Finally, render the items.
+            RenderNewItems();
+        }
+
+        public void UpdateFileStatus()
+        {
+            string newStatus = ToRender.Count + " Items |";
+            uint totalSize = 0;
+            uint totalSelected = 0;
+            string size = "";
+
+            foreach (var entry in ToRender)
+            {
+                if (entry.IsSelected)
+                {
+                    if (entry.IsFolder)
+                        totalSize += (entry.Owner as FolderEntry).GetTotalSize();
+                    else
+                        totalSize += entry.Owner.Size;
+
+                    totalSelected++;
+                }
+            }
+
+            if (totalSize > 0)
+                size = Utils.FriendlySize(totalSize);
+
+            FileStatus = newStatus + $" {totalSelected} items selected {size} |";
         }
 
         public void SetDir(LinkedListNode<PageData> dir)
@@ -362,14 +422,17 @@ namespace DieselBundleViewer.ViewModels
             } else
                 children = Root.Owner.GetEntriesByDirectory(CurrentDir);
 
-            bool disEmpty = Settings.Data.DisplayEmptyFiles;
-            Console.WriteLine(SelectedBundles.Count);
             foreach (var entry in children)
             {
-                bool generalPass = SelectedBundles.Count == 0 || entry.InBundles(SelectedBundles);
-                if (generalPass && (!(entry is FileEntry) || disEmpty || ((entry as FileEntry).Size > 0)))
-                    ToRender.Add(new EntryViewModel(this, entry));
+                if(SelectedBundles.Count == 0 || entry.InBundles(SelectedBundles))
+                {
+                    if(entry is FileEntry && (entry as FileEntry).HasData() || entry is FolderEntry && (entry as FolderEntry).HasVisibleFiles())
+                        ToRender.Add(new EntryViewModel(this, entry));
+
+                }
             }
+
+            UpdateFileStatus();
         }
 
         public Dictionary<uint, FileEntry> DatabaseEntryToFileEntry(List<DatabaseEntry> entries)

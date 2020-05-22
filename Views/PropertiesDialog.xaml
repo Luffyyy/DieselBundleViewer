@@ -1,0 +1,84 @@
+﻿<UserControl x:Class="DieselBundleViewer.Views.PropertiesDialog"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:prism="http://prismlibrary.com/"             
+             xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
+             prism:ViewModelLocator.AutoWireViewModel="True">
+    <prism:Dialog.WindowStyle>
+        <Style TargetType="Window">
+            <Setter Property="Width" Value="450"/>
+            <Setter Property="MinWidth" Value="350"/>
+            <Setter Property="Height" Value="600"/>
+            <Setter Property="MinHeight" Value="200"/>
+        </Style>
+    </prism:Dialog.WindowStyle>
+    <Grid>
+        <TabControl>
+            <TabItem Header="Details">
+                <Grid Margin="16">
+                    <Grid.Resources>
+                        <Style x:Key="SelectableTextBlock" TargetType="{x:Type TextBox}">
+                            <Setter Property="IsReadOnly" Value="True"/>
+                            <Setter Property="VerticalAlignment" Value="Center"/>
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="TextWrapping" Value="Wrap"/>
+                            <Setter Property="Margin" Value="0 4"/>
+                            <Setter Property="Foreground" Value="{DynamicResource {x:Static adonisUi:Brushes.ForegroundBrush}}"/>
+                        </Style>
+                    </Grid.Resources>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="8"/>
+                    </Grid.RowDefinitions>
+                    <Image Margin="0 4" HorizontalAlignment="Left" Source="{Binding Icon}"/>
+                    <TextBox Grid.Column="1" Style="{StaticResource SelectableTextBlock}" Text="{Binding Name, Mode=OneWay}" Grid.ColumnSpan="2"/>
+                   
+                    <Border Grid.ColumnSpan="3" BorderThickness="0 0 0 1" BorderBrush="#a8a8a88c"/>
+
+                    <TextBlock Grid.Row="1" Text="Type of File:"  VerticalAlignment="Center"/>
+                    <TextBox Grid.Row="1" Style="{StaticResource SelectableTextBlock}" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Type, Mode=OneWay}"/>
+
+                    <TextBlock Grid.Row="2" Text="Full Path:" VerticalAlignment="Center"/>
+                    <TextBox Grid.Row="2" Style="{StaticResource SelectableTextBlock}" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding EntryPath, Mode=OneWay}"/>
+
+                    <TextBlock Grid.Row="3" Text="Size:"  VerticalAlignment="Center"/>
+                    <TextBox Grid.Row="3" Style="{StaticResource SelectableTextBlock}" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Size, Mode=OneWay}"/>
+
+                    <TextBlock Grid.Row="4" Text="Hashed:" Visibility="{Binding FileVisibility}"  VerticalAlignment="Center"/>
+                    <TextBox Grid.Row="4" Style="{StaticResource SelectableTextBlock}" Grid.Column="1"
+                             Grid.ColumnSpan="2" Text="{Binding HashedName, Mode=OneWay}" Visibility="{Binding FileVisibility}"/>
+
+                    <TextBlock Grid.Row="5" Text="Contains:" Visibility="{Binding FolderVisibility}"  VerticalAlignment="Center"/>
+                    <TextBox Grid.Row="5" Style="{StaticResource SelectableTextBlock}" Grid.Column="1"
+                             Grid.ColumnSpan="2" Text="{Binding FolderContains, Mode=OneWay}" Visibility="{Binding FolderVisibility}"/>
+
+                    <Border Grid.Row="6" Grid.ColumnSpan="3" BorderThickness="0 0 0 1" BorderBrush="#a8a8a88c"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Bundles" Visibility="{Binding FileVisibility}">
+                <ListView ItemsSource="{Binding Bundles}" Background="AntiqueWhite">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Bundle" Width="150" DisplayMemberBinding="{Binding Name}"/>
+                            <GridViewColumn Header="Bundle (Hashed)" Width="100" DisplayMemberBinding="{Binding HashedName}"/>
+                            <GridViewColumn Header="Address" Width="70" DisplayMemberBinding="{Binding Address}"/>
+                            <GridViewColumn Header="Length" Width="50" DisplayMemberBinding="{Binding Length}"/>
+                            <GridViewColumn Header="Size" Width="50" DisplayMemberBinding="{Binding Size}"/>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>

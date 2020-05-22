@@ -11,11 +11,11 @@ using System.Text;
 
 namespace DieselBundleViewer.Models
 {
-    public class FolderEntry : IParent, IEntry
+    public class FolderEntry : IEntry
     {
         public SortedDictionary<string, IEntry> Children { get; set; }
 
-        public IParent Parent { get; set; }
+        public FolderEntry Parent { get; set; }
         public string EntryPath { get; set; }
         public string Name { get; set; }
         public uint Size => 0;
@@ -63,18 +63,31 @@ namespace DieselBundleViewer.Models
             return false;
         }
 
+        public bool HasVisibleFiles()
+        {
+            if (Settings.Data.DisplayEmptyFiles)
+                return true;
+
+            foreach (var child in Children)
+            {
+                if (child.Value.Size > 0)
+                    return true;
+            }
+            return false;
+        }
+
         public List<object> ChildObjects(Idstring pck = null)
         {
             List<object> objs = new List<object>();
             foreach (KeyValuePair<string, IEntry> kvp in Children)
             {
-                if (kvp.Value is IParent && (pck == null || ((IParent)kvp.Value).ContainsAnyBundleEntries(pck)))
+                if (kvp.Value is FolderEntry && (pck == null || ((FolderEntry)kvp.Value).ContainsAnyBundleEntries(pck)))
                     objs.Add(kvp.Value);
             }
 
             foreach (KeyValuePair<string, IEntry> kvp in Children)
             {
-                if ((!(kvp.Value is FileEntry) || pck == null || ((FileEntry)kvp.Value).BundleEntries.ContainsKey(pck)) && !(kvp.Value is IParent))
+                if ((!(kvp.Value is FileEntry) || pck == null || ((FileEntry)kvp.Value).BundleEntries.ContainsKey(pck)) && !(kvp.Value is FolderEntry))
                     objs.Add(kvp.Value);
             }
 
@@ -115,9 +128,9 @@ namespace DieselBundleViewer.Models
         {
             foreach (KeyValuePair<string, IEntry> entry in Children)
             {
-                if (entry.Value is IParent)
+                if (entry.Value is FolderEntry)
                 {
-                    IParent _entry = entry.Value as IParent;
+                    FolderEntry _entry = entry.Value as FolderEntry;
 
                     if (pck != null && !_entry.ContainsAnyBundleEntries(pck))
                         continue;
@@ -132,9 +145,9 @@ namespace DieselBundleViewer.Models
         {
             foreach (KeyValuePair<string, IEntry> entry in Children)
             {
-                if (entry.Value is IParent)
+                if (entry.Value is FolderEntry)
                 {
-                    IParent _entry = entry.Value as IParent;
+                    FolderEntry _entry = entry.Value as FolderEntry;
                     if (_entry.ContainsAnyBundleEntries(package))
                     {
                         return true;
@@ -153,25 +166,20 @@ namespace DieselBundleViewer.Models
             return false;
         }
 
-        public void GetSubFileEntries(Dictionary<string, FileEntry> fileList)
+        public List<IEntry> GetAllChildren(List<IEntry> list=null)
         {
+            if (list == null)
+                list = new List<IEntry>();
+
             foreach (KeyValuePair<string, IEntry> pairEntry in Children)
             {
-                if (pairEntry.Value is FileEntry)
-                {
-                    FileEntry _entry = pairEntry.Value as FileEntry;
-                    if (_entry.BundleEntries.Count == 0)
-                        continue;
-
-                    fileList.Add(_entry.EntryPath, _entry);
-
-                }
-                else if (pairEntry.Value is IParent)
-                {
-                    IParent _entry = pairEntry.Value as IParent;
-                    _entry.GetSubFileEntries(fileList);
-                }
+                IEntry entry = pairEntry.Value;
+                list.Add(entry);
+                if (entry is FolderEntry)
+                    (entry as FolderEntry).GetAllChildren(list);
             }
+
+            return list;
         }
 
         public List<IEntry> GetEntriesByDirectory(string dir, List<IEntry> entries=null)
@@ -221,19 +229,18 @@ namespace DieselBundleViewer.Models
             return entries;
         }
 
-
-        public int GetTotalSize()
+        public uint GetTotalSize()
         {
-            Dictionary<string, FileEntry> files = new Dictionary<string, FileEntry>();
-            GetSubFileEntries(files);
-
-            int totalSize = 0;
-            foreach (KeyValuePair<string, FileEntry> pair in files)
+            uint size = 0;
+            foreach (var child in Children)
             {
-                totalSize += pair.Value.MaxBundleEntry().Length;
+                IEntry entry = child.Value;
+                if (entry is FileEntry)
+                    size += entry.Size;
+                else
+                    size += (entry as FolderEntry).GetTotalSize();
             }
-
-            return totalSize;
+            return size;
         }
     }
 }
