@@ -168,7 +168,7 @@ namespace DieselBundleViewer.Services
                 return;
             }
 
-            string typ = Definitions.TypeFromExtension(entry._extension.ToString());
+            string typ = Definitions.TypeFromExtension(entry.ExtensionIds.ToString());
 
             Console.WriteLine($"The type of the file {typ}");
 

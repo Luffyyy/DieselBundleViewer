@@ -15,12 +15,12 @@ namespace DieselBundleViewer.Models
         private string _name, _fullpath;
         private PackageFileEntry _max_entry = null;
 
-        public Idstring _path;
-        public Idstring _language;
-        public Idstring _extension;
+        public Idstring PathIds;
+        public Idstring LanguageIds;
+        public Idstring ExtensionIds;
 
         private uint _size;
-        public uint Size { 
+        public uint Size {
             get {
                 if (_size == 0 && BundleEntries.Count > 0)
                 {
@@ -41,12 +41,12 @@ namespace DieselBundleViewer.Models
             {
                 if (_fullpath == null)
                 {
-                    _fullpath = _path.ToString();
+                    _fullpath = PathIds.ToString();
 
-                    if (_language != null)
-                        _fullpath += "." + _language.ToString();
+                    if (LanguageIds != null)
+                        _fullpath += "." + LanguageIds.ToString();
 
-                    _fullpath += "." + _extension.ToString();
+                    _fullpath += "." + ExtensionIds.ToString();
                 }
                 return _fullpath;
             }
@@ -58,13 +58,7 @@ namespace DieselBundleViewer.Models
             get
             {
                 if (_name == null)
-                {
-                    _name = Path.GetFileName(_path.ToString());
-                    if (_language != null)
-                        _name += "." + _language.ToString();
-
-                    _name += "." + _extension.ToString();
-                }
+                    _name = Path.GetFileName(EntryPath);
 
                 return _name;
             }
@@ -78,7 +72,7 @@ namespace DieselBundleViewer.Models
 
         public MainWindowViewModel DataContext { get; set; }
 
-        public string Type => _extension?.ToString();
+        public string Type => ExtensionIds?.ToString();
 
         public FolderEntry Parent { get; set; }
 
@@ -93,7 +87,7 @@ namespace DieselBundleViewer.Models
 
         public void AddBundleEntry(PackageFileEntry entry)
         {
-            if(!BundleEntries.ContainsKey(entry.PackageName))
+            if (!BundleEntries.ContainsKey(entry.PackageName))
             {
                 BundleEntries.Add(entry.PackageName, entry);
                 _max_entry = null;
@@ -181,7 +175,7 @@ namespace DieselBundleViewer.Models
         public void SetDBEntry(DatabaseEntry ne, PackageDatabase db)
         {
             DBEntry = ne;
-            General.GetFilepath(ne, out _path, out _language, out _extension, db);
+            General.GetFilepath(ne, out PathIds, out LanguageIds, out ExtensionIds, db);
         }
 
         public PackageFileEntry MaxBundleEntry()

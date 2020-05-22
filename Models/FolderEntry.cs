@@ -83,7 +83,7 @@ namespace DieselBundleViewer.Models
 
         public void AddFileEntry(FileEntry entry)
         {
-            int[] path_parts = entry._path.UnHashedParts;
+            int[] path_parts = entry.PathIds.UnHashedParts;
             if (path_parts != null && path_parts.Length > (folderLevel + 1))
             {
                 string initial_folder = HashIndex.LookupString(path_parts[folderLevel]);
