@@ -2,7 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:prism="http://prismlibrary.com/"             
-             prism:ViewModelLocator.AutoWireViewModel="True" Width="700" Height="350 ">
+             prism:ViewModelLocator.AutoWireViewModel="True" Width="700" Height="400 ">
     <Grid Margin="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="128"/>
@@ -10,17 +10,17 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="24"/>
         </Grid.RowDefinitions>
-        <Image Source="/Assets/favicon.ico" Grid.Row="0" Height="128" DockPanel.Dock="Top"/>
+        <Image Source="/favicon.ico" Grid.Row="0" Height="128"/>
         <TextBlock TextAlignment="Center" Grid.Row="1" DockPanel.Dock="Top" FontSize="24">
             DieselBundleViewer
         </TextBlock>
-        <TextBlock FontSize="18" TextWrapping="Wrap" Grid.Row="2" DockPanel.Dock="Top">
-            Written by Luffy (<Hyperlink>https://modworkshop.net</Hyperlink>) <LineBreak/>
+        <TextBlock FontSize="18" TextWrapping="Wrap" Grid.Row="2">
+            Written by Luffy (<Hyperlink NavigateUri="https://modworkshop.net">https://modworkshop.net</Hyperlink>) <LineBreak/>
             Based on Simon W's DieselToolBox code. <LineBreak/>
-            Repository: <Hyperlink>https://github.com/Luffyyy/DieselBundleViewer/</Hyperlink> <LineBreak/>
-            Icons from <Hyperlink>https://icons8.com/</Hyperlink>
+            Repository: <Hyperlink NavigateUri="https://github.com/Luffyyy/DieselBundleViewer/">https://github.com/Luffyyy/DieselBundleViewer/</Hyperlink> <LineBreak/>
+            Icons from <Hyperlink NavigateUri="https://icons8.com/">https://icons8.com/</Hyperlink>
         </TextBlock>
-        <TextBlock DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Grid.Row="3" FontSize="18" Margin="16" Text="{Binding Version}"/>
+        <TextBlock VerticalAlignment="Bottom" Grid.Row="3" FontSize="18" Text="{Binding Version}"/>
         <Button Height="0" Command="{Binding CloseDialog}" IsCancel="true" CommandParameter="False"/>
     </Grid>
 </UserControl>
