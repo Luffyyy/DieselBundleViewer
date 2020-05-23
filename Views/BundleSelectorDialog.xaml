@@ -20,7 +20,7 @@
             <RowDefinition Height="32"/>
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="0" TextWrapping="Wrap" Margin="0 8"> 
-            Select the bundles you wish to see. Select none to select all bundles. Use the above search to filter them.
+            Select the bundles you wish to see. Select none to select all bundles. Use the search below to filter them.
         </TextBlock>
         <TextBox Grid.Row="1" FontSize="14" Text="{Binding Search, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
