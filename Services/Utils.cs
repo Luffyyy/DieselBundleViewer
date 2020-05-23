@@ -74,14 +74,14 @@ namespace DieselBundleViewer.Services
             {
                 double mb = Math.Pow(1024, 2);
                 if (size < mb)
-                    return string.Format("{0:n1}", (float)size / 1024) + " KB";
+                    return string.Format("{0:n1}", (float)size / 1024) + " KiB";
                 else
                 {
                     double gb = Math.Pow(1024, 3);
                     if(size < gb)
-                        return string.Format("{0:n1}", (float)size / mb) + " MB";
+                        return string.Format("{0:n1}", (float)size / mb) + " MiB";
                     else
-                        return string.Format("{0:n1}", (float)size / gb) + " GB";
+                        return string.Format("{0:n1}", (float)size / gb) + " GiB";
                 }
             }
         }
