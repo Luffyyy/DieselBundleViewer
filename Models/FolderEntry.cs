@@ -68,9 +68,9 @@ namespace DieselBundleViewer.Models
             if (Settings.Data.DisplayEmptyFiles)
                 return true;
 
-            foreach (var child in Children)
+            foreach (var child in Children.Values)
             {
-                if (child.Value.Size > 0)
+                if ((child is FolderEntry folder && folder.HasVisibleFiles()) || child.Size > 0)
                     return true;
             }
             return false;
@@ -79,16 +79,18 @@ namespace DieselBundleViewer.Models
         public List<object> ChildObjects(Idstring pck = null)
         {
             List<object> objs = new List<object>();
-            foreach (KeyValuePair<string, IEntry> kvp in Children)
+            var children = Children.Values;
+
+            foreach (var child in children)
             {
-                if (kvp.Value is FolderEntry && (pck == null || ((FolderEntry)kvp.Value).ContainsAnyBundleEntries(pck)))
-                    objs.Add(kvp.Value);
+                if (child is FolderEntry entry && (pck == null || entry.ContainsAnyBundleEntries(pck)))
+                    objs.Add(child);
             }
 
-            foreach (KeyValuePair<string, IEntry> kvp in Children)
+            foreach (var child in children)
             {
-                if ((!(kvp.Value is FileEntry) || pck == null || ((FileEntry)kvp.Value).BundleEntries.ContainsKey(pck)) && !(kvp.Value is FolderEntry))
-                    objs.Add(kvp.Value);
+                if ((!(child is FileEntry entry) || pck == null || entry.BundleEntries.ContainsKey(pck)) && !(child is FolderEntry))
+                    objs.Add(child);
             }
 
             return objs;

@@ -28,11 +28,16 @@ namespace DieselBundleViewer.ViewModels
                 List<TreeEntryViewModel> ChildrenEntries = new List<TreeEntryViewModel>();
                 foreach (IEntry val in Owner.Children.Values)
                 {
-                    if (val is FolderEntry)
-                        ChildrenEntries.Add(new TreeEntryViewModel(ParentWindow, (FolderEntry)val));
+                    if (val is FolderEntry folder && folder.HasVisibleFiles())
+                        ChildrenEntries.Add(new TreeEntryViewModel(ParentWindow, folder));
                 }
                 return ChildrenEntries;
             }
+        }
+
+        public void UpdateChildren()
+        {
+            RaisePropertyChanged("Children");
         }
 
         public TreeEntryViewModel(MainWindowViewModel parentWindow, FolderEntry owner)

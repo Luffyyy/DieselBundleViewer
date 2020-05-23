@@ -261,6 +261,7 @@ namespace DieselBundleViewer.ViewModels
                 PackageHeaders.Clear();
                 ToRender.Clear();
                 FoldersToRender.Clear();
+                RawFiles.Clear();
                 GC.Collect();
                 OpenFindDialog.RaiseCanExecuteChanged();
                 OpenBundleSelectorDialog.RaiseCanExecuteChanged();
@@ -438,6 +439,7 @@ namespace DieselBundleViewer.ViewModels
                 }
             }
 
+            Root.UpdateChildren();
             UpdateFileStatus();
         }
 
