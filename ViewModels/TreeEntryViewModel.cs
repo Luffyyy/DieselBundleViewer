@@ -13,7 +13,8 @@ namespace DieselBundleViewer.ViewModels
         public FolderEntry Owner { get; set; }
         public string Icon => "/Assets/folder.png";
         public string Name => Owner.Name;
-        public bool IsExpanded { get; set; }
+
+        public bool IsExpanded { get; set; } = false;
 
         private bool isSelected;
         public bool IsSelected { get => isSelected; set => SetProperty(ref isSelected, value); }
@@ -21,23 +22,48 @@ namespace DieselBundleViewer.ViewModels
         public MainWindowViewModel ParentWindow { get; set; }
         public DelegateCommand<MouseButtonEventArgs> OnClick { get; }
 
-        public List<TreeEntryViewModel> Children
-        {
-            get
-            {
-                List<TreeEntryViewModel> ChildrenEntries = new List<TreeEntryViewModel>();
-                foreach (IEntry val in Owner.Children.Values)
+        private List<TreeEntryViewModel> children;
+        public List<TreeEntryViewModel> Children { 
+            get {
+                if(children == null)
                 {
-                    if (val is FolderEntry folder && folder.HasVisibleFiles())
-                        ChildrenEntries.Add(new TreeEntryViewModel(ParentWindow, folder));
+                    children = new List<TreeEntryViewModel>();
+                    foreach (IEntry val in Owner.Children.Values)
+                    {
+                        if (val is FolderEntry folder && folder.HasVisibleFiles())
+                            children.Add(new TreeEntryViewModel(ParentWindow, folder));
+                    }
                 }
-                return ChildrenEntries;
+                return children;
             }
+            set => SetProperty(ref children, value); 
         }
 
-        public void UpdateChildren()
+        //There is a slight delay when opening units in payday 2. Need to maybe optimize it further.
+        public void CheckExpands()
         {
-            RaisePropertyChanged("Children");
+            string currentDir = ParentWindow.CurrentDir;
+            bool needsCheck = true;
+            bool wasExpanded = IsExpanded;
+
+            foreach (var child in Children)
+            {
+                child.CheckExpands();
+                if(child.IsExpanded)
+                {
+                    needsCheck = false;
+                    IsExpanded = true;
+                }
+            }
+
+            if(needsCheck)
+                IsExpanded = currentDir.StartsWith(Owner.EntryPath);
+
+            if(wasExpanded != IsExpanded)
+                RaisePropertyChanged("IsExpanded");
+
+            if(isSelected != IsSelected)
+                IsSelected = currentDir == Owner.EntryPath;
         }
 
         public TreeEntryViewModel(MainWindowViewModel parentWindow, FolderEntry owner)

@@ -33,6 +33,9 @@ namespace DieselBundleViewer.ViewModels
             bool succ = success == "True";
             if (succ)
             {
+                if (DisplayEmptyFiles != Settings.Data.DisplayEmptyFiles)
+                    Utils.CurrentWindow.Root.Children = null;
+
                 Settings.Data.DisplayEmptyFiles = DisplayEmptyFiles;
                 Settings.Data.ExtractFullDir = ExtractFullDir;
                 Settings.Data.DarkMode = DarkMode;

@@ -27,7 +27,7 @@ namespace DieselBundleViewer.ViewModels
         #region Properties / Fields
         private string _title = "Diesel Bundle Viewer";
         private PackageDatabase db;
-        private TreeEntryViewModel Root { get; set; }
+        public TreeEntryViewModel Root { get; set; }
 
         public string Title { get => _title; set => SetProperty(ref _title, value); }
 
@@ -435,11 +435,10 @@ namespace DieselBundleViewer.ViewModels
                 {
                     if(entry is FileEntry && (entry as FileEntry).HasData() || entry is FolderEntry && (entry as FolderEntry).HasVisibleFiles())
                         ToRender.Add(new EntryViewModel(this, entry));
-
                 }
             }
 
-            Root.UpdateChildren();
+            Root.CheckExpands();
             UpdateFileStatus();
         }
 
