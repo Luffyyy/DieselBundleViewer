@@ -1,5 +1,6 @@
 ﻿using DieselBundleViewer.Models;
 using DieselBundleViewer.ViewModels;
+using DieselBundleViewer.Views;
 using DieselEngineFormats.Bundle;
 using Prism.Events;
 using Prism.Services.Dialogs;
@@ -258,35 +259,34 @@ namespace DieselBundleViewer.Services
                 var children = folder.GetAllChildren();
 
                 var pms = new DialogParameters();
-                var agg = new EventAggregator();
-                var evnt = agg.GetEvent<SetProgressEvent>();
-                pms.Add("SetProgress", evnt);
-
-                pms.Add("TaskThread", new Thread(o =>
-                {
-                    Thread.Sleep(100); //Give dialog time to show up
-
-                    var dialog = o as ProgressDialogViewModel;
-
-                    for (int i = 0; i < children.Count; i++)
+                pms.Add("ProgressAction", new Action<ProgressDialogViewModel>(dialog => {
+                    Thread t = new Thread(o =>
                     {
-                        if (dialog.IsClosed)
-                            return;
+                        Thread.Sleep(100); //Give dialog time to show up
+                        int total = children.Count;
+                        for (int i = 0; i < total; i++)
+                        {
+                            if (dialog.IsClosed)
+                                return;
 
-                        IEntry entry = children[i];
-                        string path = Path.Combine(fbd.SelectedPath, entry.EntryPath.Replace("/", "\\"));
-                        if (entry is FileEntry childFile)
-                        {
-                            evnt.Publish(new Tuple<string, float>($"Copying {entry.EntryPath}", 100 * (i / (float)children.Count)));
-                            SaveFile(childFile, path);
+                            IEntry entry = children[i];
+                            string path = Path.Combine(fbd.SelectedPath, entry.EntryPath.Replace("/", "\\"));
+                            if (entry is FileEntry childFile)
+                            {
+                                int current = i + 1;
+                                dialog.SetProgress($"Copying {entry.EntryPath}", current, total);
+                                SaveFile(childFile, path);
+                            }
+                            else if (entry is FolderEntry childFolder)
+                            {
+                                Directory.CreateDirectory(path);
+                            }
                         }
-                        else if (entry is FolderEntry childFolder)
-                        {
-                            Directory.CreateDirectory(path);
-                        }
-                    }
-                    evnt.Publish(new Tuple<string, float>($"Done!", 100));
-                }) { IsBackground = true });
+                    });
+
+                    t.IsBackground = true;
+                    t.Start();
+                }));
 
                 Utils.ShowDialog("ProgressDialog", pms);
             }

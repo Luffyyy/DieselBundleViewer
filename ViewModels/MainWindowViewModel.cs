@@ -215,12 +215,14 @@ namespace DieselBundleViewer.ViewModels
             {
                 if (Math.Abs(diff.X) > 8 && Math.Abs(diff.Y) > 8)
                 {
-                    DragDropController controller = new DragDropController(false);
-                    foreach(EntryViewModel vm in ToRender)
+                    DragDropController controller = new DragDropController(Settings.Data.ExtractFullDir);
+                    var selected = new List<IEntry>();
+                    foreach(var vm in ToRender)
                     {
                         if (vm.IsSelected)
-                            controller.DoDragDrop(vm.Owner);
+                            selected.Add(vm.Owner);
                     }
+                    controller.DoDragDrop(selected);
                     Dragging = false;
                 }
             }

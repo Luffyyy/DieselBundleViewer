@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Windows;
 
-namespace DieselBundleViewer
+namespace DieselBundleViewer.Services
 {
     /// <summary>
     /// Class implementing drag/drop and clipboard support for virtual files.
@@ -70,7 +70,7 @@ namespace DieselBundleViewer
         /// </summary>
         public VirtualFileDataObject()
         {
-            this.IsAsynchronous = true;
+            IsAsynchronous = true;
         }
 
         /// <summary>
@@ -81,8 +81,8 @@ namespace DieselBundleViewer
         public VirtualFileDataObject(Action<VirtualFileDataObject> startAction, Action<VirtualFileDataObject> endAction)
             : this()
         {
-            this._startAction = startAction;
-            this._endAction = endAction;
+            _startAction = startAction;
+            _endAction = endAction;
         }
 
         #region IDataObject Members
@@ -136,7 +136,7 @@ namespace DieselBundleViewer
         {
             if (direction == DATADIR.DATADIR_GET)
             {
-                if (0 == this._dataObjects.Count)
+                if (0 == _dataObjects.Count)
                 {
                     // Note: SHCreateStdEnumFmtEtc fails for a count of 0; throw helpful exception
                     throw new InvalidOperationException("VirtualFileDataObject requires at least one data object to enumerate.");
@@ -144,7 +144,7 @@ namespace DieselBundleViewer
 
                 // Create enumerator and return it
                 IEnumFORMATETC enumerator;
-                if (NativeMethods.SUCCEEDED(NativeMethods.SHCreateStdEnumFmtEtc((uint)(this._dataObjects.Count), this._dataObjects.Select(d => d.FORMATETC).ToArray(), out enumerator)))
+                if (NativeMethods.SUCCEEDED(NativeMethods.SHCreateStdEnumFmtEtc((uint)(_dataObjects.Count), _dataObjects.Select(d => d.FORMATETC).ToArray(), out enumerator)))
                 {
                     return enumerator;
                 }
@@ -180,21 +180,22 @@ namespace DieselBundleViewer
             {
                 // Find the best match
                 var formatCopy = format; // Cannot use ref or out parameter inside an anonymous method, lambda expression, or query expression
-                var dataObject = this._dataObjects.Where(d => (
-                    (d.FORMATETC.cfFormat == formatCopy.cfFormat) &&
-                    (d.FORMATETC.dwAspect == formatCopy.dwAspect) &&
-                    (0 != (d.FORMATETC.tymed & formatCopy.tymed) &&
-                    (d.FORMATETC.lindex == formatCopy.lindex)))).FirstOrDefault();
-                //Console.WriteLine(dataObject?.ToString());
+                var dataObject = _dataObjects
+                    .Where(d =>
+                        (d.FORMATETC.cfFormat == formatCopy.cfFormat) &&
+                        (d.FORMATETC.dwAspect == formatCopy.dwAspect) &&
+                        (0 != (d.FORMATETC.tymed & formatCopy.tymed) &&
+                        (d.FORMATETC.lindex == formatCopy.lindex)))
+                    .FirstOrDefault();
                 if (dataObject != null)
                 {
-                    if (!this.IsAsynchronous && (FILEDESCRIPTORW == dataObject.FORMATETC.cfFormat) && !this._inOperation)
+                    if (!IsAsynchronous && (FILEDESCRIPTORW == dataObject.FORMATETC.cfFormat) && !_inOperation)
                     {
                         // Enter the operation and call the start action
-                        this._inOperation = true;
-                        if (null != this._startAction)
+                        _inOperation = true;
+                        if (null != _startAction)
                         {
-                            this._startAction(this);
+                            _startAction(this);
                         }
                     }
 
@@ -237,7 +238,7 @@ namespace DieselBundleViewer
         int System.Runtime.InteropServices.ComTypes.IDataObject.QueryGetData(ref FORMATETC format)
         {
             var formatCopy = format; // Cannot use ref or out parameter inside an anonymous method, lambda expression, or query expression
-            var formatMatches = this._dataObjects.Where(d => d.FORMATETC.cfFormat == formatCopy.cfFormat);
+            var formatMatches = _dataObjects.Where(d => d.FORMATETC.cfFormat == formatCopy.cfFormat);
             if (!formatMatches.Any())
             {
                 return NativeMethods.DV_E_FORMATETC;
@@ -296,14 +297,14 @@ namespace DieselBundleViewer
             }
 
             // Handle synchronous mode
-            if (!this.IsAsynchronous && (PERFORMEDDROPEFFECT == formatIn.cfFormat) && this._inOperation)
+            if (!IsAsynchronous && (PERFORMEDDROPEFFECT == formatIn.cfFormat) && _inOperation)
             {
                 // Call the end action and exit the operation
-                if (null != this._endAction)
+                if (null != _endAction)
                 {
-                    this._endAction(this);
+                    _endAction(this);
                 }
-                this._inOperation = false;
+                _inOperation = false;
             }
 
             // Throw if unhandled
@@ -322,7 +323,7 @@ namespace DieselBundleViewer
         /// <param name="data">Sequence of data.</param>
         public void SetData(short dataFormat, IEnumerable<byte> data)
         {
-            this._dataObjects.Add(
+            _dataObjects.Add(
                 new DataObject
                 {
                     FORMATETC = new FORMATETC
@@ -353,9 +354,9 @@ namespace DieselBundleViewer
         /// Uses Stream instead of IEnumerable(T) because Stream is more likely
         /// to be natural for the expected scenarios.
         /// </remarks>
-        public void SetData(short dataFormat, int index, Func<MemoryStream> streamData)
+        public void SetData(short dataFormat, int index, Action<Stream> streamData)
         {
-            this._dataObjects.Add(
+            _dataObjects.Add(
                 new DataObject
                 {
                     FORMATETC = new FORMATETC
@@ -366,19 +367,22 @@ namespace DieselBundleViewer
                         lindex = index,
                         tymed = TYMED.TYMED_ISTREAM
                     },
-                    GetData = () => {
-                        ManagedIStream istream = null;
+                    GetData = () =>
+                    {
+                        // Create IStream for data
+                        var ptr = IntPtr.Zero;
+                        var iStream = NativeMethods.CreateStreamOnHGlobal(IntPtr.Zero, true);
                         if (streamData != null)
                         {
-                            MemoryStream stream = streamData();
-                            if (stream != null)
+                            // Wrap in a .NET-friendly Stream and call provided code to fill it
+                            using (var stream = new IStreamWrapper(iStream))
                             {
-                                istream = new ManagedIStream(stream);
+                                streamData(stream);
                             }
                         }
-
-                        IntPtr ptr = istream != null ? Marshal.GetComInterfaceForObject(istream, typeof(IStream)) : IntPtr.Zero;
-
+                        // Return an IntPtr for the IStream
+                        ptr = Marshal.GetComInterfaceForObject(iStream, typeof(IStream));
+                        Marshal.ReleaseComObject(iStream);
                         return new Tuple<IntPtr, int>(ptr, NativeMethods.S_OK);
                     },
                 });
@@ -443,7 +447,7 @@ namespace DieselBundleViewer
         public DragDropEffects? PasteSucceeded
         {
             get { return GetDropEffect(PASTESUCCEEDED); }
-            set { SetData(PASTESUCCEEDED, BitConverter.GetBytes((uint)value)); }
+            set { SetData(PASTESUCCEEDED, BitConverter.GetBytes((UInt32)value)); }
         }
 
         /// <summary>
@@ -452,7 +456,7 @@ namespace DieselBundleViewer
         public DragDropEffects? PerformedDropEffect
         {
             get { return GetDropEffect(PERFORMEDDROPEFFECT); }
-            set { SetData(PERFORMEDDROPEFFECT, BitConverter.GetBytes((uint)value)); }
+            set { SetData(PERFORMEDDROPEFFECT, BitConverter.GetBytes((UInt32)value)); }
         }
 
         /// <summary>
@@ -461,7 +465,7 @@ namespace DieselBundleViewer
         public DragDropEffects? PreferredDropEffect
         {
             get { return GetDropEffect(PREFERREDDROPEFFECT); }
-            set { SetData(PREFERREDDROPEFFECT, BitConverter.GetBytes((uint)value)); }
+            set { SetData(PREFERREDDROPEFFECT, BitConverter.GetBytes((UInt32)value)); }
         }
 
         /// <summary>
@@ -473,7 +477,7 @@ namespace DieselBundleViewer
         private DragDropEffects? GetDropEffect(short format)
         {
             // Get the most recent setting
-            var dataObject = this._dataObjects
+            var dataObject = _dataObjects
                 .Where(d =>
                     (format == d.FORMATETC.cfFormat) &&
                     (DVASPECT.DVASPECT_CONTENT == d.FORMATETC.dwAspect) &&
@@ -517,7 +521,7 @@ namespace DieselBundleViewer
         /// <param name="fDoOpAsync">A Boolean value that is set to VARIANT_TRUE to indicate that an asynchronous operation is supported, or VARIANT_FALSE otherwise.</param>
         void IAsyncOperation.SetAsyncMode(int fDoOpAsync)
         {
-            this.IsAsynchronous = !(NativeMethods.VARIANT_FALSE == fDoOpAsync);
+            IsAsynchronous = !(NativeMethods.VARIANT_FALSE == fDoOpAsync);
         }
 
         /// <summary>
@@ -526,7 +530,7 @@ namespace DieselBundleViewer
         /// <param name="pfIsOpAsync">A Boolean value that is set to VARIANT_TRUE to indicate that an asynchronous operation is supported, or VARIANT_FALSE otherwise.</param>
         void IAsyncOperation.GetAsyncMode(out int pfIsOpAsync)
         {
-            pfIsOpAsync = this.IsAsynchronous ? NativeMethods.VARIANT_TRUE : NativeMethods.VARIANT_FALSE;
+            pfIsOpAsync = IsAsynchronous ? NativeMethods.VARIANT_TRUE : NativeMethods.VARIANT_FALSE;
         }
 
         /// <summary>
@@ -535,10 +539,10 @@ namespace DieselBundleViewer
         /// <param name="pbcReserved">Reserved. Set this value to NULL.</param>
         void IAsyncOperation.StartOperation(IBindCtx pbcReserved)
         {
-            this._inOperation = true;
-            if (null != this._startAction)
+            _inOperation = true;
+            if (null != _startAction)
             {
-                this._startAction(this);
+                _startAction(this);
             }
         }
 
@@ -548,7 +552,7 @@ namespace DieselBundleViewer
         /// <param name="pfInAsyncOp">Set to VARIANT_TRUE if data extraction is being handled asynchronously, or VARIANT_FALSE otherwise.</param>
         void IAsyncOperation.InOperation(out int pfInAsyncOp)
         {
-            pfInAsyncOp = this._inOperation ? NativeMethods.VARIANT_TRUE : NativeMethods.VARIANT_FALSE;
+            pfInAsyncOp = _inOperation ? NativeMethods.VARIANT_TRUE : NativeMethods.VARIANT_FALSE;
         }
 
         /// <summary>
@@ -559,11 +563,11 @@ namespace DieselBundleViewer
         /// <param name="dwEffects">A DROPEFFECT value that indicates the result of an optimized move. This should be the same value that would be passed to the data object as a CFSTR_PERFORMEDDROPEFFECT format with a normal data extraction operation.</param>
         void IAsyncOperation.EndOperation(int hResult, IBindCtx pbcReserved, uint dwEffects)
         {
-            if (null != this._endAction)
+            if (null != _endAction)
             {
-                this._endAction(this);
+                _endAction(this);
             }
-            this._inOperation = false;
+            _inOperation = false;
         }
 
         #endregion
@@ -617,7 +621,7 @@ namespace DieselBundleViewer
             /// <summary>
             /// Gets or sets an Action that returns the contents of the file.
             /// </summary>
-            public Func<MemoryStream> StreamContents { get; set; }
+            public Action<Stream> StreamContents { get; set; }
         }
 
         /// <summary>
@@ -663,8 +667,129 @@ namespace DieselBundleViewer
             /// <param name="item2">The value of the tuple's second component.</param>
             public Tuple(T1 item1, T2 item2)
             {
-                this.Item1 = item1;
-                this.Item2 = item2;
+                Item1 = item1;
+                Item2 = item2;
+            }
+        }
+
+        /// <summary>
+        /// Simple class that exposes a write-only IStream as a Stream.
+        /// </summary>
+        private class IStreamWrapper : Stream
+        {
+            /// <summary>
+            /// IStream instance being wrapped.
+            /// </summary>
+            private IStream _iStream;
+
+            /// <summary>
+            /// Initializes a new instance of the IStreamWrapper class.
+            /// </summary>
+            /// <param name="iStream">IStream instance to wrap.</param>
+            public IStreamWrapper(IStream iStream)
+            {
+                _iStream = iStream;
+            }
+
+            /// <summary>
+            /// Gets a value indicating whether the current stream supports reading.
+            /// </summary>
+            public override bool CanRead
+            {
+                get { return false; }
+            }
+
+            /// <summary>
+            /// Gets a value indicating whether the current stream supports seeking.
+            /// </summary>
+            public override bool CanSeek
+            {
+                get { return false; }
+            }
+
+            /// <summary>
+            /// Gets a value indicating whether the current stream supports writing.
+            /// </summary>
+            public override bool CanWrite
+            {
+                get { return true; }
+            }
+
+            /// <summary>
+            /// Clears all buffers for this stream and causes any buffered data to be written to the underlying device.
+            /// </summary>
+            public override void Flush()
+            {
+                throw new NotImplementedException();
+            }
+
+            /// <summary>
+            /// Gets the length in bytes of the stream.
+            /// </summary>
+            public override long Length
+            {
+                get { throw new NotImplementedException(); }
+            }
+
+            /// <summary>
+            /// Gets or sets the position within the current stream.
+            /// </summary>
+            public override long Position
+            {
+                get { throw new NotImplementedException(); }
+                set { throw new NotImplementedException(); }
+            }
+
+            /// <summary>
+            /// Reads a sequence of bytes from the current stream and advances the position within the stream by the number of bytes read.
+            /// </summary>
+            /// <param name="buffer">An array of bytes. When this method returns, the buffer contains the specified byte array with the values between offset and (offset + count - 1) replaced by the bytes read from the current source.</param>
+            /// <param name="offset">The zero-based byte offset in buffer at which to begin storing the data read from the current stream.</param>
+            /// <param name="count">The maximum number of bytes to be read from the current stream.</param>
+            /// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
+            public override int Read(byte[] buffer, int offset, int count)
+            {
+                throw new NotImplementedException();
+            }
+
+            /// <summary>
+            /// Sets the position within the current stream.
+            /// </summary>
+            /// <param name="offset">A byte offset relative to the origin parameter.</param>
+            /// <param name="origin">A value of type SeekOrigin indicating the reference point used to obtain the new position.</param>
+            /// <returns>The new position within the current stream.</returns>
+            public override long Seek(long offset, SeekOrigin origin)
+            {
+                throw new NotImplementedException();
+            }
+
+            /// <summary>
+            /// Sets the length of the current stream.
+            /// </summary>
+            /// <param name="value">The desired length of the current stream in bytes.</param>
+            public override void SetLength(long value)
+            {
+                throw new NotImplementedException();
+            }
+
+            /// <summary>
+            /// Writes a sequence of bytes to the current stream and advances the current position within this stream by the number of bytes written.
+            /// </summary>
+            /// <param name="buffer">An array of bytes. This method copies count bytes from buffer to the current stream.</param>
+            /// <param name="offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
+            /// <param name="count">The number of bytes to be written to the current stream.</param>
+            public override void Write(byte[] buffer, int offset, int count)
+            {
+                if (offset == 0)
+                {
+                    // Optimize common case to avoid creating extra buffers
+                    _iStream.Write(buffer, count, IntPtr.Zero);
+                }
+                else
+                {
+                    // Easy way to provide the relevant byte[]
+                    _iStream.Write(buffer.Skip(offset).ToArray(), count, IntPtr.Zero);
+                }
             }
         }
 
@@ -770,7 +895,7 @@ namespace DieselBundleViewer
             [StructLayout(LayoutKind.Sequential)]
             public struct FILEGROUPDESCRIPTOR
             {
-                public uint cItems;
+                public UInt32 cItems;
                 // Followed by 0 or more FILEDESCRIPTORs
             }
 
@@ -778,18 +903,18 @@ namespace DieselBundleViewer
             [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
             public struct FILEDESCRIPTOR
             {
-                public uint dwFlags;
+                public UInt32 dwFlags;
                 public Guid clsid;
-                public int sizelcx;
-                public int sizelcy;
-                public int pointlx;
-                public int pointly;
-                public uint dwFileAttributes;
+                public Int32 sizelcx;
+                public Int32 sizelcy;
+                public Int32 pointlx;
+                public Int32 pointly;
+                public UInt32 dwFileAttributes;
                 public System.Runtime.InteropServices.ComTypes.FILETIME ftCreationTime;
                 public System.Runtime.InteropServices.ComTypes.FILETIME ftLastAccessTime;
                 public System.Runtime.InteropServices.ComTypes.FILETIME ftLastWriteTime;
-                public uint nFileSizeHigh;
-                public uint nFileSizeLow;
+                public UInt32 nFileSizeHigh;
+                public UInt32 nFileSizeLow;
                 [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
                 public string cFileName;
             }
@@ -849,114 +974,10 @@ namespace DieselBundleViewer
     [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
     internal interface IAsyncOperation
     {
-        void SetAsyncMode([In] int fDoOpAsync);
-        void GetAsyncMode([Out] out int pfIsOpAsync);
+        void SetAsyncMode([In] Int32 fDoOpAsync);
+        void GetAsyncMode([Out] out Int32 pfIsOpAsync);
         void StartOperation([In] IBindCtx pbcReserved);
-        void InOperation([Out] out int pfInAsyncOp);
-        void EndOperation([In] int hResult, [In] IBindCtx pbcReserved, [In] uint dwEffects);
-    }
-
-    class ManagedIStream : IStream
-    {
-        private Stream _stream;
-
-        public ManagedIStream(Stream stream)
-        {
-            this._stream = stream;
-        }
-
-        public void Clone(out IStream ppstm)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Commit(int grfCommitFlags)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void CopyTo(IStream pstm, long cb, IntPtr pcbRead, IntPtr pcbWritten)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void LockRegion(long libOffset, long cb, int dwLockType)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Read(byte[] pv, int cb, IntPtr pcbRead)
-        {
-            int read = this._stream.Read(pv, 0, cb);
-            if (pcbRead != IntPtr.Zero)
-            {
-                Marshal.WriteInt32(pcbRead, read);
-            }
-        }
-
-        public void Revert()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Seek(long dlibMove, int dwOrigin, IntPtr plibNewPosition)
-        {
-            long newPos = this._stream.Seek(dlibMove, (SeekOrigin)dwOrigin);
-            if (plibNewPosition != IntPtr.Zero)
-            {
-                Marshal.WriteInt64(plibNewPosition, newPos);
-            }
-        }
-
-        public void SetSize(long libNewSize)
-        {
-            this._stream.SetLength(libNewSize);
-        }
-
-        public void Stat(out System.Runtime.InteropServices.ComTypes.STATSTG pstatstg, int grfStatFlag)
-        {
-            const int STGTY_STREAM = 2;
-            pstatstg = new System.Runtime.InteropServices.ComTypes.STATSTG();
-            pstatstg.type = STGTY_STREAM;
-            pstatstg.cbSize = this._stream.Length;
-            pstatstg.grfMode = 0;
-
-            if (this._stream.CanRead && this._stream.CanWrite)
-            {
-                const int STGM_READWRITE = 0x00000002;
-                pstatstg.grfMode |= STGM_READWRITE;
-                return;
-            }
-
-            if (this._stream.CanRead)
-            {
-                const int STGM_READ = 0x00000000;
-                pstatstg.grfMode |= STGM_READ;
-                return;
-            }
-
-            if (this._stream.CanWrite)
-            {
-                const int STGM_WRITE = 0x00000001;
-                pstatstg.grfMode |= STGM_WRITE;
-                return;
-            }
-
-            throw new IOException();
-        }
-
-        public void UnlockRegion(long libOffset, long cb, int dwLockType)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Write(byte[] pv, int cb, IntPtr pcbWritten)
-        {
-            this._stream.Write(pv, 0, cb);
-            if (pcbWritten != IntPtr.Zero)
-            {
-                Marshal.WriteInt32(pcbWritten, cb);
-            }
-        }
+        void InOperation([Out] out Int32 pfInAsyncOp);
+        void EndOperation([In] Int32 hResult, [In] IBindCtx pbcReserved, [In] UInt32 dwEffects);
     }
 }

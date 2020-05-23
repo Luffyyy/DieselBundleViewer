@@ -80,7 +80,9 @@
                      VerticalAlignment="Stretch" VerticalContentAlignment="Center" HorizontalAlignment="Stretch"/>
         </DockPanel>
 
-        <TreeView Margin="0,1,0,1" Grid.Row="3" Grid.Column="0" BorderThickness="0" ItemsSource="{Binding FoldersToRender}" Grid.ColumnSpan="2">
+        <TreeView Margin="0,1,0,1" Grid.Row="3" Grid.Column="0" BorderThickness="0" 
+                  ItemsSource="{Binding FoldersToRender}" Grid.ColumnSpan="2" 
+                  VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling">
             <TreeView.Resources>
                 <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}"
                      Color="{DynamicResource {x:Static adonisUi:Colors.AccentColor}}" />

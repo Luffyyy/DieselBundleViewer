@@ -7,12 +7,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace DieselBundleViewer.ViewModels
 {
-    //Don't really like having empty classes like this just for events but oh well.
-    public class SetProgressEvent : PubSubEvent<Tuple<string, float>> {}
-
     public class ProgressDialogViewModel : DialogBase
     {
         private float progress;
@@ -20,24 +18,28 @@ namespace DieselBundleViewer.ViewModels
         private string status;
         public string Status { get => status; set => SetProperty(ref status, value); }
 
-        private Thread taskThread;
+        private string progressText;
+        public string ProgressText { get => progressText; set => SetProperty(ref progressText, value); }
 
         protected override void PostDialogOpened(IDialogParameters pms)
         {
-            SetProgressEvent setProgress = pms.GetValue<SetProgressEvent>("SetProgress");
-            setProgress.Subscribe(SetProgress, ThreadOption.UIThread);
-
-            taskThread = pms.GetValue<Thread>("TaskThread");
-            taskThread.Start(this);
+            var startProgress = pms.GetValue<Action<ProgressDialogViewModel>>("ProgressAction");
+            startProgress(this);
         }
 
-        public void SetProgress(Tuple<string, float> t)
+        public void SetProgress(string status, int current, float total)
         {
-            Status = t.Item1;
-            Progress = Math.Clamp(t.Item2, 0, 100);
+            Status = status;
+            Progress = Math.Clamp(100 * (current / total), 0, 100);
+            ProgressText = $"{current}/{total}";
 
-            if(progress == 100)
-                CloseDialog.Execute("True");
+            if (progress == 100)
+            {
+                //We must call it using the UI thread so we can automatically close the dialog
+                Application.Current.Dispatcher.Invoke(() => {
+                    CloseDialog.Execute("True");
+                });
+            }
         }
     }
 }
