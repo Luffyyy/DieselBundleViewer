@@ -6,7 +6,7 @@
     <AssemblyName>DieselBundleViewer</AssemblyName>
     <ApplicationIcon>favicon.ico</ApplicationIcon>
     <StartupObject>DieselBundleViewer.App</StartupObject>
-    <Version>0.6</Version>
+    <Version>0.7</Version>
     <Company>ModWorkshop</Company>
     <Authors>https://github.com/Luffyyy</Authors>
     <UseWindowsForms>true</UseWindowsForms>

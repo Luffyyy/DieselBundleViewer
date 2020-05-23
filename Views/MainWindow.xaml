@@ -46,12 +46,14 @@
                     </MenuItem>
                     <MenuItem Header="Close" Command="{Binding CloseBLB}"/>
                 </MenuItem>
-                <MenuItem Header="Edit">
+                <MenuItem Header="Tools">
                     <MenuItem Header="Find (Ctrl+F)" Command="{Binding OpenFindDialog}"/>
                     <MenuItem Header="Select Bundles (Ctrl+B)" Command="{Binding OpenBundleSelectorDialog}"/>
+                    <MenuItem Header="Extract All" Command="{Binding ExtractAll}"/>
                 </MenuItem>
                 <MenuItem Header="Help">
                     <MenuItem Header="About" Command="{Binding OpenAboutDialog}"/>
+                    <MenuItem Header="How to Use" Command="{Binding OpenHowToUse}"/>
                 </MenuItem>
             </Menu>
         </Canvas>

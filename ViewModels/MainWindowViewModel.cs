@@ -12,9 +12,11 @@ using Prism.Services.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -71,9 +73,13 @@ namespace DieselBundleViewer.ViewModels
         public DelegateCommand OnKeyDown { get; }
         public DelegateCommand CloseBLB { get; }
         public DelegateCommand<string> SetViewStyle { get; }
+        public DelegateCommand OpenHowToUse { get; }
+        public DelegateCommand ExtractAll { get; }
 
         private Point DragStartLocation;
         private bool Dragging;
+
+        private CancellationTokenSource cancelLastTask;
 
         private UserControl entriesStyle;
         public UserControl EntriesStyle { get => entriesStyle; set => SetProperty(ref entriesStyle, value); }
@@ -104,6 +110,9 @@ namespace DieselBundleViewer.ViewModels
             SetViewStyle = new DelegateCommand<string>(style => SetViewStyleExec(style, true));
             OpenAboutDialog = new DelegateCommand(() => Utils.ShowDialog("AboutDialog"));
             OpenSettingsDialog = new DelegateCommand(() => Utils.ShowDialog("SettingsDialog", r => UpdateSettings()));
+            OpenHowToUse = new DelegateCommand(() => Process.Start("https://github.com/Luffyyy/DieselBundleViewer/wiki/How-to-Use"));
+            ExtractAll = new DelegateCommand(ExtractAllExec);
+
             Utils.OnMouseMoved += OnMouseMoved;
 
             //Set status to default
@@ -248,8 +257,16 @@ namespace DieselBundleViewer.ViewModels
                 await OpenBLBFile(ofd.FileName);
         }
 
+        public void ExtractAllExec()
+        {
+            FileManager.SaveFolder(Root.Owner);
+        }
+
         public void CloseBLBExec()
         {
+            if (cancelLastTask != null)
+                cancelLastTask.Cancel();
+
             Status = "Start by opening a blb file. Press 'File->Open' and navigate to the assets directory of the game";
             Pages.Clear();
             CurrentDir = "";
@@ -275,8 +292,14 @@ namespace DieselBundleViewer.ViewModels
         {
             CloseBLBExec();
 
+            CancellationTokenSource CancelSource = new CancellationTokenSource();
+            cancelLastTask = CancelSource;
+
             await Task.Run(() =>
             {
+                if (CancelSource.IsCancellationRequested)
+                    return;
+
                 //Create the root tree entry, here all other folders will reside.
                 Root = new TreeEntryViewModel(this, new FolderEntry { EntryPath = "", Name = "assets" });
 
@@ -298,12 +321,18 @@ namespace DieselBundleViewer.ViewModels
                 List<string> FilterFiles = new List<string>();
                 for (int i = 0; i < Files.Count; i++)
                 {
+                    if (CancelSource.IsCancellationRequested)
+                        return;
+
                     string file = Files[i];
                     if (!file.EndsWith("_h.bundle"))
                         FilterFiles.Add(file);
                 }
                 for (int i = 0; i < FilterFiles.Count; i++)
                 {
+                    if (CancelSource.IsCancellationRequested)
+                        return;
+
                     string file = FilterFiles[i];
 
                     Status = string.Format("Loading bundle {0} {1}/{2}", file, i, FilterFiles.Count);
@@ -314,6 +343,9 @@ namespace DieselBundleViewer.ViewModels
 
                     foreach (PackageFileEntry be in bundle.Entries)
                     {
+                        if (CancelSource.IsCancellationRequested)
+                            return;
+
                         if (FileEntries.ContainsKey(be.ID))
                         {
                             FileEntry fileEntry = FileEntries[be.ID];
@@ -327,6 +359,9 @@ namespace DieselBundleViewer.ViewModels
 
                 GC.Collect();
             });
+
+            if (CancelSource.IsCancellationRequested)
+                return;
 
             Status = "Done";
 
