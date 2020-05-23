@@ -43,7 +43,7 @@ namespace DieselBundleViewer.Services
                 } else
                    FilePath = filePath;
 
-                SaveFile(entry, filePath, converter);
+                SaveFile(entry, FilePath, converter, be, true);
 
                 Entry = be;
                 if (converter != null)
@@ -62,7 +62,6 @@ namespace DieselBundleViewer.Services
 
                 try
                 {
-
                     if (!(RunProcess?.HasExited ?? true))
                         RunProcess?.Kill();
 
@@ -220,8 +219,11 @@ namespace DieselBundleViewer.Services
                 SaveFile(file, sfd.FileName);
         }
 
-        public static void SaveFile(FileEntry file, string path, FormatConverter converter=null, PackageFileEntry be = null)
+        public static void SaveFile(FileEntry file, string path, FormatConverter converter=null, PackageFileEntry be = null, bool checkIfExists=false)
         {
+            if (checkIfExists && File.Exists(path))
+                return;
+
             object file_data = file.FileData(be, converter);
 
             string dir = Path.GetDirectoryName(path);
