@@ -16,6 +16,8 @@ namespace DieselBundleViewer.ViewModels
 
         protected IDialogParameters Params;
 
+        public bool IsClosed { get; private set; }
+
         public DialogBase()
         {
             CloseDialog = new DelegateCommand<string>(CloseDialogExec);
@@ -33,7 +35,9 @@ namespace DieselBundleViewer.ViewModels
 
         public virtual bool CanCloseDialog() => true;
 
-        public virtual void OnDialogClosed() { }
+        public virtual void OnDialogClosed() {
+            IsClosed = true;
+        }
 
         private void CloseDialogExec(string success)
         {

@@ -11,7 +11,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
-using static DieselBundleViewer.Services.FileManager;
 
 namespace DieselBundleViewer.ViewModels
 {
@@ -118,12 +117,8 @@ namespace DieselBundleViewer.ViewModels
             if (convert == "True")
                 FileManager.SaveFileConvert((FileEntry)Owner);
             else if (Owner is FileEntry entry)
-            {
-                SaveFileDialog sfd = new SaveFileDialog { FileName = Owner.Name, Filter = "All files (*.*)|*.*" };
-                if (sfd.ShowDialog() == DialogResult.OK)
-                    new TempFile(entry, null, null, sfd.FileName) { Disposed = true };
-            }
-            else if(Owner is FolderEntry fEntry)
+                FileManager.SaveFileAs(entry);
+            else if (Owner is FolderEntry fEntry)
                 FileManager.SaveFolder(fEntry);
         }
     }

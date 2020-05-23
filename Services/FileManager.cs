@@ -1,5 +1,7 @@
 ﻿using DieselBundleViewer.Models;
+using DieselBundleViewer.ViewModels;
 using DieselEngineFormats.Bundle;
+using Prism.Events;
 using Prism.Services.Dialogs;
 using System;
 using System.Collections.Generic;
@@ -7,8 +9,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-using FDialogResult = System.Windows.Forms.DialogResult;
+using DialogResult = System.Windows.Forms.DialogResult;
 
 namespace DieselBundleViewer.Services
 {
@@ -204,9 +208,16 @@ namespace DieselBundleViewer.Services
                     conerters.Add(conv);
                 }
                 sfd.Filter = filter.Remove(filter.Length - 1); // + "|All files (*.*)|*.*";
-                if (sfd.ShowDialog() == FDialogResult.OK)
+                if (sfd.ShowDialog() == DialogResult.OK)
                     SaveFile(entry, sfd.FileName, conerters[sfd.FilterIndex - 1]);
             }
+        }
+
+        public static void SaveFileAs(FileEntry file)
+        {
+            SaveFileDialog sfd = new SaveFileDialog { FileName = file.Name, Filter = "All files (*.*)|*.*" };
+            if (sfd.ShowDialog() == DialogResult.OK)
+                SaveFile(file, sfd.FileName);
         }
 
         public static void SaveFile(FileEntry file, string path, FormatConverter converter=null, PackageFileEntry be = null)
@@ -237,26 +248,45 @@ namespace DieselBundleViewer.Services
                 File.WriteAllLines(path, dataArr);
         }
 
-        public static void SaveFolder(FolderEntry folder, string path=null)
+        public static void SaveFolder(FolderEntry folder)
         {
-            if (path == null)
+            FolderBrowserDialog fbd = new FolderBrowserDialog();
+            if (fbd.ShowDialog() == DialogResult.OK)
             {
-                FolderBrowserDialog fbd = new FolderBrowserDialog();
-                if (fbd.ShowDialog() == FDialogResult.OK)
-                    path = Path.Combine(fbd.SelectedPath, folder.Name);
-                else
-                    return;
-            }
-            foreach(var pair in folder.Children)
-            {
-                if (pair.Value is FileEntry childFile)
-                    SaveFile(childFile, Path.Combine(path, childFile.Name));
-                else if (pair.Value is FolderEntry childFolder)
+                var children = folder.GetAllChildren();
+
+                var pms = new DialogParameters();
+                var agg = new EventAggregator();
+                var evnt = agg.GetEvent<SetProgressEvent>();
+                pms.Add("SetProgress", evnt);
+
+                pms.Add("TaskThread", new Thread(o =>
                 {
-                    string childPath = Path.Combine(path, childFolder.Name);
-                    Directory.CreateDirectory(childPath);
-                    SaveFolder(childFolder, childPath);
-                }
+                    Thread.Sleep(100); //Give dialog time to show up
+
+                    var dialog = o as ProgressDialogViewModel;
+
+                    for (int i = 0; i < children.Count; i++)
+                    {
+                        if (dialog.IsClosed)
+                            return;
+
+                        IEntry entry = children[i];
+                        string path = Path.Combine(fbd.SelectedPath, entry.EntryPath.Replace("/", "\\"));
+                        if (entry is FileEntry childFile)
+                        {
+                            evnt.Publish(new Tuple<string, float>($"Copying {entry.EntryPath}", 100 * (i / (float)children.Count)));
+                            SaveFile(childFile, path);
+                        }
+                        else if (entry is FolderEntry childFolder)
+                        {
+                            Directory.CreateDirectory(path);
+                        }
+                    }
+                    evnt.Publish(new Tuple<string, float>($"Done!", 100));
+                }) { IsBackground = true });
+
+                Utils.ShowDialog("ProgressDialog", pms);
             }
         }
 
