@@ -418,6 +418,8 @@ namespace DieselBundleViewer.ViewModels
             if (CancelSource.IsCancellationRequested)
                 return;
 
+            cancelLastTask = null;
+
             OpenFindDialog.RaiseCanExecuteChanged();
             ExtractAll.RaiseCanExecuteChanged();
             OpenBundleSelectorDialog.RaiseCanExecuteChanged();
@@ -506,38 +508,41 @@ namespace DieselBundleViewer.ViewModels
                 return;
             ToRender.Clear();
 
-            List<IEntry> children;
-
-            PageData page = CurrentPage.Value;
-            string search = page.Search;
-            if (!string.IsNullOrEmpty(search))
+            if (cancelLastTask == null)
             {
-                children = Root.Owner.GetEntriesByConiditions(entry =>
-                {
-                    string searchUsing;
-                    if (page.FullPath)
-                        searchUsing = entry.EntryPath;
-                    else
-                        searchUsing = entry.Name;
+                List<IEntry> children;
 
-                    if (SelectedBundles.Count > 0 && !entry.InBundles(SelectedBundles))
-                        return false;
-                    else if (page.UseRegex)
-                        return Regex.IsMatch(searchUsing, search);
-                    else if (page.MatchWord)
-                        return searchUsing == search;
-                    else
-                        return searchUsing.Contains(search);
-                });
-            } else
-                children = Root.Owner.GetEntriesByDirectory(CurrentDir);
-
-            foreach (var entry in children)
-            {
-                if(SelectedBundles.Count == 0 || entry.InBundles(SelectedBundles))
+                PageData page = CurrentPage.Value;
+                string search = page.Search;
+                if (!string.IsNullOrEmpty(search))
                 {
-                    if(entry is FileEntry && (entry as FileEntry).HasData() || entry is FolderEntry && (entry as FolderEntry).HasVisibleFiles())
-                        ToRender.Add(new EntryViewModel(this, entry));
+                    children = Root.Owner.GetEntriesByConiditions(entry =>
+                    {
+                        string searchUsing;
+                        if (page.FullPath)
+                            searchUsing = entry.EntryPath;
+                        else
+                            searchUsing = entry.Name;
+
+                        if (SelectedBundles.Count > 0 && !entry.InBundles(SelectedBundles))
+                            return false;
+                        else if (page.UseRegex)
+                            return Regex.IsMatch(searchUsing, search);
+                        else if (page.MatchWord)
+                            return searchUsing == search;
+                        else
+                            return searchUsing.Contains(search);
+                    });
+                } else
+                    children = Root.Owner.GetEntriesByDirectory(CurrentDir);
+
+                foreach (var entry in children)
+                {
+                    if(SelectedBundles.Count == 0 || entry.InBundles(SelectedBundles))
+                    {
+                        if(entry is FileEntry && (entry as FileEntry).HasData() || entry is FolderEntry && (entry as FolderEntry).HasVisibleFiles())
+                            ToRender.Add(new EntryViewModel(this, entry));
+                    }
                 }
             }
 
