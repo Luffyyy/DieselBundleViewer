@@ -55,6 +55,8 @@ namespace DieselBundleViewer.ViewModels
         public ObservableCollection<TreeEntryViewModel> FoldersToRender { get; set; }
         public List<Script> Scripts => ScriptActions.Scripts;
         public bool ScriptsVisible => Scripts.Count > 0;
+        public ObservableCollection<string> RecentFiles { get; set; }
+        public bool RecentFilesVis => RecentFiles.Count > 0;
 
         public List<Idstring> Bundles { get; set; }
         public List<Idstring> SelectedBundles { get; set; }
@@ -64,6 +66,7 @@ namespace DieselBundleViewer.ViewModels
         public string CurrentDir { get => CurrentPage?.Value.Path; set => Navigate(value); }
 
         public DelegateCommand OpenFileDialog { get; }
+        public DelegateCommand<string> OpenFile { get; }
         public DelegateCommand OpenAboutDialog { get; }
         public DelegateCommand OpenSettingsDialog { get; }
         public DelegateCommand OpenFindDialog { get; }
@@ -98,9 +101,11 @@ namespace DieselBundleViewer.ViewModels
             FoldersToRender = new ObservableCollection<TreeEntryViewModel>();
             SelectedBundles = new List<Idstring>();
             RawFiles = new Dictionary<Tuple<Idstring, Idstring, Idstring>, FileEntry>();
+            RecentFiles = new ObservableCollection<string>(Settings.Data.RecentFiles);
 
             //Commands / Events
             OpenFileDialog = new DelegateCommand(OpenFileDialogExec);
+            OpenFile = new DelegateCommand<string>(OpenFileExec);
             CloseBLB = new DelegateCommand(CloseBLBExec);
             OpenBundleSelectorDialog = new DelegateCommand(OpenBundleSelectorDialogExec, () => Root != null);
             OpenFindDialog = new DelegateCommand(OpenFindDialogExec, () => Root != null);
@@ -258,10 +263,44 @@ namespace DieselBundleViewer.ViewModels
 
         public async void OpenFileDialogExec()
         {
-            OpenFileDialog ofd = new OpenFileDialog { Filter = "Bundle Database File (*.blb)|*.blb" };
+            OpenFileDialog ofd = new OpenFileDialog { Filter = "Bundle Database File (*.blb)|*.blb"};
+            
+            //Here we try to default to 2 very possible directories of PD2 which most users will use it for.
+            if(!RecentFilesVis)
+            {
+                string possiblePath = @"C:\Program Files (x86)\Steam\steamapps\common\PAYDAY 2\assets";
+                bool found = Directory.Exists(possiblePath);
+                if (!found)
+                {
+                    possiblePath = @"D:\SteamLibrary\steamapps\common\PAYDAY 2\assets";
+                    found = Directory.Exists(possiblePath);
+                }
+
+                if (found)
+                    ofd.InitialDirectory = possiblePath;
+            }
+            
             var result = ofd.ShowDialog();
             if (result == true)
-                await OpenBLBFile(ofd.FileName);
+            {
+                string fileName = ofd.FileName;
+
+                //If the file already exists in the recents, bump it.
+                if (RecentFiles.Contains(fileName))
+                    RecentFiles.Remove(fileName);
+
+                RecentFiles.Add(fileName);
+
+                Settings.Data.RecentFiles = RecentFiles.ToList();
+                Settings.SaveSettings();
+
+                await OpenBLBFile(fileName);
+            }
+        }
+
+        public async void OpenFileExec(string fileName)
+        {
+            await OpenBLBFile(fileName);
         }
 
         public void ExtractAllExec()

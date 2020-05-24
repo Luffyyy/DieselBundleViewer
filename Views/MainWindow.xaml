@@ -44,6 +44,14 @@
                             </Style>
                         </MenuItem.ItemContainerStyle>
                     </MenuItem>
+                    <MenuItem Header="Recent Files" ItemsSource="{Binding RecentFiles, Mode=OneWay}" Visibility="{Binding RecentFilesVis, Converter={StaticResource BoolToVis}}">
+                        <MenuItem.ItemContainerStyle>
+                            <Style TargetType="{x:Type MenuItem}">
+                                <Setter Property="Command" Value="{Binding DataContext.OpenFile, RelativeSource={RelativeSource AncestorType=MenuItem}}"/>
+                                <Setter Property="CommandParameter" Value="{Binding}"/>
+                            </Style>
+                        </MenuItem.ItemContainerStyle>
+                    </MenuItem>
                     <MenuItem Header="Close" Command="{Binding CloseBLB}"/>
                 </MenuItem>
                 <MenuItem Header="Tools">
