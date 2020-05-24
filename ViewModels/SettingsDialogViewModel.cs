@@ -19,6 +19,9 @@ namespace DieselBundleViewer.ViewModels
         private bool darkMode;
         public bool DarkMode { get => darkMode; set => SetProperty(ref darkMode, value); }
 
+        private bool showConsole;
+        public bool ShowConsole { get => showConsole; set => SetProperty(ref showConsole, value); }
+
         public override string Title => "Settings";
 
         protected override void PostDialogOpened(IDialogParameters parameters)
@@ -39,6 +42,7 @@ namespace DieselBundleViewer.ViewModels
                 Settings.Data.DisplayEmptyFiles = DisplayEmptyFiles;
                 Settings.Data.ExtractFullDir = ExtractFullDir;
                 Settings.Data.DarkMode = DarkMode;
+                Settings.Data.ShowConsole = ShowConsole;
                 Settings.SaveSettings();
             }
         }

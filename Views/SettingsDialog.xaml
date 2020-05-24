@@ -13,6 +13,7 @@
                 </CheckBox.ToolTip>
             </CheckBox>
             <CheckBox FontSize="14" Content="Dark Mode" IsChecked="{Binding DarkMode, Mode=TwoWay}"/>
+            <CheckBox FontSize="14" Content="Debugging Console" IsChecked="{Binding ShowConsole, Mode=TwoWay}"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal"  HorizontalAlignment="Center" DockPanel.Dock="Bottom">
             <Button Content="Save" Padding="8" Command="{Binding CloseDialog}" CommandParameter="True"/>

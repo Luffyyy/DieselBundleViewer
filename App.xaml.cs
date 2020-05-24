@@ -30,7 +30,9 @@ namespace DieselBundleViewer
 
         public App()
         {
-            AllocConsole();
+            if(Settings.Data.ShowConsole)
+                AllocConsole();
+
             HashIndex.Load("Data/hashlist", HashIndex.HashType.Path);
             HashIndex.Load("Data/extensions");
 
