@@ -106,7 +106,7 @@ namespace DieselBundleViewer.ViewModels
             //Commands / Events
             OpenFileDialog = new DelegateCommand(OpenFileDialogExec);
             OpenFile = new DelegateCommand<string>(OpenFileExec);
-            CloseBLB = new DelegateCommand(CloseBLBExec);
+            CloseBLB = new DelegateCommand(CloseBLBExec, () => Root != null || cancelLastTask != null);
             OpenBundleSelectorDialog = new DelegateCommand(OpenBundleSelectorDialogExec, () => Root != null);
             OpenFindDialog = new DelegateCommand(OpenFindDialogExec, () => Root != null);
             BackDir = new DelegateCommand(BackDirExec, ()=> CurrentPage?.Previous != null);
@@ -124,9 +124,6 @@ namespace DieselBundleViewer.ViewModels
 
             //Set status to default
             CloseBLBExec();
-
-            //Testing
-            //ToRender.Add(new EntryViewModel(this, new FileEntry { Name = "test" }));
 
             //Grid or list?
             EntriesStyle = new EntryListView();
@@ -341,6 +338,7 @@ namespace DieselBundleViewer.ViewModels
                 GC.Collect();
                 OpenFindDialog.RaiseCanExecuteChanged();
                 ExtractAll.RaiseCanExecuteChanged();
+                CloseBLB.RaiseCanExecuteChanged();
                 OpenBundleSelectorDialog.RaiseCanExecuteChanged();
             }
         }
@@ -352,6 +350,8 @@ namespace DieselBundleViewer.ViewModels
 
             CancellationTokenSource CancelSource = new CancellationTokenSource();
             cancelLastTask = CancelSource;
+
+            CloseBLB.RaiseCanExecuteChanged();
 
             await Task.Run(() =>
             {
@@ -423,6 +423,7 @@ namespace DieselBundleViewer.ViewModels
             OpenFindDialog.RaiseCanExecuteChanged();
             ExtractAll.RaiseCanExecuteChanged();
             OpenBundleSelectorDialog.RaiseCanExecuteChanged();
+            CloseBLB.RaiseCanExecuteChanged();
 
             Status = "Done";
 
