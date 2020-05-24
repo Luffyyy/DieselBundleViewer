@@ -14,7 +14,7 @@ using System.Windows.Input;
 
 namespace DieselBundleViewer.ViewModels
 {
-    public class EntryViewModel : BindableBase
+    public class EntryViewModel : ListItemViewModelBase
     {
         public IEntry Owner { get; set; }
 
@@ -55,8 +55,7 @@ namespace DieselBundleViewer.ViewModels
             }
         }
 
-        private bool isSelected;
-        public bool IsSelected {
+        public override bool IsSelected {
             get => isSelected;
             set {
                 bool wasSelected = isSelected;
