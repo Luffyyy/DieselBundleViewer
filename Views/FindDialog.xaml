@@ -13,6 +13,7 @@
             </TextBox>
             <CheckBox Content="Match Whole Word" FontSize="14" IsChecked="{Binding MatchWord, Mode=TwoWay}" Margin="0 4"/>
             <CheckBox Content="Use Regular Expression" FontSize="14" IsChecked="{Binding UseRegex, Mode=TwoWay}"/>
+            <CheckBox Content="Use Full Path" FontSize="14" IsChecked="{Binding FullPath, Mode=TwoWay}"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal"  HorizontalAlignment="Center" DockPanel.Dock="Bottom">
             <Button Content="Search" Padding="8" Command="{Binding CloseDialog}" CommandParameter="True"/>

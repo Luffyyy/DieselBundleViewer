@@ -108,12 +108,12 @@ namespace DieselBundleViewer.ViewModels
             ForwardDir = new DelegateCommand(ForwardDirExec, ()=> CurrentPage?.Next != null);
             OnKeyDown = new DelegateCommand(OnKeyDownExec);
             SetViewStyle = new DelegateCommand<string>(style => SetViewStyleExec(style, true));
-            OpenAboutDialog = new DelegateCommand(() => Utils.ShowDialog("AboutDialog"));
+            OpenAboutDialog = new DelegateCommand(() => Utils.ShowDialog("AboutDialog", null, true));
             OpenSettingsDialog = new DelegateCommand(() => Utils.ShowDialog("SettingsDialog", r => UpdateSettings()));
             OpenHowToUse = new DelegateCommand(() => {
                 Process.Start(new ProcessStartInfo("https://github.com/Luffyyy/DieselBundleViewer/wiki/How-to-Use") { UseShellExecute = true });
             });
-            ExtractAll = new DelegateCommand(ExtractAllExec);
+            ExtractAll = new DelegateCommand(ExtractAllExec, () => Root != null);
 
             Utils.OnMouseMoved += OnMouseMoved;
 
@@ -152,16 +152,21 @@ namespace DieselBundleViewer.ViewModels
 
         void OpenFindDialogExec()
         {
+            if (Utils.DialogOpened("FindDialog"))
+                return;
+
             Utils.ShowDialog("FindDialog", r => {
                 string search = r.Parameters.GetValue<string>("Search");
                 if (!string.IsNullOrEmpty(search))
                 {
                     bool useRegex = FindDialogViewModel.UseRegex;
                     bool matchWord = FindDialogViewModel.MatchWord;
-                    Navigate(new PageData($"Search Results: '{search}' (Use Regex: {useRegex}, Match Word: {matchWord})")
+                    bool fullPath = FindDialogViewModel.FullPath;
+                    Navigate(new PageData($"Search Results: '{search}' (Use Regex: {useRegex}, Match Word: {matchWord}, Full Path: {fullPath})")
                     {
                         IsSearch = true,
                         Search = search,
+                        FullPath = fullPath,
                         UseRegex = useRegex,
                         MatchWord = matchWord
                     });
@@ -181,7 +186,7 @@ namespace DieselBundleViewer.ViewModels
                 if(selectedBundles != null)
                     SelectedBundles = selectedBundles;
                 RenderNewItems();
-            });
+            }, true);
         }
 
         void SetViewStyleExec(string style, bool resetScale=false)
@@ -261,7 +266,8 @@ namespace DieselBundleViewer.ViewModels
 
         public void ExtractAllExec()
         {
-            FileManager.SaveFolder(Root.Owner);
+            if(Root != null)
+                FileManager.SaveFolder(Root.Owner);
         }
 
         public void CloseBLBExec()
@@ -286,6 +292,7 @@ namespace DieselBundleViewer.ViewModels
                 RawFiles.Clear();
                 GC.Collect();
                 OpenFindDialog.RaiseCanExecuteChanged();
+                ExtractAll.RaiseCanExecuteChanged();
                 OpenBundleSelectorDialog.RaiseCanExecuteChanged();
             }
         }
@@ -305,9 +312,6 @@ namespace DieselBundleViewer.ViewModels
 
                 //Create the root tree entry, here all other folders will reside.
                 Root = new TreeEntryViewModel(this, new FolderEntry { EntryPath = "", Name = "assets" });
-
-                OpenFindDialog.RaiseCanExecuteChanged();
-                OpenBundleSelectorDialog.RaiseCanExecuteChanged();
 
                 Status = "Preparing to open blb file...";
                 AssetsDir = Path.GetDirectoryName(filePath);
@@ -365,6 +369,10 @@ namespace DieselBundleViewer.ViewModels
 
             if (CancelSource.IsCancellationRequested)
                 return;
+
+            OpenFindDialog.RaiseCanExecuteChanged();
+            ExtractAll.RaiseCanExecuteChanged();
+            OpenBundleSelectorDialog.RaiseCanExecuteChanged();
 
             Status = "Done";
 
@@ -452,19 +460,26 @@ namespace DieselBundleViewer.ViewModels
 
             List<IEntry> children;
 
-            string search = CurrentPage.Value.Search;
+            PageData page = CurrentPage.Value;
+            string search = page.Search;
             if (!string.IsNullOrEmpty(search))
             {
                 children = Root.Owner.GetEntriesByConiditions(entry =>
                 {
+                    string searchUsing;
+                    if (page.FullPath)
+                        searchUsing = entry.EntryPath;
+                    else
+                        searchUsing = entry.Name;
+
                     if (SelectedBundles.Count > 0 && !entry.InBundles(SelectedBundles))
                         return false;
-                    else if (CurrentPage.Value.UseRegex)
-                        return Regex.IsMatch(entry.Name, search);
-                    else if (CurrentPage.Value.MatchWord)
-                        return entry.Name == search;
+                    else if (page.UseRegex)
+                        return Regex.IsMatch(searchUsing, search);
+                    else if (page.MatchWord)
+                        return searchUsing == search;
                     else
-                        return entry.Name.Contains(search);
+                        return searchUsing.Contains(search);
                 });
             } else
                 children = Root.Owner.GetEntriesByDirectory(CurrentDir);

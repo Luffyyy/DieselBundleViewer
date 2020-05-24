@@ -1,4 +1,5 @@
-﻿using Prism.Commands;
+﻿using DieselBundleViewer.Services;
+using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
 using System;
@@ -21,6 +22,7 @@ namespace DieselBundleViewer.ViewModels
         public DialogBase()
         {
             CloseDialog = new DelegateCommand<string>(CloseDialogExec);
+            Utils.DialogsOpen.Add(this);
         }
 
         public void OnDialogOpened(IDialogParameters pms)
@@ -37,6 +39,7 @@ namespace DieselBundleViewer.ViewModels
 
         public virtual void OnDialogClosed() {
             IsClosed = true;
+            Utils.DialogsOpen.Remove(this);
         }
 
         private void CloseDialogExec(string success)

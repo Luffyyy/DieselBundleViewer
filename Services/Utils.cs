@@ -17,7 +17,7 @@ namespace DieselBundleViewer.Services
             get
             {
                 Version ver = Assembly.GetEntryAssembly().GetName().Version;
-                string hotfix = ver.Build != 0 ? ("."+ver.Build) : "";
+                string hotfix = ver.Build != 0 ? ("." + ver.Build) : "";
                 return $"{ver.Major}.{ver.Minor}{hotfix}";
             }
         }
@@ -27,6 +27,8 @@ namespace DieselBundleViewer.Services
 
         public static MainWindowViewModel CurrentWindow { get; set; }
         public static IDialogService CurrentDialogService { get; set; }
+
+        public static List<DialogBase> DialogsOpen = new List<DialogBase>();
 
         public static Point MousePos
         {
@@ -38,18 +40,31 @@ namespace DieselBundleViewer.Services
             }
         }
 
-        public static void ShowDialog(string name, Action<IDialogResult> res=null)
+        public static void ShowDialog(string name, Action<IDialogResult> res = null, bool modal = false)
         {
-            ShowDialog(name, new DialogParameters(), res ?? (r => { }));
+            ShowDialog(name, new DialogParameters(), res ?? (r => { }), modal);
         }
-        public static void ShowDialog(string name, DialogParameters pms, Action<IDialogResult> res=null)
+        public static void ShowDialog(string name, DialogParameters pms, Action<IDialogResult> res = null, bool modal = false)
         {
-            if(CurrentDialogService == null)
+            if (CurrentDialogService == null)
             {
                 Console.WriteLine("Couldn't open dialog. Dialog service was not found.");
                 return;
             }
-            CurrentDialogService.Show(name, pms, res ?? (r => { }));
+            if (modal)
+                CurrentDialogService.ShowDialog(name, pms, res ?? (r => { }));
+            else
+                CurrentDialogService.Show(name, pms, res ?? (r => { }));
+        }
+
+        public static bool DialogOpened(string name)
+        {
+            foreach(var dialog in DialogsOpen)
+            {
+                if (dialog.GetType().Name == (name + "ViewModel"))
+                    return true;
+            }
+            return false;
         }
 
         public static string GetDirectory(string path)

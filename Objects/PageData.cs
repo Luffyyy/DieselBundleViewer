@@ -11,6 +11,8 @@ namespace DieselBundleViewer.Objects
         public bool MatchWord { get; set; }
         public bool UseRegex { get; set; }
         public bool IsSearch { get; set; }
+        public bool FullPath { get; set; }
+        
         public PageData(string path)
         {
             Path = path;
