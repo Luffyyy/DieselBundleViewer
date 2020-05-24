@@ -41,7 +41,7 @@ namespace DieselBundleViewer.ViewModels
         private string fileStatus;
         public string FileStatus { get => fileStatus; set => SetProperty(ref fileStatus, value); }
 
-        private int gridViewScale = 32;
+        private int gridViewScale = 90;
         public int GridViewScale { get => gridViewScale; set => SetProperty(ref gridViewScale, value); }
 
         public Dictionary<Idstring, PackageHeader> PackageHeaders;
@@ -204,7 +204,7 @@ namespace DieselBundleViewer.ViewModels
         {
             bool isGrid = style == "grid";
             if (resetScale)
-                GridViewScale = isGrid ? 64 : 32;
+                GridViewScale = isGrid ? 90 : 64;
             if (isGrid)
                 EntriesStyle = new EntryGridView();
             else
@@ -224,8 +224,8 @@ namespace DieselBundleViewer.ViewModels
                 else if(e.Delta < 0)
                     scale -= 8;
 
-                GridViewScale = Math.Clamp(scale, 32, 128);
-                if (GridViewScale == 32)
+                GridViewScale = Math.Clamp(scale, 64, 150);
+                if (GridViewScale == 64)
                 {
                     if(EntriesStyle is EntryGridView)
                         SetViewStyleExec("list");

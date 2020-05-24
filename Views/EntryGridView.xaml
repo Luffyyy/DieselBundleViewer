@@ -12,7 +12,7 @@
              SelectionMode="Extended" HorizontalAlignment="Stretch" ItemsSource="{Binding ToRender}" BorderThickness="0">
         <ListBox.ItemContainerStyle>
             <Style TargetType="ListBoxItem">
-                <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=OneWayToSource}"/>
+                <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
                 <Setter Property="ContextMenu">
                     <Setter.Value>
                         <StaticResource ResourceKey="EntryContextMenu"/>
@@ -23,12 +23,13 @@
         <!-- https://stackoverflow.com/questions/35203817/wpf-responsive-listbox-grid -->
         <ListBox.ItemsPanel>
             <ItemsPanelTemplate>
-                <WrapPanel IsItemsHost="True" Orientation="Horizontal" />
+                <local:VirtualizingWrapPanel HorizontalContentAlignment="Center"
+                     ChildWidth="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.GridViewScale}"/>
             </ItemsPanelTemplate>
         </ListBox.ItemsPanel>
         <ListBox.ItemTemplate>
             <DataTemplate>
-                <StackPanel Margin="16" Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.GridViewScale}"
+                <StackPanel 
                             HorizontalAlignment="Center" ToolTip="{Binding EntryPath}" ToolTipService.InitialShowDelay="1000" ToolTipService.BetweenShowDelay="100">
                     <StackPanel.InputBindings>
                         <MouseBinding Gesture="LeftDoubleClick" Command="{Binding OnDoubleClick}"/>
