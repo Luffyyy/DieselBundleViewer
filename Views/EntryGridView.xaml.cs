@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DieselBundleViewer.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Windows;
@@ -18,9 +19,31 @@ namespace DieselBundleViewer.Views
     /// </summary>
     public partial class EntryGridView : UserControl
     {
+        private FixListView fix;
         public EntryGridView()
         {
+            fix = new FixListView();
             InitializeComponent();
+        }
+
+        private void ListPreviewKeydown(object sender, KeyEventArgs e)
+        {
+            fix.ListPreviewKeydown(sender, e);
+        }
+
+        private void ListSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            fix.ListSelectionChanged(sender, e);
+        }
+
+        private void ListPreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            fix.ListPreviewMouseDown(sender, e);
+        }
+
+        private void ListItemPreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            fix.ListItemPreviewMouseDown(sender, e);
         }
     }
 }

@@ -29,7 +29,6 @@ namespace DieselBundleViewer.ViewModels
         {
             if (Keyboard.IsKeyDown(Key.LeftCtrl) && Keyboard.IsKeyDown(Key.A))
             {
-
                 ListBox list = (ListBox)sender;
                 foreach (ListItemViewModelBase item in list.Items)
                 {
@@ -60,12 +59,7 @@ namespace DieselBundleViewer.ViewModels
                         int temp = firstIndex;
                         firstIndex = list.Items.IndexOf(items[1]);
                         lastIndex = temp;
-
-                        Console.WriteLine("First index is bigger, swapping");
                     }
-
-                    Console.WriteLine("{0} -> {1}", firstIndex, lastIndex);
-
 
                     for (int i = firstIndex; i < lastIndex + 1; i++)
                     {
@@ -83,7 +77,6 @@ namespace DieselBundleViewer.ViewModels
             {
                 if (!Keyboard.IsKeyDown(Key.LeftCtrl))
                 {
-                    Console.WriteLine(lastList.Items);
                     foreach (ListItemViewModelBase item in lastList.Items)
                     {
                         item.IsSelected = false;
