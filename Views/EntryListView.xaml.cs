@@ -21,14 +21,15 @@ namespace DieselBundleViewer.Views
     /// </summary>
     public partial class EntryListView : UserControl
     {
+        private FixListView fix;
         public EntryListView()
         {
+            fix = new FixListView();
             InitializeComponent();
         }
 
         // https://docs.microsoft.com/en-us/dotnet/framework/wpf/controls/how-to-sort-a-gridview-column-when-a-header-is-clicked
         GridViewColumnHeader _lastHeaderClicked = null;
-        ListBox lastList;
         ListSortDirection _lastDirection = ListSortDirection.Ascending;
 
         private void SelectedEntries_Click_1(object sender, RoutedEventArgs e)
@@ -74,77 +75,24 @@ namespace DieselBundleViewer.Views
             dataView.Refresh();
         }
 
-        private void SelectedEntries_PreviewKeyDown(object sender, KeyEventArgs e)
+        private void ListPreviewKeydown(object sender, KeyEventArgs e)
         {
-            if (Keyboard.IsKeyDown(Key.LeftCtrl) && Keyboard.IsKeyDown(Key.A))
-            {
-
-                ListBox list = (ListBox)sender;
-                foreach(ListItemViewModelBase item in list.Items)
-                {
-                    item.IsSelected = true;
-                }
-            }
+            fix.ListPreviewKeydown(sender, e);
         }
 
-        private void SelectedEntries_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void ListSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (Keyboard.IsKeyDown(Key.LeftShift))
-            {
-                ListBox list = (ListBox)sender;
-
-                var items = list.SelectedItems;
-                if (items.Count == 0)
-                    return;
-
-                var firstIndex = list.SelectedIndex;
-                var lastItem = (ListItemViewModelBase)items[items.Count-1];
-
-                if (lastItem != null)
-                {
-                    int lastIndex = list.Items.IndexOf(lastItem);
-
-                    if (firstIndex > lastIndex)
-                    {
-                        int temp = firstIndex;
-                        firstIndex = list.Items.IndexOf(items[1]);
-                        lastIndex = temp;
-
-                        Console.WriteLine("First index is bigger, swapping");
-                    }
-
-                    Console.WriteLine("{0} -> {1}", firstIndex, lastIndex);
-
-
-                    for (int i=firstIndex; i<lastIndex+1; i++)
-                    {
-                        var item = (list.Items[i] as ListItemViewModelBase);
-                        if (!item.IsSelected)
-                            item.IsSelected = true;
-                    }
-                }
-            }
+            fix.ListSelectionChanged(sender, e);
         }
 
-        private void ListViewItem_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        private void ListPreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if(lastList != null)
-            {
-                if (!Keyboard.IsKeyDown(Key.LeftCtrl))
-                {
-                    Console.WriteLine(lastList.Items);
-                    foreach (ListItemViewModelBase item in lastList.Items)
-                    {
-                        item.IsSelected = false;
-                    }
-                }
-            }
+            fix.ListPreviewMouseDown(sender, e);
         }
 
-        private void SelectedEntries_PreviewMouseDown_1(object sender, MouseButtonEventArgs e)
+        private void ListItemPreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (lastList == null)
-                lastList = (ListBox)sender;
+            fix.ListItemPreviewMouseDown(sender, e);
         }
     }
 }

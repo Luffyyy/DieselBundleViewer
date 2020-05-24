@@ -10,11 +10,10 @@ using System.Linq;
 
 namespace DieselBundleViewer.ViewModels
 {
-    public class ListBundle {
+    public class ListBundle : ListItemViewModelBase
+    {
         public string Name { get; set; }
-        public Idstring Ids { get; set; } 
-        public bool IsSelected { get; set; }
-
+        public Idstring Ids { get; set; }
         public ListBundle(Idstring ids)
         {
             Ids = ids;

@@ -24,11 +24,13 @@
         </TextBlock>
         <TextBox Grid.Row="1" FontSize="14" Text="{Binding Search, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
-        <ListBox Margin="0 8" Grid.Row="2" SelectionMode="Extended" ItemsSource="{Binding BundlesToRender}" DisplayMemberPath="Name">
+        <ListBox Margin="0 8" Grid.Row="2" SelectionMode="Extended" ItemsSource="{Binding BundlesToRender}" DisplayMemberPath="Name" 
+                 SelectionChanged="ListSelectionChanged" PreviewKeyDown="ListPreviewKeydown" PreviewMouseDown="ListPreviewMouseDown">
             <ListBox.ItemContainerStyle>
                 <Style TargetType="{x:Type ListBoxItem}">
                     <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
                     <Setter Property="Foreground" Value="{DynamicResource {x:Static adonisUi:Brushes.ForegroundBrush}}"/>
+                    <EventSetter Event="PreviewMouseDown" Handler="ListItemPreviewMouseDown"/>
                 </Style>
             </ListBox.ItemContainerStyle>
         </ListBox>

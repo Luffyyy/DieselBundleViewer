@@ -11,14 +11,14 @@
     <ListView x:Name="SelectedEntries" SelectionMode="Extended"
               HorizontalAlignment="Stretch" GridViewColumnHeader.Click="SelectedEntries_Click_1" 
               ItemsSource="{Binding ToRender}" BorderThickness="0" 
-              PreviewKeyDown="SelectedEntries_PreviewKeyDown"
-              SelectionChanged="SelectedEntries_SelectionChanged" PreviewMouseDown="SelectedEntries_PreviewMouseDown_1">
+              PreviewKeyDown="ListPreviewKeydown"
+              SelectionChanged="ListSelectionChanged" PreviewMouseDown="ListPreviewMouseDown">
         <ListView.ItemContainerStyle>
             <Style TargetType="ListViewItem">
                 <Style.Resources>
                     <SolidColorBrush x:Key="ListItemHoverFill" Color="{DynamicResource {x:Static adonisUi:Colors.AccentColor}}"/>
                 </Style.Resources>
-                <EventSetter Event="PreviewMouseDown" Handler="ListViewItem_PreviewMouseDown" />
+                <EventSetter Event="PreviewMouseDown" Handler="ListItemPreviewMouseDown"/>
                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                 <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=OneWayToSource}"/>
 
