@@ -10,6 +10,7 @@
     <Company>ModWorkshop</Company>
     <Authors>https://github.com/Luffyyy</Authors>
     <UseWindowsForms>true</UseWindowsForms>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Assets\arrow-left-dark.png" />
