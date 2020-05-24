@@ -42,7 +42,6 @@ namespace DieselBundleViewer.ViewModels
                 Settings.Data.DisplayEmptyFiles = DisplayEmptyFiles;
                 Settings.Data.ExtractFullDir = ExtractFullDir;
                 Settings.Data.DarkMode = DarkMode;
-                Settings.Data.ShowConsole = ShowConsole;
                 Settings.SaveSettings();
             }
         }

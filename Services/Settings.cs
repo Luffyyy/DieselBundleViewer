@@ -14,7 +14,6 @@ namespace DieselBundleViewer.Services
         public bool DisplayEmptyFiles = false;
         public bool ExtractFullDir = false;
         public bool DarkMode = true;
-        public bool ShowConsole = false;
         public List<string> RecentFiles = new List<string>();
     }
 
