@@ -32,8 +32,8 @@ namespace DieselBundleViewer.ViewModels
         private EntryViewModel entryVM;
 
         public ObservableCollection<PackageFileViewModel> Bundles { get; }
-        public bool FileVisibility => (entryVM == null || entryVM.IsFolder);
-        public bool FolderVisibility => !FileVisibility;
+        public bool FolderVisibility => (entryVM != null && entryVM.IsFolder);
+        public bool FileVisibility => !FolderVisibility;
 
         public string FolderContains
         {

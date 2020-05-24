@@ -153,8 +153,6 @@ namespace DieselBundleViewer.Services
 
             string typ = Definitions.TypeFromExtension(entry.ExtensionIds.ToString());
 
-            Console.WriteLine($"The type of the file {typ}");
-
             if (ScriptActions.Converters.ContainsKey(typ))
             {
                 var convs = ScriptActions.Converters[typ];
