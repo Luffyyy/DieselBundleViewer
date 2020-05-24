@@ -10,7 +10,6 @@ namespace DieselBundleViewer.Models
         string Type { get; }
         uint Size { get; }
         string EntryPath { get; }
-        MainWindowViewModel DataContext { get; set; }
         FolderEntry Parent { get; set; }
 
         bool InBundle(Idstring name);

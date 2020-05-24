@@ -187,6 +187,12 @@ namespace DieselBundleViewer.ViewModels
             };
             Utils.ShowDialog("BundleSelectorDialog", pms, r =>
             {
+                var children = Root.Owner.GetAllChildren(true);
+                foreach(var entry in children)
+                {
+                    if (entry is FolderEntry folder)
+                        folder.ResetTotalSize();
+                }
                 var selectedBundles = pms.GetValue<List<Idstring>>("SelectedBundles");
                 if(selectedBundles != null)
                     SelectedBundles = selectedBundles;
@@ -328,6 +334,7 @@ namespace DieselBundleViewer.ViewModels
                 PackageHeaders.Clear();
                 ToRender.Clear();
                 FoldersToRender.Clear();
+                SelectedBundles.Clear();
                 RawFiles.Clear();
                 GC.Collect();
                 OpenFindDialog.RaiseCanExecuteChanged();
@@ -426,7 +433,7 @@ namespace DieselBundleViewer.ViewModels
         public void UpdateFileStatus()
         {
             string newStatus = ToRender.Count + " Items |";
-            uint totalSize = 0;
+            ulong totalSize = 0;
             uint totalSelected = 0;
             string size = "";
 
@@ -435,7 +442,7 @@ namespace DieselBundleViewer.ViewModels
                 if (entry.IsSelected)
                 {
                     if (entry.IsFolder)
-                        totalSize += (entry.Owner as FolderEntry).GetTotalSize();
+                        totalSize += (entry.Owner as FolderEntry).TotalSize;
                     else
                         totalSize += entry.Owner.Size;
 
@@ -541,7 +548,7 @@ namespace DieselBundleViewer.ViewModels
             Dictionary<uint, FileEntry> fileEntries = new Dictionary<uint, FileEntry>();
             foreach (DatabaseEntry ne in entries)
             {
-                FileEntry fe = new FileEntry(ne, db, this);
+                FileEntry fe = new FileEntry(ne, db);
 
                 RawFiles.Add(new Tuple<Idstring, Idstring, Idstring>(fe.PathIds, fe.LanguageIds, fe.ExtensionIds), fe);
                 Root.Owner.AddFileEntry(fe);

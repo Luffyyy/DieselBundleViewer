@@ -81,7 +81,7 @@ namespace DieselBundleViewer.Services
                 return dir + "/" + dir2;
         }
 
-        public static string FriendlySize(uint size)
+        public static string FriendlySize(ulong size)
         {
             if (size < 1024)
                 return size.ToString() + " B";

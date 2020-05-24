@@ -70,8 +70,6 @@ namespace DieselBundleViewer.Models
 
         public DatabaseEntry DBEntry { get; set; }
 
-        public MainWindowViewModel DataContext { get; set; }
-
         public string Type => ExtensionIds?.ToString();
 
         public FolderEntry Parent { get; set; }
@@ -80,8 +78,7 @@ namespace DieselBundleViewer.Models
             BundleEntries = new Dictionary<Idstring, PackageFileEntry>();
         }
 
-        public FileEntry(DatabaseEntry dbEntry, PackageDatabase db, MainWindowViewModel dataContext) : this() {
-            DataContext = dataContext;
+        public FileEntry(DatabaseEntry dbEntry, PackageDatabase db) : this() {
             SetDBEntry(dbEntry, db);
         }
 
@@ -129,7 +126,7 @@ namespace DieselBundleViewer.Models
                 return null;
             }
 
-            string bundle_path = Path.Combine(DataContext.AssetsDir, entry.Parent.BundleName + ".bundle");
+            string bundle_path = Path.Combine(Utils.CurrentWindow.AssetsDir, entry.Parent.BundleName + ".bundle");
             if (!File.Exists(bundle_path))
             {
                 Console.WriteLine("Bundle: {0}, does not exist", bundle_path);

@@ -19,7 +19,25 @@ namespace DieselBundleViewer.Models
         public string EntryPath { get; set; }
         public string Name { get; set; }
         public uint Size => 0;
-        public MainWindowViewModel DataContext { get; set; }
+
+        private ulong? totalSize;
+        public ulong TotalSize { 
+            get
+            {
+                if (totalSize != null)
+                    return (ulong)totalSize;
+
+                ulong size = 0;
+                var children = GetAllChildren();
+                foreach (var entry in children)
+                {
+                    if (entry is FileEntry)
+                        size += entry.Size;
+                }
+                totalSize = size;
+                return size;
+            }
+        }
 
         public string Type => "File folder";
 
@@ -168,17 +186,22 @@ namespace DieselBundleViewer.Models
             return false;
         }
 
-        public List<IEntry> GetAllChildren(List<IEntry> list=null)
+        public List<IEntry> GetAllChildren(bool ignoreSelectedBundles = false, List<IEntry> list = null)
         {
             if (list == null)
                 list = new List<IEntry>();
 
+            var selectedBundles = Utils.CurrentWindow.SelectedBundles;
+
             foreach (KeyValuePair<string, IEntry> pairEntry in Children)
             {
                 IEntry entry = pairEntry.Value;
-                list.Add(entry);
-                if (entry is FolderEntry)
-                    (entry as FolderEntry).GetAllChildren(list);
+                if (ignoreSelectedBundles || selectedBundles.Count == 0 || entry.InBundles(selectedBundles))
+                {
+                    list.Add(entry);
+                    if (entry is FolderEntry)
+                        (entry as FolderEntry).GetAllChildren(ignoreSelectedBundles, list);
+                }
             }
 
             return list;
@@ -231,18 +254,9 @@ namespace DieselBundleViewer.Models
             return entries;
         }
 
-        public uint GetTotalSize()
+        public void ResetTotalSize()
         {
-            uint size = 0;
-            foreach (var child in Children)
-            {
-                IEntry entry = child.Value;
-                if (entry is FileEntry)
-                    size += entry.Size;
-                else
-                    size += (entry as FolderEntry).GetTotalSize();
-            }
-            return size;
+            totalSize = null;
         }
     }
 }
