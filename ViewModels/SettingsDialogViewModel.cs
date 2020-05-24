@@ -36,7 +36,7 @@ namespace DieselBundleViewer.ViewModels
             bool succ = success == "True";
             if (succ)
             {
-                if (DisplayEmptyFiles != Settings.Data.DisplayEmptyFiles)
+                if (DisplayEmptyFiles != Settings.Data.DisplayEmptyFiles && Utils.CurrentWindow.Root != null)
                     Utils.CurrentWindow.Root.Children = null;
 
                 Settings.Data.DisplayEmptyFiles = DisplayEmptyFiles;
