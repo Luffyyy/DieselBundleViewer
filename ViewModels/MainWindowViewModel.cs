@@ -300,6 +300,8 @@ namespace DieselBundleViewer.ViewModels
                 Settings.Data.RecentFiles = RecentFiles.ToList();
                 Settings.SaveSettings();
 
+                RaisePropertyChanged("RecentFilesVis");
+
                 await OpenBLBFile(fileName);
             }
         }

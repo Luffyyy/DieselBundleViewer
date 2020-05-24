@@ -40,9 +40,13 @@
                         <MenuItem.ItemContainerStyle>
                             <Style TargetType="{x:Type MenuItem}">
                                 <Setter Property="Command" Value="{Binding OpenScript}"/>
-                                <Setter Property="Header" Value="{Binding Name, FallbackValue='Err: No Script Title'}"/>
                             </Style>
                         </MenuItem.ItemContainerStyle>
+                        <MenuItem.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name, FallbackValue='Err: No Script Title'}"/>
+                            </DataTemplate>
+                        </MenuItem.ItemTemplate>
                     </MenuItem>
                     <MenuItem Header="Recent Files" ItemsSource="{Binding RecentFiles, Mode=OneWay}" Visibility="{Binding RecentFilesVis, Converter={StaticResource BoolToVis}}">
                         <MenuItem.ItemContainerStyle>
@@ -51,6 +55,11 @@
                                 <Setter Property="CommandParameter" Value="{Binding}"/>
                             </Style>
                         </MenuItem.ItemContainerStyle>
+                        <MenuItem.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}"/>
+                            </DataTemplate>
+                        </MenuItem.ItemTemplate>
                     </MenuItem>
                     <MenuItem Header="Close" Command="{Binding CloseBLB}"/>
                 </MenuItem>
