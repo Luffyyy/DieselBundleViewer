@@ -62,7 +62,7 @@ namespace DieselBundleViewer.Services
             XmlSerializer xml = new XmlSerializer(typeof(SettingsData));
             try
             {
-                using var fs = new FileStream(FILE, FileMode.Open, FileAccess.Write);
+                using var fs = new FileStream(FILE, FileMode.Create, FileAccess.Write);
                 xml.Serialize(fs, Data);
                 Console.WriteLine("Saved settings");
             } catch (Exception e)
