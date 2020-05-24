@@ -110,7 +110,9 @@ namespace DieselBundleViewer.ViewModels
             SetViewStyle = new DelegateCommand<string>(style => SetViewStyleExec(style, true));
             OpenAboutDialog = new DelegateCommand(() => Utils.ShowDialog("AboutDialog"));
             OpenSettingsDialog = new DelegateCommand(() => Utils.ShowDialog("SettingsDialog", r => UpdateSettings()));
-            OpenHowToUse = new DelegateCommand(() => Process.Start("https://github.com/Luffyyy/DieselBundleViewer/wiki/How-to-Use"));
+            OpenHowToUse = new DelegateCommand(() => {
+                Process.Start(new ProcessStartInfo("https://github.com/Luffyyy/DieselBundleViewer/wiki/How-to-Use") { UseShellExecute = true });
+            });
             ExtractAll = new DelegateCommand(ExtractAllExec);
 
             Utils.OnMouseMoved += OnMouseMoved;
@@ -270,6 +272,7 @@ namespace DieselBundleViewer.ViewModels
             Status = "Start by opening a blb file. Press 'File->Open' and navigate to the assets directory of the game";
             Pages.Clear();
             CurrentDir = "";
+            FileStatus = "";
 
             if (Root != null)
             {
