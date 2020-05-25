@@ -67,7 +67,7 @@ namespace DieselBundleViewer.ViewModels
                 if (entryVM.IsFolder)
                     return Utils.FriendlySize((entryVM.Owner as FolderEntry).TotalSize);
                 else
-                    return entryVM?.Size;
+                    return entryVM?.FriendlySize;
             }
         }
         public string EntryPath => entryVM?.EntryPath;

@@ -39,6 +39,16 @@
                                     SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                                     </Grid>
                                 </Border>
+
+                                <Border.InputBindings>
+                                    <MouseBinding Gesture="LeftDoubleClick" Command="{Binding OnDoubleClick}"/>
+                                </Border.InputBindings>
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="MouseLeftButtonDown">
+                                        <i:InvokeCommandAction Command="{Binding OnClick}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
@@ -64,52 +74,14 @@
                     <GridViewColumn.CellTemplate>
                         <DataTemplate>
                             <WrapPanel Background="Transparent" HorizontalAlignment="Stretch">
-                                <WrapPanel.InputBindings>
-                                    <MouseBinding Gesture="LeftDoubleClick" Command="{Binding OnDoubleClick}"/>
-                                </WrapPanel.InputBindings>
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="MouseLeftButtonDown">
-                                        <i:InvokeCommandAction Command="{Binding OnClick}"/>
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
                                 <Image Height="20" Width="20" Source="{Binding Icon}"/>
                                 <TextBlock Margin="4 0" Text="{Binding Name, FallbackValue='TEXT'}"></TextBlock>
                             </WrapPanel>
                         </DataTemplate>
                     </GridViewColumn.CellTemplate>
                 </GridViewColumn>
-                <GridViewColumn Width="150" Header="Type">
-                    <GridViewColumn.CellTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding Type}">
-                                <TextBlock.InputBindings>
-                                    <MouseBinding Gesture="LeftDoubleClick" Command="{Binding OnDoubleClick}"/>
-                                </TextBlock.InputBindings>
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="MouseLeftButtonDown">
-                                        <i:InvokeCommandAction Command="{Binding OnClick}"/>
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
-                            </TextBlock>
-                        </DataTemplate>
-                    </GridViewColumn.CellTemplate>
-                </GridViewColumn>
-                <GridViewColumn Width="100" Header="Size">
-                    <GridViewColumn.CellTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding Size}">
-                                <TextBlock.InputBindings>
-                                    <MouseBinding Gesture="LeftDoubleClick" Command="{Binding OnDoubleClick}"/>
-                                </TextBlock.InputBindings>
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="MouseLeftButtonDown">
-                                        <i:InvokeCommandAction Command="{Binding OnClick}"/>
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
-                            </TextBlock>
-                        </DataTemplate>
-                    </GridViewColumn.CellTemplate>
-                </GridViewColumn>
+                <GridViewColumn Width="150" Header="Type" DisplayMemberBinding="{Binding Type}"/>
+                <GridViewColumn Width="100" Header="Size" DisplayMemberBinding="{Binding FriendlySize}"/>
             </GridView>
         </ListView.View>
 

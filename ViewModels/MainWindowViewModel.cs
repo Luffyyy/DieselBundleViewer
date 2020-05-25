@@ -54,6 +54,7 @@ namespace DieselBundleViewer.ViewModels
 
         public ObservableCollection<EntryViewModel> ToRender { get; set; }
         public ObservableCollection<TreeEntryViewModel> FoldersToRender { get; set; }
+
         public List<Script> Scripts => ScriptActions.Scripts;
         public bool ScriptsVisible => Scripts.Count > 0;
         public ObservableCollection<string> RecentFiles { get; set; }
@@ -293,7 +294,7 @@ namespace DieselBundleViewer.ViewModels
                 if (RecentFiles.Contains(fileName))
                     RecentFiles.Remove(fileName);
 
-                RecentFiles.Add(fileName);
+                RecentFiles.Insert(0, fileName);
 
                 Settings.Data.RecentFiles = RecentFiles.ToList();
                 Settings.SaveSettings();
@@ -361,7 +362,6 @@ namespace DieselBundleViewer.ViewModels
             {
                 if (CancelSource.IsCancellationRequested)
                     return;
-
 
                 //Create the root tree entry, here all other folders will reside.
                 Root = new TreeEntryViewModel(this, new FolderEntry { EntryPath = "", Name = "assets" });
@@ -534,48 +534,105 @@ namespace DieselBundleViewer.ViewModels
         {
             if (ToRender == null || Root == null)
                 return;
+
             ToRender.Clear();
 
             if (cancelLastTask == null)
             {
-                List<IEntry> children;
+                List<FileEntry> files = new List<FileEntry>();
+                List<FolderEntry> folders = new List<FolderEntry>();
 
                 PageData page = CurrentPage.Value;
-                string search = page.Search;
-                if (!string.IsNullOrEmpty(search))
-                {
-                    children = Root.Owner.GetEntriesByConiditions(entry =>
-                    {
-                        string searchUsing;
-                        if (page.FullPath)
-                            searchUsing = entry.EntryPath;
-                        else
-                            searchUsing = entry.Name;
 
-                        if (SelectedBundles.Count > 0 && !entry.InBundles(SelectedBundles))
-                            return false;
-                        else if (page.UseRegex)
-                            return Regex.IsMatch(searchUsing, search);
-                        else if (page.MatchWord)
-                            return searchUsing == search;
-                        else
-                            return searchUsing.Contains(search);
-                    });
-                } else
-                    children = Root.Owner.GetEntriesByDirectory(CurrentDir);
+                if (string.IsNullOrEmpty(page.Search))
+                    Root.Owner.ForEachEntryInDirectory(CurrentDir, entry => CheckRenderEntry(entry, files, folders));
+                else
+                    Root.Owner.ForEachEntry(entry => CheckRenderEntry(entry, files, folders));
 
-                foreach (var entry in children)
+                folders.Sort(SortEntry);
+                files.Sort(SortEntry);
+
+                List<EntryViewModel> list = new List<EntryViewModel>();
+                bool firstFiles = page.SortBy != Sorting.Type && !page.Ascending;
+                if (firstFiles)
                 {
-                    if(SelectedBundles.Count == 0 || entry.InBundles(SelectedBundles))
+                    foreach (var entry in files)
                     {
-                        if(entry is FileEntry && (entry as FileEntry).HasData() || entry is FolderEntry && (entry as FolderEntry).HasVisibleFiles())
-                            ToRender.Add(new EntryViewModel(this, entry));
+                        ToRender.Add(new EntryViewModel(this, entry));
+                    }
+                }
+  
+                foreach (var entry in folders)
+                {
+                    ToRender.Add(new EntryViewModel(this, entry));
+                }
+                if(!firstFiles)
+                {
+                    foreach (var entry in files)
+                    {
+                        ToRender.Add(new EntryViewModel(this, entry));
                     }
                 }
             }
 
             Root.CheckExpands();
             UpdateFileStatus();
+        }
+
+        public void CheckRenderEntry(IEntry entry, List<FileEntry> files, List<FolderEntry> folders)
+        {
+            PageData page = CurrentPage.Value;
+            string search = page.Search;
+            bool found = string.IsNullOrEmpty(page.Search);
+            if (!found)
+            {
+                string searchUsing;
+                if (page.FullPath)
+                    searchUsing = entry.EntryPath;
+                else
+                    searchUsing = entry.Name;
+
+                if (page.UseRegex)
+                    found = Regex.IsMatch(searchUsing, search);
+                else if (page.MatchWord)
+                    found = searchUsing == search;
+                else
+                    found = searchUsing.Contains(search);
+            }
+
+
+            if (found)
+            {
+                if (entry is FileEntry file && file.HasData())
+                    files.Add(file);
+                else if (entry is FolderEntry folder && folder.HasVisibleFiles())
+                    folders.Add(folder);
+            }
+        }
+
+        public int SortEntry(IEntry a, IEntry b)
+        {
+            bool asc = CurrentPage.Value.Ascending;
+            Sorting sortBy = CurrentPage.Value.SortBy;
+
+            if (!asc)
+            {
+                IEntry move = a;
+                a = b;
+                b = move;
+            }
+
+            int check = sortBy switch
+            {
+                Sorting.Name => a.Name.CompareTo(b.Name),
+                Sorting.Type => a.Type.CompareTo(b.Type),
+                Sorting.Size => a.Size.CompareTo(b.Size),
+                _ => 0
+            };
+            if (check == 0 && sortBy != Sorting.Name)
+                return a.Name.CompareTo(b.Name);
+
+            return check;
         }
 
         public Dictionary<uint, FileEntry> DatabaseEntryToFileEntry(List<DatabaseEntry> entries)

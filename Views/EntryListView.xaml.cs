@@ -1,4 +1,6 @@
-﻿using DieselBundleViewer.ViewModels;
+﻿using DieselBundleViewer.Objects;
+using DieselBundleViewer.Services;
+using DieselBundleViewer.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -28,51 +30,28 @@ namespace DieselBundleViewer.Views
             InitializeComponent();
         }
 
-        // https://docs.microsoft.com/en-us/dotnet/framework/wpf/controls/how-to-sort-a-gridview-column-when-a-header-is-clicked
-        GridViewColumnHeader _lastHeaderClicked = null;
-        ListSortDirection _lastDirection = ListSortDirection.Ascending;
+        private GridViewColumnHeader lastHeaderClicked = null;
 
         private void SelectedEntries_Click_1(object sender, RoutedEventArgs e)
         {
-            ListSortDirection direction;
-
             if (e.OriginalSource is GridViewColumnHeader headerClicked)
             {
                 if (headerClicked.Role != GridViewColumnHeaderRole.Padding)
                 {
-                    if (headerClicked != _lastHeaderClicked)
-                        direction = ListSortDirection.Ascending;
-                    else
-                        direction = _lastDirection == ListSortDirection.Ascending ? ListSortDirection.Descending : ListSortDirection.Ascending;
-
                     var columnBinding = headerClicked.Column.DisplayMemberBinding as Binding;
-                    var sortBy = columnBinding?.Path.Path ?? headerClicked.Column.Header as string;
 
-                    Sort(sortBy, direction);
+                    PageData page = Utils.CurrentWindow.CurrentPage.Value;
+                    if (Enum.TryParse((string)headerClicked.Column.Header, out Sorting sort))
+                        page.SortBy = sort;
 
-                    if (direction == ListSortDirection.Ascending)
-                        headerClicked.Column.HeaderTemplate = Resources["HeaderTemplateArrowUp"] as DataTemplate;
-                    else
-                        headerClicked.Column.HeaderTemplate = Resources["HeaderTemplateArrowDown"] as DataTemplate;
+                    page.Ascending = !page.Ascending;
 
-                    // Remove arrow from previously sorted header
-                    if (_lastHeaderClicked != null && _lastHeaderClicked != headerClicked)
-                        _lastHeaderClicked.Column.HeaderTemplate = null;
+                    lastHeaderClicked = headerClicked;
 
-                    _lastHeaderClicked = headerClicked;
-                    _lastDirection = direction;
+                    Utils.CurrentWindow.RenderNewItems();
                 }
             }
-        }
-
-        private void Sort(string sortBy, ListSortDirection direction)
-        {
-            ICollectionView dataView = CollectionViewSource.GetDefaultView((DataContext as MainWindowViewModel).ToRender);
-
-            dataView.SortDescriptions.Clear();
-            SortDescription sd = new SortDescription(sortBy, direction);
-            dataView.SortDescriptions.Add(sd);
-            dataView.Refresh();
+            e.Handled = true;
         }
 
         private void ListPreviewKeydown(object sender, KeyEventArgs e)

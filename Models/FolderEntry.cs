@@ -207,51 +207,30 @@ namespace DieselBundleViewer.Models
             return list;
         }
 
-        public List<IEntry> GetEntriesByDirectory(string dir, List<IEntry> entries=null)
+        public void ForEachEntryInDirectory(string dir, Action<IEntry> func = null)
         {
-            if(entries == null)
-                entries = new List<IEntry>();
-
             foreach (KeyValuePair<string, IEntry> pairEntry in Children)
             {
                 IEntry entry = pairEntry.Value;
 
                 if (Utils.GetDirectory(entry.EntryPath) == dir)
-                {
-                    if (pairEntry.Value is FolderEntry)
-                        entries.Insert(0, entry);
-                    else
-                        entries.Add(entry);
-                }
-                if (entry is FolderEntry && dir.StartsWith(entry.EntryPath))
-                    (entry as FolderEntry).GetEntriesByDirectory(dir, entries);
+                    func(entry);
 
+                if (entry is FolderEntry && dir.StartsWith(entry.EntryPath))
+                    (entry as FolderEntry).ForEachEntryInDirectory(dir, func);
             }
-            return entries;
         }
 
 
-        public List<IEntry> GetEntriesByConiditions(Func<IEntry, bool> check, List<IEntry> entries = null)
+        public void ForEachEntry(Action<IEntry> func)
         {
-            if (entries == null)
-                entries = new List<IEntry>();
-
             foreach (KeyValuePair<string, IEntry> pairEntry in Children)
             {
                 IEntry entry = pairEntry.Value;
-
-                if (check(entry))
-                {
-                    if (pairEntry.Value is FolderEntry)
-                        entries.Insert(0, entry);
-                    else
-                        entries.Add(entry);
-                }
+                func(entry);
                 if (entry is FolderEntry)
-                    (entry as FolderEntry).GetEntriesByConiditions(check, entries);
-
+                    (entry as FolderEntry).ForEachEntry(func);
             }
-            return entries;
         }
 
         public void ResetTotalSize()
