@@ -583,6 +583,10 @@ namespace DieselBundleViewer.ViewModels
         {
             PageData page = CurrentPage.Value;
             string search = page.Search;
+
+            if (SelectedBundles.Count > 0 && !entry.InBundles(SelectedBundles))
+                return;
+
             bool found = string.IsNullOrEmpty(page.Search);
             if (!found)
             {
@@ -599,7 +603,6 @@ namespace DieselBundleViewer.ViewModels
                 else
                     found = searchUsing.Contains(search);
             }
-
 
             if (found)
             {
