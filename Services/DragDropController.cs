@@ -125,12 +125,10 @@ namespace DieselBundleViewer.Services
 
         public void PopulateFiles(List<VirtualFileDataObject.FileDescriptor> files, FolderEntry parent, string path = "")
         {
-            foreach (KeyValuePair<string, IEntry> entry in parent.Children)
+            foreach (var entry in parent.GetAllChildren())
             {
-                if (entry.Value is FolderEntry folder)
-                    PopulateFiles(files, folder, Path.Combine(path ?? "", entry.Key ?? ""));
-                else if (entry.Value is FileEntry file)
-                    PopulateFile(files, file, Path.Combine(path ?? "", entry.Key));
+                if (entry is FileEntry file)
+                    PopulateFile(files, file, Path.Combine(path ?? "", file.Name));
             }
         }
     }

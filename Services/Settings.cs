@@ -24,7 +24,7 @@ namespace DieselBundleViewer.Services
 
         static Settings()
         {
-            Console.WriteLine("Loading setting...");
+            Console.WriteLine("Loading settings...");
             ReadSettings();
         }
 
