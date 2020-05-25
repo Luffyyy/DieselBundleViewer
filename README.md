@@ -16,6 +16,6 @@ The program is mostly based of DieselToolBox with some code taken from there.
   * Option to hide 0 byte files (defaults to true).
   * Play/convert stream (wem) to wav on the fly.
   
-* This version also moves to WPF / .NET Core 3.1. I've tried using a bunch of cross-platform .NET GUIs, but in the end I decided it's best to just go full WPF and so this means this program is only for Windows.
+* This version also moves to WPF / .NET Core; I've tried using a bunch of cross-platform .NET GUIs, but in the end I decided it's best to just go full WPF and so this means this program is only for Windows.
 
 Most icons are from https://icons8.com/
