@@ -38,8 +38,6 @@ namespace DieselBundleViewer.Views
             {
                 if (headerClicked.Role != GridViewColumnHeaderRole.Padding)
                 {
-                    var columnBinding = headerClicked.Column.DisplayMemberBinding as Binding;
-
                     PageData page = Utils.CurrentWindow.CurrentPage.Value;
                     if (Enum.TryParse((string)headerClicked.Column.Header, out Sorting sort))
                         page.SortBy = sort;
@@ -69,9 +67,9 @@ namespace DieselBundleViewer.Views
             fix.ListPreviewMouseDown(sender, e);
         }
 
-        private void ListItemPreviewMouseDown(object sender, MouseButtonEventArgs e)
+        private void ListItemPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            fix.ListItemPreviewMouseDown(sender, e);
+            fix.ListItemPreviewMouseLeftButtonDown(sender, e);
         }
     }
 }

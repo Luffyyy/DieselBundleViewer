@@ -30,7 +30,7 @@
                 <Style TargetType="{x:Type ListBoxItem}">
                     <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
                     <Setter Property="Foreground" Value="{DynamicResource {x:Static adonisUi:Brushes.ForegroundBrush}}"/>
-                    <EventSetter Event="PreviewMouseDown" Handler="ListItemPreviewMouseDown"/>
+                    <EventSetter Event="PreviewMouseLeftButtonDown" Handler="ListItemPreviewMouseLeftButtonDown"/>
                 </Style>
             </ListBox.ItemContainerStyle>
         </ListBox>

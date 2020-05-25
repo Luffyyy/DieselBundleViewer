@@ -18,9 +18,9 @@
                 <Style.Resources>
                     <SolidColorBrush x:Key="ListItemHoverFill" Color="{DynamicResource {x:Static adonisUi:Colors.AccentColor}}"/>
                 </Style.Resources>
-                <EventSetter Event="PreviewMouseDown" Handler="ListItemPreviewMouseDown"/>
+                <EventSetter Event="PreviewMouseLeftButtonDown" Handler="ListItemPreviewMouseLeftButtonDown"/>
                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=OneWayToSource}"/>
+                <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
 
                 <Setter Property="Template">
                     <Setter.Value>

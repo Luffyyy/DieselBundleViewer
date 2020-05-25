@@ -80,7 +80,7 @@ namespace DieselBundleViewer.ViewModels
 
         void OnClickExec(MouseButtonEventArgs e)
         {
-            ParentWindow.OnClick();
+            //ParentWindow.OnClick();
             ParentWindow.Navigate(Owner.EntryPath);
             IsSelected = true;
         }

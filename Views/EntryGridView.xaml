@@ -13,7 +13,7 @@
              SelectionChanged="ListSelectionChanged" PreviewKeyDown="ListPreviewKeydown" PreviewMouseDown="ListPreviewMouseDown">
         <ListBox.ItemContainerStyle>
             <Style TargetType="ListBoxItem">
-                <EventSetter Event="PreviewMouseDown" Handler="ListItemPreviewMouseDown"/>
+                <EventSetter Event="PreviewMouseLeftButtonDown" Handler="ListItemPreviewMouseLeftButtonDown"/>
                 <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
                 <Setter Property="ContextMenu">
                     <Setter.Value>
@@ -31,8 +31,7 @@
         </ListBox.ItemsPanel>
         <ListBox.ItemTemplate>
             <DataTemplate>
-                <StackPanel 
-                            HorizontalAlignment="Center" ToolTip="{Binding EntryPath}" ToolTipService.InitialShowDelay="1000" ToolTipService.BetweenShowDelay="100">
+                <StackPanel HorizontalAlignment="Center" ToolTip="{Binding EntryPath}" ToolTipService.InitialShowDelay="1000" ToolTipService.BetweenShowDelay="100">
                     <StackPanel.InputBindings>
                         <MouseBinding Gesture="LeftDoubleClick" Command="{Binding OnDoubleClick}"/>
                     </StackPanel.InputBindings>

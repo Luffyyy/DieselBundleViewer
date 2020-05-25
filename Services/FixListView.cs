@@ -71,7 +71,7 @@ namespace DieselBundleViewer.ViewModels
             }
         }
 
-        public void ListItemPreviewMouseDown(object sender, MouseButtonEventArgs e)
+        public void ListItemPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (lastList != null)
             {

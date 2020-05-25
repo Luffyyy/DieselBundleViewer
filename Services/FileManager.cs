@@ -249,25 +249,23 @@ namespace DieselBundleViewer.Services
                 File.WriteAllLines(path, dataArr);
         }
 
-        public static void SaveFolder(FolderEntry folder)
+        public static void SaveMultiple(List<IEntry> entries)
         {
             FolderBrowserDialog fbd = new FolderBrowserDialog();
             if (fbd.ShowDialog() == DialogResult.OK)
             {
-                var children = folder.GetAllChildren();
-
                 var pms = new DialogParameters();
                 pms.Add("ProgressAction", new Action<ProgressDialogViewModel>(dialog => {
                     Thread t = new Thread(o =>
                     {
                         Thread.Sleep(100); //Give dialog time to show up
-                        int total = children.Count;
+                        int total = entries.Count;
                         for (int i = 0; i < total; i++)
                         {
                             if (dialog.IsClosed)
                                 return;
 
-                            IEntry entry = children[i];
+                            IEntry entry = entries[i];
                             string path = Path.Combine(fbd.SelectedPath, entry.EntryPath.Replace("/", "\\"));
                             if (entry is FileEntry childFile)
                             {

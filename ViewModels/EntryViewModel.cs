@@ -42,12 +42,13 @@ namespace DieselBundleViewer.ViewModels
         public uint Size => (Owner is FolderEntry) ? 0 : Owner.Size;
         public string FriendlySize => (Owner is FolderEntry) ? "" : Utils.FriendlySize(Owner.Size);
 
-        public bool FileLocationVis => ParentWindow.CurrentPage.Value.IsSearch;
+        public bool FileLocationVis => Utils.CurrentWindow.CurrentPage.Value.IsSearch && SingleSelectionVis;
+
         public bool ConvertSaveVis
         {
             get
             {
-                if (Owner is FileEntry entry)
+                if (Owner is FileEntry entry && SingleSelectionVis)
                 {
                     string typ = Definitions.TypeFromExtension(entry.ExtensionIds.ToString());
                     return ScriptActions.Converters.ContainsKey(typ);
@@ -55,6 +56,7 @@ namespace DieselBundleViewer.ViewModels
                 return false;
             }
         }
+        public bool SingleSelectionVis => !Utils.CurrentWindow.IsSelectingMultiple();
 
         public override bool IsSelected {
             get => isSelected;
@@ -62,11 +64,9 @@ namespace DieselBundleViewer.ViewModels
                 bool wasSelected = isSelected;
                 SetProperty(ref isSelected, value);
                 if(wasSelected != value)
-                    ParentWindow.UpdateFileStatus();
+                    Utils.CurrentWindow.UpdateFileStatus();
             }
         }
-
-        public MainWindowViewModel ParentWindow { get; set; }
 
         public DelegateCommand OnDoubleClick { get; }
         public DelegateCommand<MouseButtonEventArgs> OnClick { get; }
@@ -74,10 +74,9 @@ namespace DieselBundleViewer.ViewModels
         public DelegateCommand OpenFileLocation { get; }
         public DelegateCommand<string> SaveAs { get; }
 
-        public EntryViewModel(MainWindowViewModel parentWindow, IEntry owner)
+        public EntryViewModel(IEntry owner)
         {
             Owner = owner;
-            ParentWindow = parentWindow;
             OnDoubleClick = new DelegateCommand(OnDoubleClickExec);
             OnClick = new DelegateCommand<MouseButtonEventArgs>(OnClickExec);
             OpenFileInfo = new DelegateCommand(OpenFileInfoExec);
@@ -87,7 +86,7 @@ namespace DieselBundleViewer.ViewModels
 
         void OpenFileLocationExec()
         {
-            ParentWindow.Navigate(Owner.Parent.EntryPath);
+            Utils.CurrentWindow.Navigate(Owner.Parent.EntryPath);
         }
 
         void OpenFileInfoExec()
@@ -101,25 +100,40 @@ namespace DieselBundleViewer.ViewModels
 
         void OnClickExec(MouseButtonEventArgs e)
         {
-            ParentWindow.OnClick();
+            Utils.CurrentWindow.OnClick();
         }
 
         void OnDoubleClickExec()
         {
             if (Owner is FolderEntry)
-                ParentWindow.Navigate(Owner.EntryPath);
+                Utils.CurrentWindow.Navigate(Owner.EntryPath);
             else if (Owner is FileEntry entry)
                 FileManager.ViewFile(entry);
         }
 
         void SaveAsExec(string convert)
         {
-            if (convert == "True")
-                FileManager.SaveFileConvert((FileEntry)Owner);
-            else if (Owner is FileEntry entry)
-                FileManager.SaveFileAs(entry);
-            else if (Owner is FolderEntry fEntry)
-                FileManager.SaveFolder(fEntry);
+            List<EntryViewModel> selection = Utils.CurrentWindow.SelectedEntries();
+            if(selection.Count == 1)
+            {
+                if (convert == "True")
+                    FileManager.SaveFileConvert((FileEntry)Owner);
+                else if (Owner is FileEntry entry)
+                    FileManager.SaveFileAs(entry);
+                else if (Owner is FolderEntry fEntry)
+                    FileManager.SaveMultiple(fEntry.GetAllChildren());
+            } else
+            {
+                List<IEntry> entries = new List<IEntry>();
+                foreach(var entry in selection)
+                {
+                    if (entry.Owner is FileEntry file)
+                        entries.Add(file);
+                    else if (entry.Owner is FolderEntry folder)
+                        entries.AddRange(folder.GetAllChildren());
+                }
+                FileManager.SaveMultiple(entries);
+            }
         }
     }
 }

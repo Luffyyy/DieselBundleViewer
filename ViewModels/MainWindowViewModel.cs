@@ -313,7 +313,7 @@ namespace DieselBundleViewer.ViewModels
         public void ExtractAllExec()
         {
             if(Root != null)
-                FileManager.SaveFolder(Root.Owner);
+                FileManager.SaveMultiple(Root.Owner.GetAllChildren());
         }
 
         public void CloseBLBExec()
@@ -558,19 +558,19 @@ namespace DieselBundleViewer.ViewModels
                 {
                     foreach (var entry in files)
                     {
-                        ToRender.Add(new EntryViewModel(this, entry));
+                        ToRender.Add(new EntryViewModel(entry));
                     }
                 }
   
                 foreach (var entry in folders)
                 {
-                    ToRender.Add(new EntryViewModel(this, entry));
+                    ToRender.Add(new EntryViewModel(entry));
                 }
                 if(!firstFiles)
                 {
                     foreach (var entry in files)
                     {
-                        ToRender.Add(new EntryViewModel(this, entry));
+                        ToRender.Add(new EntryViewModel(entry));
                     }
                 }
             }
@@ -645,6 +645,33 @@ namespace DieselBundleViewer.ViewModels
                 fileEntries.Add(ne.ID, fe);
             }
             return fileEntries;
+        }
+
+        public bool IsSelectingMultiple()
+        {
+            bool foundOne = false;
+            foreach (var entry in ToRender)
+            {
+                if (entry.IsSelected)
+                {
+                    if (!foundOne)
+                        foundOne = true;
+                    else
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        public List<EntryViewModel> SelectedEntries()
+        {
+            List<EntryViewModel> list = new List<EntryViewModel>();
+            foreach(var entry in ToRender)
+            {
+                if(entry.IsSelected)
+                    list.Add(entry);
+            }
+            return list;
         }
     }
 }

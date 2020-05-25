@@ -3,10 +3,10 @@
                     xmlns:local="clr-namespace:DieselBundleViewer.Views">
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
     <ContextMenu x:Key="EntryContextMenu">
-        <MenuItem Header="Open" Command="{Binding OnDoubleClick}"/>
+        <MenuItem Header="Open" Visibility="{Binding SingleSelectionVis, Converter={StaticResource BoolToVis}}" Command="{Binding OnDoubleClick}"/>
         <MenuItem Header="Save As" Command="{Binding SaveAs}" CommandParameter="False"/>
         <MenuItem Header="Convert and Save As" Visibility="{Binding ConvertSaveVis, Converter={StaticResource BoolToVis}}" Command="{Binding SaveAs}" CommandParameter="True"/>
         <MenuItem Header="Open Location" Visibility="{Binding FileLocationVis, Converter={StaticResource BoolToVis}}" Command="{Binding OpenFileLocation}"/>
-        <MenuItem Header="Properties" Command="{Binding OpenFileInfo}"/>
+        <MenuItem Header="Properties" Visibility="{Binding SingleSelectionVis, Converter={StaticResource BoolToVis}}" Command="{Binding OpenFileInfo}"/>
     </ContextMenu>
 </ResourceDictionary>
