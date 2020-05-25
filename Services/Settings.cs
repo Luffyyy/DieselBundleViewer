@@ -11,9 +11,9 @@ namespace DieselBundleViewer.Services
 {
     public class SettingsData
     {
-        public bool DisplayEmptyFiles = false;
-        public bool ExtractFullDir = false;
-        public bool DarkMode = true;
+        public bool DisplayEmptyFiles { get; set; } = false;
+        public bool ExtractFullDir { get; set; } = false;
+        public bool DarkMode { get; set; }  = true;
         public List<string> RecentFiles = new List<string>();
     }
 

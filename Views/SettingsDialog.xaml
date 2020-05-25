@@ -7,7 +7,7 @@
     <DockPanel Margin="8" LastChildFill="False">
         <StackPanel DockPanel.Dock="Top">
             <CheckBox FontSize="14" Content="Extract the full directory of files when saving" IsChecked="{Binding ExtractFullDir, Mode=TwoWay}"/>
-            <CheckBox FontSize="14" Content="Display 0 byte files" IsChecked="{Binding DisplayEmptyFiles, Mode=TwoWay}">
+            <CheckBox FontSize="14" Content="Display 0 byte files (cooked__physics are always shown)" IsChecked="{Binding DisplayEmptyFiles, Mode=TwoWay}">
                 <CheckBox.ToolTip>
                     There are certain files that show up inside the game but they don't really exist in the bundles. The option toggles their visiblity.
                 </CheckBox.ToolTip>

@@ -110,7 +110,7 @@ namespace DieselBundleViewer.Models
 
         public bool HasData()
         {
-            return Settings.Data.DisplayEmptyFiles || Size > 0;
+            return Settings.Data.DisplayEmptyFiles || Type == "cooked_physics" || Size > 0;
         }
 
         public object FileData(PackageFileEntry be = null, FormatConverter exporter = null)
