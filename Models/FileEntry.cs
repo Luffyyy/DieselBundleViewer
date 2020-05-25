@@ -96,8 +96,18 @@ namespace DieselBundleViewer.Models
                 _max_entry = null;
             }
         }
+
+        /// <summary>
+        /// Checks if the file is in a bundle.
+        /// </summary>
+        /// <param name="name">The name (idstring) of the bundle</param>
+        /// <returns>true if it's in the bundle</returns>
         public bool InBundle(Idstring name) => BundleEntries.ContainsKey(name);
 
+        /// <summary>
+        /// Returns whether or not the file is in one of the bundles provided in the arguments
+        /// </summary>
+        /// <param name="names">Names (idstring) of packages to test with</param>
         public bool InBundles(List<Idstring> names)
         {
             foreach (var bundle in names)
@@ -108,6 +118,10 @@ namespace DieselBundleViewer.Models
             return false;
         }
 
+        /// <summary>
+        /// Determines whether or not a file has any data to extract. Cooked physics are ignored since they often are 0 bytes but still exist.
+        /// </summary>
+        /// <returns>true if the file has data</returns>
         public bool HasData()
         {
             return Settings.Data.DisplayEmptyFiles || Type == "cooked_physics" || Size > 0;
@@ -124,6 +138,10 @@ namespace DieselBundleViewer.Models
             }
         }
 
+        /// <summary>
+        /// Returns the bytes[] of the file
+        /// </summary>
+        /// <param name="entry">A package entry to use for the data. Defaults to what MaxBundleEntry returns.</param>
         private byte[] FileEntryBytes(PackageFileEntry entry)
         {
             if (entry == null)
@@ -161,6 +179,10 @@ namespace DieselBundleViewer.Models
             return null;
         }
 
+        /// <summary>
+        /// Returns a MemoryStream of the file.
+        /// </summary>
+        /// <param name="entry">A package entry to use for the data. Defaults to what MaxBundleEntry returns.</param>
         public MemoryStream FileStream(PackageFileEntry entry = null)
         {
             entry ??= MaxBundleEntry();
@@ -180,6 +202,9 @@ namespace DieselBundleViewer.Models
             return FileEntryBytes(entry);
         }
 
+        /// <summary>
+        /// Returns the bundle that has the largest version of the file.
+        /// </summary>
         public PackageFileEntry MaxBundleEntry()
         {
             if (BundleEntries.Count == 0)
