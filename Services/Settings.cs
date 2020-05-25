@@ -19,7 +19,7 @@ namespace DieselBundleViewer.Services
 
     public static class Settings
     {
-        private const string FILE = "./Settings.xml";
+        private const string FILE = "./Data/Settings.xml";
         public static SettingsData Data { get; set; }
 
         static Settings()
@@ -31,10 +31,8 @@ namespace DieselBundleViewer.Services
         public static void ReadSettings()
         {
             if (!File.Exists(FILE))
-            {
-                File.Create(FILE).Close();
                 SaveSettings();
-            } else
+            else
             {
                 XmlSerializer xml = new XmlSerializer(typeof(SettingsData));
                 using var fs = new FileStream(FILE, FileMode.Open, FileAccess.Read);
@@ -56,8 +54,10 @@ namespace DieselBundleViewer.Services
         public static void SaveSettings()
         {
             Data ??= new SettingsData();
-            if (!File.Exists(FILE))
-                File.Create(FILE).Close();
+
+            string dir = Path.GetDirectoryName(FILE);
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
 
             XmlSerializer xml = new XmlSerializer(typeof(SettingsData));
             try
