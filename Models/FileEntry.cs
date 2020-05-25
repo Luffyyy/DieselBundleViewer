@@ -78,8 +78,14 @@ namespace DieselBundleViewer.Models
             BundleEntries = new Dictionary<Idstring, PackageFileEntry>();
         }
 
-        public FileEntry(DatabaseEntry dbEntry, PackageDatabase db) : this() {
-            SetDBEntry(dbEntry, db);
+        public FileEntry(DatabaseEntry dbEntry) : this() {
+            DBEntry = dbEntry;
+        }
+
+        public void LoadPath()
+        {
+            if(DBEntry != null)
+                General.GetFilepath(DBEntry, out PathIds, out LanguageIds, out ExtensionIds, DBEntry.Parent);
         }
 
         public void AddBundleEntry(PackageFileEntry entry)
@@ -172,12 +178,6 @@ namespace DieselBundleViewer.Models
             entry ??= MaxBundleEntry();
 
             return FileEntryBytes(entry);
-        }
-
-        public void SetDBEntry(DatabaseEntry ne, PackageDatabase db)
-        {
-            DBEntry = ne;
-            General.GetFilepath(ne, out PathIds, out LanguageIds, out ExtensionIds, db);
         }
 
         public PackageFileEntry MaxBundleEntry()

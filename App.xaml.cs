@@ -31,9 +31,11 @@ namespace DieselBundleViewer
         public App()
         {
             AllocConsole();
-
-            HashIndex.Load("Data/hashlist", HashIndex.HashType.Path);
-            HashIndex.Load("Data/extensions");
+            Console.WriteLine("Loading local hashlist");
+            if (File.Exists("Data/hashlist"))
+                HashIndex.LoadParallel("Data/hashlist");
+            else
+                Console.WriteLine("Local hashlist is missing!");
 
             LoadConverters();
         }

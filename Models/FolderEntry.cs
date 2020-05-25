@@ -116,16 +116,16 @@ namespace DieselBundleViewer.Models
 
         public void AddFileEntry(FileEntry entry)
         {
-            int[] path_parts = entry.PathIds.UnHashedParts;
-            if (path_parts != null && path_parts.Length > (folderLevel + 1))
+            string[] splt = entry.PathIds.HasUnHashed ? entry.PathIds.UnHashed.Split("/") : null;
+            if (splt != null && splt.Length > (folderLevel + 1))
             {
-                string initial_folder = HashIndex.LookupString(path_parts[folderLevel]);
+                string initial_folder = splt[folderLevel];
                 if (!Children.ContainsKey(initial_folder))
                 {
                     FolderEntry folder = new FolderEntry(entry, this.folderLevel + 1) { Parent = this, EntryPath = "" };
                     for (int i = 0; i <= this.folderLevel; i++)
                     {
-                        folder.EntryPath = Utils.CombineDir(folder.EntryPath, HashIndex.LookupString(path_parts[i]));
+                        folder.EntryPath = Utils.CombineDir(folder.EntryPath, splt[i]);
                     }
                     //Debug.Print(string.Format("Folder: {0}", folder.Path));
 

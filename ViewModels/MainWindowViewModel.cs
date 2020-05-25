@@ -15,6 +15,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -346,6 +347,9 @@ namespace DieselBundleViewer.ViewModels
 
         public async Task OpenBLBFile(string filePath)
         {
+            Stopwatch timer = new Stopwatch();
+            timer.Start();
+
             CloseBLBExec();
 
             CancellationTokenSource CancelSource = new CancellationTokenSource();
@@ -358,6 +362,7 @@ namespace DieselBundleViewer.ViewModels
                 if (CancelSource.IsCancellationRequested)
                     return;
 
+
                 //Create the root tree entry, here all other folders will reside.
                 Root = new TreeEntryViewModel(this, new FolderEntry { EntryPath = "", Name = "assets" });
 
@@ -366,12 +371,14 @@ namespace DieselBundleViewer.ViewModels
                 Status = "Reading blb file";
 
                 db = new PackageDatabase(filePath);
-                General.LoadHashlist(AssetsDir, db);
                 Status = "Getting bundle headers";
 
                 List<string> Files = Directory.EnumerateFiles(AssetsDir, "*.bundle").ToList();
 
-                FileEntries = DatabaseEntryToFileEntry(db.GetDatabaseEntries());
+                var entries = db.GetDatabaseEntries();
+                FileEntries = DatabaseEntryToFileEntry(entries);
+
+                bool foundHashlist = false;
 
                 List<string> FilterFiles = new List<string>();
                 for (int i = 0; i < Files.Count; i++)
@@ -398,6 +405,17 @@ namespace DieselBundleViewer.ViewModels
 
                     foreach (PackageFileEntry be in bundle.Entries)
                     {
+                        if (!foundHashlist)
+                        {
+                            DatabaseEntry ne = db.EntryFromID(be.ID);
+                            if (ne._path == 0x9234DD22C60D71B8)
+                            {
+                                Console.WriteLine("Found hashlist, loading...");
+                                General.ReadHashlistAndLoad(file, be);
+                                foundHashlist = true;
+                            }
+                        }
+
                         if (CancelSource.IsCancellationRequested)
                             return;
 
@@ -412,8 +430,17 @@ namespace DieselBundleViewer.ViewModels
                     PackageHeaders.Add(bundle.Name, bundle);
                 }
 
+                foreach(var fe in FileEntries.Values)
+                {
+                    fe.LoadPath();
+                    RawFiles.Add(new Tuple<Idstring, Idstring, Idstring>(fe.PathIds, fe.LanguageIds, fe.ExtensionIds), fe);
+                    Root.Owner.AddFileEntry(fe);
+                }
+
                 GC.Collect();
             });
+
+            timer.Stop();
 
             if (CancelSource.IsCancellationRequested)
                 return;
@@ -425,7 +452,7 @@ namespace DieselBundleViewer.ViewModels
             OpenBundleSelectorDialog.RaiseCanExecuteChanged();
             CloseBLB.RaiseCanExecuteChanged();
 
-            Status = "Done";
+            Status = $"Done. Took {timer.ElapsedMilliseconds / 1000} seconds";
 
             Bundles = PackageHeaders.Keys.ToList();
             FoldersToRender.Clear();
@@ -554,12 +581,10 @@ namespace DieselBundleViewer.ViewModels
         public Dictionary<uint, FileEntry> DatabaseEntryToFileEntry(List<DatabaseEntry> entries)
         {
             Dictionary<uint, FileEntry> fileEntries = new Dictionary<uint, FileEntry>();
+
             foreach (DatabaseEntry ne in entries)
             {
-                FileEntry fe = new FileEntry(ne, db);
-
-                RawFiles.Add(new Tuple<Idstring, Idstring, Idstring>(fe.PathIds, fe.LanguageIds, fe.ExtensionIds), fe);
-                Root.Owner.AddFileEntry(fe);
+                FileEntry fe = new FileEntry(ne);
                 fileEntries.Add(ne.ID, fe);
             }
             return fileEntries;

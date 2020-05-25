@@ -106,7 +106,6 @@ namespace DieselBundleViewer.ViewModels
                 foreach(var pair in bundles)
                 {
                     var e = new PackageFileViewModel(pair.Value);
-                    Console.WriteLine(e.Name);
                     Bundles.Add(e);
                 }
             }
