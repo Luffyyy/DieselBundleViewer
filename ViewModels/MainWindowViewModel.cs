@@ -119,9 +119,7 @@ namespace DieselBundleViewer.ViewModels
             SetViewStyle = new DelegateCommand<string>(style => SetViewStyleExec(style, true));
             OpenAboutDialog = new DelegateCommand(() => Utils.ShowDialog("AboutDialog", null, true));
             OpenSettingsDialog = new DelegateCommand(() => Utils.ShowDialog("SettingsDialog", r => UpdateSettings()));
-            OpenHowToUse = new DelegateCommand(() => {
-                Process.Start(new ProcessStartInfo("https://github.com/Luffyyy/DieselBundleViewer/wiki/How-to-Use") { UseShellExecute = true });
-            });
+            OpenHowToUse = new DelegateCommand(() => Utils.OpenURL("https://github.com/Luffyyy/DieselBundleViewer/wiki/How-to-Use"));
             ExtractAll = new DelegateCommand(ExtractAllExec, () => Root != null);
 
             Utils.OnMouseMoved += OnMouseMoved;

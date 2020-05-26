@@ -4,6 +4,7 @@ using Prism.Ioc;
 using Prism.Services.Dialogs;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -80,7 +81,7 @@ namespace DieselBundleViewer.Services
         /// <param name="name">The name of the dialog type to check. For example: AboutDialog</param>
         public static bool DialogOpened(string name)
         {
-            foreach(var dialog in DialogsOpen)
+            foreach (var dialog in DialogsOpen)
             {
                 if (dialog.GetType().Name == (name + "ViewModel"))
                     return true;
@@ -130,12 +131,21 @@ namespace DieselBundleViewer.Services
                 else
                 {
                     double gb = Math.Pow(1024, 3);
-                    if(size < gb)
+                    if (size < gb)
                         return string.Format("{0:n1}", (float)size / mb) + " MiB";
                     else
                         return string.Format("{0:n1}", (float)size / gb) + " GiB";
                 }
             }
+        }
+
+        /// <summary>
+        /// Opens a URL in the browser.
+        /// </summary>
+        /// <param name="url">The URL to open.</param>
+        public static void OpenURL(string url)
+        {
+            Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
         }
     }
 }

@@ -15,10 +15,10 @@
             DieselBundleViewer
         </TextBlock>
         <TextBlock FontSize="18" TextWrapping="Wrap" Grid.Row="2">
-            Written by Luffy (<Hyperlink NavigateUri="https://modworkshop.net">https://modworkshop.net</Hyperlink>) <LineBreak/>
+            Written by Luffy (<Hyperlink NavigateUri="https://modworkshop.net" PreviewMouseLeftButtonDown="Hyperlink_MouseDown">https://modworkshop.net</Hyperlink>) <LineBreak/>
             Based on Simon W's DieselToolBox code. <LineBreak/>
-            Repository: <Hyperlink NavigateUri="https://github.com/Luffyyy/DieselBundleViewer/">https://github.com/Luffyyy/DieselBundleViewer/</Hyperlink> <LineBreak/>
-            Icons from <Hyperlink NavigateUri="https://icons8.com/">https://icons8.com/</Hyperlink>
+            Repository: <Hyperlink NavigateUri="https://github.com/Luffyyy/DieselBundleViewer/" PreviewMouseLeftButtonDown="Hyperlink_MouseDown">https://github.com/Luffyyy/DieselBundleViewer/</Hyperlink> <LineBreak/>
+            Icons from <Hyperlink NavigateUri="https://icons8.com/" PreviewMouseLeftButtonDown="Hyperlink_MouseDown">https://icons8.com/</Hyperlink>
         </TextBlock>
         <TextBlock VerticalAlignment="Bottom" Grid.Row="3" FontSize="18" Text="{Binding Version}"/>
         <Button Height="0" Command="{Binding CloseDialog}" IsCancel="true" CommandParameter="False"/>
