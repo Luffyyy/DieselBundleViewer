@@ -18,4 +18,11 @@ The program is mostly based of DieselToolBox with some code taken from there.
   
 * This version also moves to WPF / .NET Core; I've tried using a bunch of cross-platform .NET GUIs, but in the end I decided it's best to just go full WPF and so this means this program is only for Windows.
 
+## Installation
+Simply download from releases and unzip it somewhere.
+In case you don't have .NET Core 3.1, the program will prompt you to install it. However, you can install it easily from here: https://dotnet.microsoft.com/download/dotnet-core/current/runtime
+
+## Builiding
+The program is built using Visual Studio 2019 and .NET Core 3.1. Make sure you have both.
+
 Most icons are from https://icons8.com/
