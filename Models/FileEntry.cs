@@ -168,13 +168,15 @@ namespace DieselBundleViewer.Models
                     fs.Position = entry.Address;
                     byte[] bts = br.ReadBytes((int)(entry.Length == -1 ? fs.Length - fs.Position : entry.Length));
                     //Quick shit to give decrpyted files. Some like lua aren't decrypted (not all)
-                    if(bts[0] == 0x78 && bts[1] == 0x9c)
+                    if (bts[0] == 0x78 && bts[1] == 0x9c)
                     {
                         MemoryStream ms = new MemoryStream();
                         General.ZLibDecompress(new MemoryStream(bts), ms);
                         ms.Position = 0;
                         return new BinaryReader(ms).ReadBytes((int)ms.Length);
                     }
+                    else
+                        return bts;
                 }
                 else
                     return new byte[0];
