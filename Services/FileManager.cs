@@ -209,7 +209,7 @@ namespace DieselBundleViewer.Services
                 if (sfd.ShowDialog() == DialogResult.OK)
                 {
                     string filePath = Path.Combine(Utils.GetDirectory(file.EntryPath), sfd.FileName);
-                    if (!Settings.Data.ExtractFullDir)
+                    if (!Settings.Data.ExtractFullDir && !string.IsNullOrEmpty(removeDirectory))
                         filePath = filePath.Replace(removeDirectory.Replace("/", "\\") + "\\", "");
                     SaveFile(file, filePath, conerters[sfd.FilterIndex - 1]);
                 }
@@ -222,7 +222,7 @@ namespace DieselBundleViewer.Services
             if (sfd.ShowDialog() == DialogResult.OK)
             {
                 string filePath = Path.Combine(Utils.GetDirectory(file.EntryPath), sfd.FileName);
-                if (!Settings.Data.ExtractFullDir)
+                if (!Settings.Data.ExtractFullDir && !string.IsNullOrEmpty(removeDirectory))
                     filePath = filePath.Replace(removeDirectory.Replace("/", "\\") + "\\", "");
                 SaveFile(file, filePath);
             }
@@ -276,7 +276,7 @@ namespace DieselBundleViewer.Services
 
                             IEntry entry = entries[i];
                             string entryPath = entry.EntryPath.Replace("/", "\\");
-                            if (!Settings.Data.ExtractFullDir)
+                            if (!Settings.Data.ExtractFullDir && !string.IsNullOrEmpty(removeDirectory))
                                 entryPath = entryPath.Replace(removeDirectory.Replace("/", "\\") + "\\", "");
 
                             string path = Path.Combine(fbd.SelectedPath, entryPath);
