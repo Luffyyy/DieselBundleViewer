@@ -96,7 +96,7 @@ namespace DieselBundleViewer.Services
                 return;
 
             string name = parent.EntryPath;
-            if (!OutputFullPaths)
+            if (!OutputFullPaths && !string.IsNullOrEmpty(removeDirectory))
                 name = name.Replace(removeDirectory, "");
 
             files.Add(new VirtualFileDataObject.FileDescriptor()
