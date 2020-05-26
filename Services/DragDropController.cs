@@ -34,14 +34,15 @@ namespace DieselBundleViewer.Services
         public void DoDragDrop(List<IEntry> entries)
         {
             VirtualFileDataObject virtualFileDataObject = new VirtualFileDataObject(StartDragDrop, EndDragDrop);
-            List<VirtualFileDataObject.FileDescriptor> files = new List<VirtualFileDataObject.FileDescriptor>();
+            var files = new List<VirtualFileDataObject.FileDescriptor>();
 
-            foreach(var entry in entries)
+            string currentDir = Utils.CurrentWindow.CurrentDir;
+            foreach (var entry in entries)
             {
                 if (entry is FileEntry file)
-                    PopulateFile(files, file, entry.Name);
+                    PopulateFile(files, file, currentDir);
                 else if(entry is FolderEntry folder)
-                    PopulateFiles(files, folder, entry.Name);
+                    PopulateFiles(files, folder, currentDir);
             }
 
             //Show dialog only when there are more than 5 items moved.
@@ -50,7 +51,6 @@ namespace DieselBundleViewer.Services
             
             if(files.Count > 10)
             {
-                Console.WriteLine("Progress");
                 Aggregator = new EventAggregator();
                 Aggregator.GetEvent<StartProgress>().Subscribe(() =>
                 {
@@ -90,12 +90,15 @@ namespace DieselBundleViewer.Services
 
         int i = 0;
 
-        public void PopulateFile(List<VirtualFileDataObject.FileDescriptor> files, FileEntry parent, string path = "")
+        public void PopulateFile(List<VirtualFileDataObject.FileDescriptor> files, FileEntry parent, string removeDirectory)
         {
             if (parent.BundleEntries.Count == 0)
                 return;
 
-            string name = OutputFullPaths ? parent.EntryPath : path;
+            string name = parent.EntryPath;
+            if (!OutputFullPaths)
+                name = name.Replace(removeDirectory, "");
+
             files.Add(new VirtualFileDataObject.FileDescriptor()
             {
                 Name = name,
@@ -123,12 +126,12 @@ namespace DieselBundleViewer.Services
             });
         }
 
-        public void PopulateFiles(List<VirtualFileDataObject.FileDescriptor> files, FolderEntry parent, string path = "")
+        public void PopulateFiles(List<VirtualFileDataObject.FileDescriptor> files, FolderEntry parent, string removeDirectory)
         {
             foreach (var entry in parent.GetAllChildren())
             {
                 if (entry is FileEntry file)
-                    PopulateFile(files, file, Path.Combine(path ?? "", file.Name));
+                    PopulateFile(files, file, removeDirectory);
             }
         }
     }

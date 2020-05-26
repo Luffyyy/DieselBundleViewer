@@ -313,7 +313,7 @@ namespace DieselBundleViewer.ViewModels
         public void ExtractAllExec()
         {
             if(Root != null)
-                FileManager.SaveMultiple(Root.Owner.GetAllChildren());
+                FileManager.SaveMultiple(Root.Owner.GetAllChildren(), CurrentDir);
         }
 
         public void CloseBLBExec()

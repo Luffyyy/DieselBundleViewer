@@ -189,11 +189,11 @@ namespace DieselBundleViewer.Services
             }
         }
 
-        public static void SaveFileConvert(FileEntry entry)
+        public static void SaveFileConvert(FileEntry file, string removeDirectory)
         {
-            SaveFileDialog sfd = new SaveFileDialog { FileName = entry.Name };
+            SaveFileDialog sfd = new SaveFileDialog { FileName = file.Name };
 
-            string typ = Definitions.TypeFromExtension(entry.ExtensionIds.ToString());
+            string typ = Definitions.TypeFromExtension(file.ExtensionIds.ToString());
             if (ScriptActions.Converters.ContainsKey(typ))
             {
                 var convs = ScriptActions.Converters[typ];
@@ -207,15 +207,25 @@ namespace DieselBundleViewer.Services
                 }
                 sfd.Filter = filter.Remove(filter.Length - 1); // + "|All files (*.*)|*.*";
                 if (sfd.ShowDialog() == DialogResult.OK)
-                    SaveFile(entry, sfd.FileName, conerters[sfd.FilterIndex - 1]);
+                {
+                    string filePath = Path.Combine(Utils.GetDirectory(file.EntryPath), sfd.FileName);
+                    if (!Settings.Data.ExtractFullDir)
+                        filePath = filePath.Replace(removeDirectory.Replace("/", "\\") + "\\", "");
+                    SaveFile(file, filePath, conerters[sfd.FilterIndex - 1]);
+                }
             }
         }
 
-        public static void SaveFileAs(FileEntry file)
+        public static void SaveFileAs(FileEntry file, string removeDirectory)
         {
             SaveFileDialog sfd = new SaveFileDialog { FileName = file.Name, Filter = "All files (*.*)|*.*" };
             if (sfd.ShowDialog() == DialogResult.OK)
-                SaveFile(file, sfd.FileName);
+            {
+                string filePath = Path.Combine(Utils.GetDirectory(file.EntryPath), sfd.FileName);
+                if (!Settings.Data.ExtractFullDir)
+                    filePath = filePath.Replace(removeDirectory.Replace("/", "\\") + "\\", "");
+                SaveFile(file, filePath);
+            }
         }
 
         public static void SaveFile(FileEntry file, string path, FormatConverter converter=null, PackageFileEntry be = null, bool checkIfExists=false)
@@ -237,9 +247,8 @@ namespace DieselBundleViewer.Services
                     converter.SaveEvent(fs, path);
                 else
                 {
-                    using (FileStream file_stream = File.Create(path))
-                        fs.CopyTo(file_stream);
-
+                    using FileStream file_stream = File.Create(path);
+                    fs.CopyTo(file_stream);
                     fs.Close();
                 }
             }
@@ -249,7 +258,7 @@ namespace DieselBundleViewer.Services
                 File.WriteAllLines(path, dataArr);
         }
 
-        public static void SaveMultiple(List<IEntry> entries)
+        public static void SaveMultiple(List<IEntry> entries, string removeDirectory)
         {
             FolderBrowserDialog fbd = new FolderBrowserDialog();
             if (fbd.ShowDialog() == DialogResult.OK)
@@ -266,7 +275,12 @@ namespace DieselBundleViewer.Services
                                 return;
 
                             IEntry entry = entries[i];
-                            string path = Path.Combine(fbd.SelectedPath, entry.EntryPath.Replace("/", "\\"));
+                            string entryPath = entry.EntryPath.Replace("/", "\\");
+                            if (!Settings.Data.ExtractFullDir)
+                                entryPath = entryPath.Replace(removeDirectory.Replace("/", "\\") + "\\", "");
+
+                            string path = Path.Combine(fbd.SelectedPath, entryPath);
+
                             if (entry is FileEntry childFile)
                             {
                                 int current = i + 1;

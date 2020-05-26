@@ -114,14 +114,15 @@ namespace DieselBundleViewer.ViewModels
         void SaveAsExec(string convert)
         {
             List<EntryViewModel> selection = Utils.CurrentWindow.SelectedEntries();
+            string currentDir = Utils.CurrentWindow.CurrentDir;
             if(selection.Count == 1)
             {
                 if (convert == "True")
-                    FileManager.SaveFileConvert((FileEntry)Owner);
+                    FileManager.SaveFileConvert((FileEntry)Owner, currentDir);
                 else if (Owner is FileEntry entry)
-                    FileManager.SaveFileAs(entry);
+                    FileManager.SaveFileAs(entry, currentDir);
                 else if (Owner is FolderEntry fEntry)
-                    FileManager.SaveMultiple(fEntry.GetAllChildren());
+                    FileManager.SaveMultiple(fEntry.GetAllChildren(), currentDir);
             } else
             {
                 List<IEntry> entries = new List<IEntry>();
@@ -132,7 +133,7 @@ namespace DieselBundleViewer.ViewModels
                     else if (entry.Owner is FolderEntry folder)
                         entries.AddRange(folder.GetAllChildren());
                 }
-                FileManager.SaveMultiple(entries);
+                FileManager.SaveMultiple(entries, currentDir);
             }
         }
     }
