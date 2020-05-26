@@ -301,13 +301,13 @@ namespace DieselBundleViewer.ViewModels
 
                 RaisePropertyChanged("RecentFilesVis");
 
-                await OpenBLBFile(fileName);
+                await OpenBLBFileNintendo(fileName);
             }
         }
 
         public async void OpenFileExec(string fileName)
         {
-            await OpenBLBFile(fileName);
+            await OpenBLBFileNintendo(fileName);
         }
 
         public void ExtractAllExec()
@@ -345,6 +345,165 @@ namespace DieselBundleViewer.ViewModels
             }
         }
         #endregion
+
+        public async Task OpenBLBFileNintendo(string filePath)
+        {
+            Stopwatch timer = new Stopwatch();
+            timer.Start();
+
+            CloseBLBExec();
+
+            CancellationTokenSource CancelSource = new CancellationTokenSource();
+            cancelLastTask = CancelSource;
+
+            CloseBLB.RaiseCanExecuteChanged();
+
+            await Task.Run(() =>
+            {
+                if (CancelSource.IsCancellationRequested)
+                    return;
+
+                //Create the root tree entry, here all other folders will reside.
+                Root = new TreeEntryViewModel(this, new FolderEntry { EntryPath = "", Name = "assets" });
+
+                Status = "Preparing to open blb file...";
+                AssetsDir = Path.GetDirectoryName(filePath);
+                Status = "Reading blb file";
+
+                db = new PackageDatabase(filePath);
+                Status = "Getting bundle headers";
+
+                var entries = db.GetDatabaseEntries();
+                FileEntries = DatabaseEntryToFileEntry(entries);
+
+                foreach (string file in Directory.EnumerateFiles(AssetsDir, "*.bfs"))
+                {
+                    string name = Path.GetFileNameWithoutExtension(file);
+                    using var fs = new FileStream(file, FileMode.Open, FileAccess.Read);
+                    using var br = new BinaryReader(fs);
+                    /*
+                     bfs file structure:
+                        [ZERO/UNKW] [ZERO/UNKW] [BUNLDE N] [BUNDLE N]
+                        [ < FOR OFFSET ] [ZERO/UNKW] [   ZERO/UNKW  ] [   ZERO/UNKW   ]
+                        [     1/UNKW  ] [ZERO/UNKW] [   ZERO/UNKW  ] [   ZERO/UNKW   ] 
+                        [ ENTRIES N  ] [ ENTRIES N  ] [< FOR OFFSET] [   ZERO/UNKW   ]
+                         [ZERO/UNKW] [   ZERO/UNKW  ] [     1/UNKW  ][   ZERO/UNKW   ] 
+ 
+                                        BUNDLE  FOR LOOP
+                        [INDEX] [ZERO/UNKW] [BUNDLE LENGTH] [ZERO/UNKW]
+                                        ENTRY FOR LOOP
+                        [  ENTRY ID  ] [ZERO/UNKW] [ZERO/UNKW] [ZERO/UNKW]
+                        [ ENTRY LENGTH] [ZERO/UNKW] [  32/UNKW ] [  32/UNKW   ]
+                        [ IDS OFFSET] [ZERO/UNKW]  [ZERO/UNKW]  [ZERO/UNKW] 
+
+                        No clue what the bottom ids are but the above for loop points to them. 
+                        Thanks to the blb file we don't have to understand them.
+                     */
+                    br.BaseStream.Position = 8; // First 8 bytes are 0.
+                    uint bundlesCount = br.ReadUInt32();
+                    br.BaseStream.Position += 4; // Bundles count again, skip.
+
+                    uint bundlesForLoopOffset = br.ReadUInt32();
+                    br.BaseStream.Position += 28; // Skip these, unknowns.
+
+                    uint entriesCount = br.ReadUInt32();
+                    br.BaseStream.Position += 4; // Entries count again, skip.
+
+                    uint entriesForLoopOffset = br.ReadUInt32();
+
+
+                    br.BaseStream.Position = bundlesForLoopOffset; //Alright now let's go to the bundles for loop.
+                    var bundles = new PackageHeader[bundlesCount];
+                    for (int i = 0; i < bundlesCount; i++)
+                    {
+                        int bundleIndex = br.ReadInt32();
+                        br.BaseStream.Position += 4;
+                        uint bundleLength = br.ReadUInt32();
+                        br.BaseStream.Position += 4;
+                        string bundleName = $"{name}_{bundleIndex}";
+                        bundles[bundleIndex] = new PackageHeader { Name = new Idstring(bundleName, true), BundleName = bundleName, Length = bundleLength };
+                    }
+
+                    br.BaseStream.Position = entriesForLoopOffset; //Now let's go to the entries for loop.
+
+                    // Entries for loop
+                    int currentHeaderIndex = 0;
+                    PackageHeader currentHeader = bundles[currentHeaderIndex];
+                    uint EntryAddress = 0;
+                    for (int i = 0; i < entriesCount; i++)
+                    {
+                        uint EntryId = br.ReadUInt32();
+                        br.BaseStream.Position += 12; //Skip unknowns.
+                        uint EntryLength = br.ReadUInt32();
+                        br.BaseStream.Position += 28; //Skip these
+
+                        if (EntryAddress >= currentHeader.Length)
+                        {
+                            currentHeaderIndex++;
+                            currentHeader = bundles[currentHeaderIndex];
+                            EntryAddress = 0;
+                        }
+
+                        currentHeader.Entries.Add(new PackageFileEntry { ID = EntryId, Parent = currentHeader, Length = (int)EntryLength, Address = EntryAddress });
+                        EntryAddress += EntryLength;
+                    }
+
+                    Console.WriteLine(file + " - " + bundles.Length);
+
+                    foreach(var bundle in bundles)
+                    {
+                        Status = string.Format("Loading bundle {0}", bundle.BundleName);
+
+                        foreach (PackageFileEntry be in bundle.Entries)
+                        {
+                            if (CancelSource.IsCancellationRequested)
+                                return;
+
+                            if (FileEntries.ContainsKey(be.ID))
+                            {
+                                FileEntry fileEntry = FileEntries[be.ID];
+                                fileEntry.AddBundleEntry(be);
+                                FolderEntry folderEntry = fileEntry.Parent;
+                            }
+                        }
+
+                        PackageHeaders.Add(bundle.Name, bundle);
+                    }
+
+                }
+
+                foreach (var fe in FileEntries.Values)
+                {
+                    fe.LoadPath();
+                    RawFiles.Add(new Tuple<Idstring, Idstring, Idstring>(fe.PathIds, fe.LanguageIds, fe.ExtensionIds), fe);
+                    Root.Owner.AddFileEntry(fe);
+                }
+
+                GC.Collect();
+            });
+
+            timer.Stop();
+
+            if (CancelSource.IsCancellationRequested)
+                return;
+
+            cancelLastTask = null;
+
+            OpenFindDialog.RaiseCanExecuteChanged();
+            ExtractAll.RaiseCanExecuteChanged();
+            OpenBundleSelectorDialog.RaiseCanExecuteChanged();
+            CloseBLB.RaiseCanExecuteChanged();
+
+            Status = $"Done. Took {timer.ElapsedMilliseconds / 1000} seconds";
+
+            Bundles = PackageHeaders.Keys.ToList();
+            FoldersToRender.Clear();
+            FoldersToRender.Add(Root);
+
+            //Finally, render the items.
+            RenderNewItems();
+        }
+
 
         public async Task OpenBLBFile(string filePath)
         {
