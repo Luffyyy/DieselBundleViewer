@@ -10,7 +10,7 @@
 
     <ListBox x:Name="SelectedEntries" ScrollViewer.HorizontalScrollBarVisibility="Disabled"  
              SelectionMode="Extended" HorizontalAlignment="Stretch" ItemsSource="{Binding ToRender}" BorderThickness="0"
-             SelectionChanged="ListSelectionChanged" PreviewKeyDown="ListPreviewKeydown" PreviewMouseDown="ListPreviewMouseDown">
+             SelectionChanged="ListSelectionChanged" PreviewKeyDown="ListPreviewKeydown" PreviewMouseDown="ListPreviewMouseDown" PreviewMouseMove="ListPreviewMouseMove">
         <ListBox.ItemContainerStyle>
             <Style TargetType="ListBoxItem">
                 <EventSetter Event="PreviewMouseLeftButtonDown" Handler="ListItemPreviewMouseLeftButtonDown"/>

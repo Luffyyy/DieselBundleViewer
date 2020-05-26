@@ -45,5 +45,10 @@ namespace DieselBundleViewer.Views
         {
             fix.ListItemPreviewMouseLeftButtonDown(sender, e);
         }
+
+        private void ListPreviewMouseMove(object sender, MouseEventArgs e)
+        {
+            fix.ListItemPreviewMouseMouseMove(sender, e);
+        }
     }
 }

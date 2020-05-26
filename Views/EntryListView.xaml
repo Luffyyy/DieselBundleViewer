@@ -12,7 +12,7 @@
               HorizontalAlignment="Stretch" GridViewColumnHeader.Click="SelectedEntries_Click_1" 
               ItemsSource="{Binding ToRender}" BorderThickness="0" 
               PreviewKeyDown="ListPreviewKeydown"
-              SelectionChanged="ListSelectionChanged" PreviewMouseDown="ListPreviewMouseDown">
+              SelectionChanged="ListSelectionChanged" PreviewMouseDown="ListPreviewMouseDown" PreviewMouseMove="ListPreviewMouseMove">
         <ListView.ItemContainerStyle>
             <Style TargetType="ListViewItem">
                 <Style.Resources>

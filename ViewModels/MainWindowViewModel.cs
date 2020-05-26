@@ -82,7 +82,9 @@ namespace DieselBundleViewer.ViewModels
         public DelegateCommand ExtractAll { get; }
 
         private Point DragStartLocation;
-        private bool Dragging;
+
+        private bool DragStart;
+        public bool Dragging { get; private set; }
 
         private CancellationTokenSource cancelLastTask;
 
@@ -237,9 +239,9 @@ namespace DieselBundleViewer.ViewModels
         public void OnMouseMoved(Point pos)
         {
             Point diff = new Point(pos.X - DragStartLocation.X, pos.Y - DragStartLocation.Y);
-            if (Dragging)
+            if (DragStart)
             {
-                if (Math.Abs(diff.X) > 8 && Math.Abs(diff.Y) > 8)
+                if (Math.Abs(diff.X) > 4 && Math.Abs(diff.Y) > 4)
                 {
                     DragDropController controller = new DragDropController(Settings.Data.ExtractFullDir);
                     var selected = new List<IEntry>();
@@ -249,7 +251,8 @@ namespace DieselBundleViewer.ViewModels
                             selected.Add(vm.Owner);
                     }
                     controller.DoDragDrop(selected);
-                    Dragging = false;
+                    Dragging = true;
+                    DragStart = false;
                 }
             }
         }
@@ -258,12 +261,13 @@ namespace DieselBundleViewer.ViewModels
         public void OnClick()
         {
             DragStartLocation = Utils.MousePos;
-            Dragging = true;
+            DragStart = true;
         }
 
         public void OnRelease()
         {
             Dragging = false;
+            DragStart = false;
         }
 
         public async void OpenFileDialogExec()

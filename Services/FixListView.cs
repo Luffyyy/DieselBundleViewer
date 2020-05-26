@@ -1,4 +1,5 @@
-﻿using Prism.Mvvm;
+﻿using DieselBundleViewer.Services;
+using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -75,7 +76,7 @@ namespace DieselBundleViewer.ViewModels
         {
             if (lastList != null)
             {
-                if (!Keyboard.IsKeyDown(Key.LeftCtrl))
+                if (!Keyboard.IsKeyDown(Key.LeftCtrl) && !Utils.CurrentWindow.Dragging)
                 {
                     foreach (ListItemViewModelBase item in lastList.Items)
                     {
@@ -89,6 +90,13 @@ namespace DieselBundleViewer.ViewModels
         {
             if (lastList == null)
                 lastList = (ListBox)sender;
+        }
+
+        public void ListItemPreviewMouseMouseMove(object sender, MouseEventArgs e)
+        {
+            //Fixes a bug where drag and drop would take the file near instead.
+            if (Utils.CurrentWindow.Dragging)
+                e.Handled = true;
         }
     }
 }
