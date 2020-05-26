@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using AdonisUI;
 using WwiseSoundLib;
 using Orangelynx.Multimedia;
+using System.Windows.Threading;
 
 namespace DieselBundleViewer
 {
@@ -30,7 +31,13 @@ namespace DieselBundleViewer
 
         public App()
         {
+#if !DEBUG
+            Dispatcher.UnhandledException += OnException;
+            if(File.Exists("debug"))
+#endif
             AllocConsole();
+
+
             Console.WriteLine("Loading local hashlist");
             if (File.Exists("Data/hashlist"))
                 HashIndex.LoadParallel("Data/hashlist");
@@ -38,6 +45,11 @@ namespace DieselBundleViewer
                 Console.WriteLine("Local hashlist is missing!");
 
             LoadConverters();
+        }
+
+        void OnException(object sender, DispatcherUnhandledExceptionEventArgs e)
+        {
+            MessageBox.Show("An error has occurred: \n"+e.Exception.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
