@@ -407,6 +407,9 @@ namespace DieselBundleViewer.ViewModels
 
                     foreach (PackageFileEntry be in bundle.Entries)
                     {
+                        if (CancelSource.IsCancellationRequested)
+                            return;
+
                         if (!foundHashlist)
                         {
                             DatabaseEntry ne = db.EntryFromID(be.ID);
@@ -417,9 +420,6 @@ namespace DieselBundleViewer.ViewModels
                                 foundHashlist = true;
                             }
                         }
-
-                        if (CancelSource.IsCancellationRequested)
-                            return;
 
                         if (FileEntries.ContainsKey(be.ID))
                         {
@@ -434,9 +434,13 @@ namespace DieselBundleViewer.ViewModels
 
                 foreach(var fe in FileEntries.Values)
                 {
+                    if (CancelSource.IsCancellationRequested)
+                        return;
+
                     fe.LoadPath();
                     RawFiles.Add(new Tuple<Idstring, Idstring, Idstring>(fe.PathIds, fe.LanguageIds, fe.ExtensionIds), fe);
-                    Root.Owner.AddFileEntry(fe);
+                    if(Root != null)
+                        Root.Owner.AddFileEntry(fe);
                 }
 
                 GC.Collect();
@@ -575,9 +579,8 @@ namespace DieselBundleViewer.ViewModels
                         ToRender.Add(new EntryViewModel(entry));
                     }
                 }
+                Root.CheckExpands();
             }
-
-            Root.CheckExpands();
             UpdateFileStatus();
         }
 
