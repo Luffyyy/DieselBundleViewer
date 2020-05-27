@@ -147,5 +147,13 @@ namespace DieselBundleViewer.Services
         {
             Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
         }
-    }
+
+        public static bool IsRaid()
+        {
+            if (CurrentWindow != null && !string.IsNullOrEmpty(CurrentWindow.AssetsDir))
+                return CurrentWindow.AssetsDir.Contains("RAID World War II");
+            else
+                return false;
+        }
+}
 }

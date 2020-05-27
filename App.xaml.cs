@@ -49,7 +49,7 @@ namespace DieselBundleViewer
 
         void OnException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
-            MessageBox.Show("An error has occurred: \n"+e.Exception.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show($"An error has occurred: \n {e.Exception.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
@@ -74,8 +74,15 @@ namespace DieselBundleViewer
                 Extension = "xml",
                 ExportEvent = (MemoryStream ms, bool escape) =>
                 {
-                    Dictionary<string, object> root = new ScriptData(new BinaryReader(ms)).Root;
-                    return new CustomXMLNode("table", root, "").ToString(0, escape);
+                    try
+                    {
+                        Dictionary<string, object> root = new ScriptData(new BinaryReader(ms), Utils.IsRaid()).Root;
+                        return new CustomXMLNode("table", root, "").ToString(0, escape);
+                    } catch (Exception e)
+                    {
+                        MessageBox.Show($"Failed to read scriptdata: \n {e.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return null;
+                    }
                 },
                 Type = "scriptdata"
             });
@@ -159,8 +166,16 @@ namespace DieselBundleViewer
                 Extension = "json",
                 ExportEvent = (MemoryStream ms, bool arg0) =>
                 {
-                    ScriptData sdata = new ScriptData(new BinaryReader(ms));
-                    return (new JSONNode("table", sdata.Root, "")).ToString();
+                    try
+                    {
+                        ScriptData sdata = new ScriptData(new BinaryReader(ms), Utils.IsRaid());
+                        return (new JSONNode("table", sdata.Root, "")).ToString();
+                    }
+                    catch (Exception e)
+                    {
+                        MessageBox.Show($"Failed to read scriptdata: \n {e.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return null;
+                    }
                 },
                 Type = "scriptdata"
             });
