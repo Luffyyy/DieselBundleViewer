@@ -10,7 +10,7 @@
                   />
 
         <StackPanel Orientation="Horizontal"  HorizontalAlignment="Center" DockPanel.Dock="Bottom">
-            <Button Content="Confirm" Padding="8" Command="{Binding CloseDialog}" CommandParameter="True"/>
+            <Button Content="Confirm" Padding="8" Command="{Binding CloseDialog}" CommandParameter="True" Loaded="Button_Loaded"/>
             <Button Margin="2 0" Padding="8" Content="Cancel" Command="{Binding CloseDialog}" IsCancel="true" CommandParameter="False"/>
         </StackPanel>
     </DockPanel>

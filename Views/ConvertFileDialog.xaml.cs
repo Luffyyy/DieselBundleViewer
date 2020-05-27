@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace DieselBundleViewer.Views
 {
@@ -11,6 +12,11 @@ namespace DieselBundleViewer.Views
         public ConvertFileDialog()
         {
             InitializeComponent();
+        }
+
+        private void Button_Loaded(object sender, RoutedEventArgs e)
+        {
+            Keyboard.Focus((Button)sender);
         }
     }
 }
