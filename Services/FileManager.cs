@@ -169,7 +169,7 @@ namespace DieselBundleViewer.Services
                 }
 
                 var formats = convs.Values.ToList();
-                formats.Insert(0, new FormatConverter { Title = "None" });
+                formats.Add(new FormatConverter { Title = "None" });
 
                 DialogParameters pms = new DialogParameters
                 {
