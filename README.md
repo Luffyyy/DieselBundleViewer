@@ -26,3 +26,5 @@ In case you don't have .NET Core 3.1, the program will prompt you to install it.
 The program is built using Visual Studio 2019 and .NET Core 3.1. Make sure you have both.
 
 Most icons are from https://icons8.com/
+
+Source code of the DieselEngineFormats library https://github.com/Luffyyy/DieselEngineFormats
