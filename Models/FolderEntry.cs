@@ -83,12 +83,9 @@ namespace DieselBundleViewer.Models
 
         public bool HasVisibleFiles()
         {
-            if (Settings.Data.DisplayEmptyFiles)
-                return true;
-
             foreach (var child in Children.Values)
             {
-                if ((child is FolderEntry folder && folder.HasVisibleFiles()) || child.Size > 0)
+                if ((child is FolderEntry folder && folder.HasVisibleFiles()) || (child is FileEntry file && file.IsVisible()))
                     return true;
             }
             return false;

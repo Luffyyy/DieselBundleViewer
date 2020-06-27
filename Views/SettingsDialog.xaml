@@ -1,9 +1,10 @@
 ﻿<UserControl x:Class="DieselBundleViewer.Views.SettingsDialog"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:prism="http://prismlibrary.com/"             
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
              prism:ViewModelLocator.AutoWireViewModel="True"
-             Width="400" Height="200">
+             Width="600" Height="540">
     <DockPanel Margin="8" LastChildFill="False">
         <StackPanel DockPanel.Dock="Top">
             <CheckBox FontSize="14" Content="Extract the full directory of files when saving" IsChecked="{Binding ExtractFullDir, Mode=TwoWay}"/>
@@ -13,6 +14,42 @@
                 </CheckBox.ToolTip>
             </CheckBox>
             <CheckBox FontSize="14" Content="Dark Mode" IsChecked="{Binding DarkMode, Mode=TwoWay}"/>
+            <CheckBox FontSize="14" Content="Automatically Convert When Extracting/Drag and Dropping" IsChecked="{Binding AutoConvertFiles, Mode=TwoWay}"/>
+            <TextBlock Text="Filter Extensions" Margin="0 8" FontSize="16">
+                <TextBlock.ToolTip>
+                    Decide which extnesions the viewer should display. Select none to select all.
+                </TextBlock.ToolTip>
+            </TextBlock>
+            <ListBox Margin="0 8" SelectionMode="Extended" ItemsSource="{Binding Types}" Height="170" DisplayMemberPath="Name">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="{x:Type ListBoxItem}">
+                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                        <Setter Property="Foreground" Value="{DynamicResource {x:Static adonisUi:Brushes.ForegroundBrush}}"/>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+            </ListBox>
+
+            <TextBlock Text="Extension Replacer" Margin="0 8" FontSize="16">
+                <TextBlock.ToolTip>
+                    Ported from bundle modder. Replace extensions if you wish to do so. Example, you want every .unit file to be .xml.
+                </TextBlock.ToolTip>
+            </TextBlock>
+            <ListView Height="130" ItemsSource="{Binding ExtReplacers}" SelectedItem="{Binding SelectedExtReplacer, Mode=TwoWay}">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Extension" Width="200" DisplayMemberBinding="{Binding Extension}"/>
+                        <GridViewColumn Header="Replace With" Width="200" DisplayMemberBinding="{Binding ReplaceWith}"/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+            <DockPanel LastChildFill="False">
+                <TextBlock Text="Extension:" VerticalAlignment="Center"/>
+                <TextBox Width="100" Margin="8 0" Text="{Binding ExtensionTextBox}"></TextBox>
+                <TextBlock Text="Replace With:" VerticalAlignment="Center"/>
+                <TextBox Width="100" Margin="8 0" Text="{Binding ReplaceWithTextBox}"></TextBox>
+                <Button Content="Remove" DockPanel.Dock="Right" Command="{Binding RemoveExtReplacer, Mode=TwoWay}"/>
+                <Button Content="Add/Apply" DockPanel.Dock="Right" Command="{Binding ApplyExtReplacer, Mode=TwoWay}"/>
+            </DockPanel>
         </StackPanel>
         <StackPanel Orientation="Horizontal"  HorizontalAlignment="Center" DockPanel.Dock="Bottom">
             <Button Content="Save" Padding="8" Command="{Binding CloseDialog}" CommandParameter="True"/>

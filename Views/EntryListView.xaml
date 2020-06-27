@@ -48,7 +48,6 @@
                                         <i:InvokeCommandAction Command="{Binding OnClick}"/>
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
-
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">

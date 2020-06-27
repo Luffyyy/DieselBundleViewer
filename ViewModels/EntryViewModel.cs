@@ -36,7 +36,7 @@ namespace DieselBundleViewer.ViewModels
             }
         }
 
-        public string Name => Owner.Name;
+        public override string Name => Owner.Name;
         public string EntryPath => Owner.EntryPath;
         public string Type => Owner.Type;
         public uint Size => (Owner is FolderEntry) ? 0 : Owner.Size;

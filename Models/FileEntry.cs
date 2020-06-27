@@ -119,12 +119,13 @@ namespace DieselBundleViewer.Models
         }
 
         /// <summary>
-        /// Determines whether or not a file has any data to extract. Cooked physics are ignored since they often are 0 bytes but still exist.
+        /// Determines whether or not a file has any data to extract and therefore should be visible. Cooked physics are ignored since they often are 0 bytes but still exist.
         /// </summary>
         /// <returns>true if the file has data</returns>
-        public bool HasData()
+        public bool IsVisible()
         {
-            return Settings.Data.DisplayEmptyFiles || Type == "cooked_physics" || Size > 0;
+            SettingsData data = Settings.Data;
+            return (data.SelectedExtensions.Count == 0 || data.SelectedExtensions.Contains(Type)) && (data.DisplayEmptyFiles || Type == "cooked_physics" || Size > 0);
         }
 
         public object FileData(PackageFileEntry be = null, FormatConverter exporter = null)

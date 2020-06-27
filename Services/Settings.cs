@@ -14,7 +14,10 @@ namespace DieselBundleViewer.Services
         public bool DisplayEmptyFiles { get; set; } = false;
         public bool ExtractFullDir { get; set; } = false;
         public bool DarkMode { get; set; }  = true;
+        public bool AutoConvertFiles { get; set; }  = false;
         public List<string> RecentFiles = new List<string>();
+        public List<string> SelectedExtensions = new List<string>();
+        public List<string[]> ExtReplacers = new List<string[]>();
     }
 
     public static class Settings
