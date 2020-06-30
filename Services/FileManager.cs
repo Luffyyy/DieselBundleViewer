@@ -191,7 +191,7 @@ namespace DieselBundleViewer.Services
 
         public static void SaveFileConvert(FileEntry file, string removeDirectory)
         {
-            SaveFileDialog sfd = new SaveFileDialog { FileName = file.Name };
+            SaveFileDialog sfd = new SaveFileDialog { FileName = file.SaveName };
 
             string typ = Definitions.TypeFromExtension(file.ExtensionIds.ToString());
             if (ScriptActions.Converters.ContainsKey(typ))
@@ -218,7 +218,7 @@ namespace DieselBundleViewer.Services
 
         public static void SaveFileAs(FileEntry file, string removeDirectory)
         {
-            SaveFileDialog sfd = new SaveFileDialog { FileName = file.Name, Filter = "All files (*.*)|*.*" };
+            SaveFileDialog sfd = new SaveFileDialog { FileName = file.SaveName, Filter = "All files (*.*)|*.*" };
             if (sfd.ShowDialog() == DialogResult.OK)
             {
                 string filePath = Path.Combine(Utils.GetDirectory(file.EntryPath), sfd.FileName);
@@ -275,7 +275,7 @@ namespace DieselBundleViewer.Services
                                 return;
 
                             IEntry entry = entries[i];
-                            string entryPath = entry.EntryPath.Replace("/", "\\");
+                            string entryPath = entry.SavePath.Replace("/", "\\");
                             if (!Settings.Data.ExtractFullDir && !string.IsNullOrEmpty(removeDirectory))
                                 entryPath = entryPath.Replace(removeDirectory.Replace("/", "\\") + "\\", "");
 
@@ -284,7 +284,7 @@ namespace DieselBundleViewer.Services
                             if (entry is FileEntry childFile)
                             {
                                 int current = i + 1;
-                                dialog.SetProgress($"Copying {entry.EntryPath}", current, total);
+                                dialog.SetProgress($"Copying {entry.SavePath}", current, total);
                                 SaveFile(childFile, path);
                             }
                             else if (entry is FolderEntry childFolder)

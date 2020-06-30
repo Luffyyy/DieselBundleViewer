@@ -35,6 +35,9 @@ namespace DieselBundleViewer.ViewModels
         private bool autoConvertFiles;
         public bool AutoConvertFiles { get => autoConvertFiles; set => SetProperty(ref autoConvertFiles, value); }
 
+        private bool extReplacerAppend;
+        public bool ExtReplacerAppend { get => extReplacerAppend; set => SetProperty(ref extReplacerAppend, value); }
+
         private ExtReplacer selectedExtReplacer;
         public ExtReplacer SelectedExtReplacer { 
             get => selectedExtReplacer; 
@@ -90,6 +93,7 @@ namespace DieselBundleViewer.ViewModels
         {
             DisplayEmptyFiles = Settings.Data.DisplayEmptyFiles;
             ExtractFullDir = Settings.Data.ExtractFullDir;
+            ExtReplacerAppend = Settings.Data.ExtReplacerAppend;
             DarkMode = Settings.Data.DarkMode;
             var exts = Definitions.Extensions;
             var selectedExts = Settings.Data.SelectedExtensions;
@@ -119,6 +123,7 @@ namespace DieselBundleViewer.ViewModels
                 Settings.Data.ExtractFullDir = ExtractFullDir;
                 Settings.Data.DarkMode = DarkMode;
                 Settings.Data.AutoConvertFiles = AutoConvertFiles;
+                Settings.Data.ExtReplacerAppend = ExtReplacerAppend;
 
                 Settings.Data.ExtReplacers.Clear();
                 foreach(var replacer in ExtReplacers)

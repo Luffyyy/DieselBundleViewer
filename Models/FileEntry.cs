@@ -53,6 +53,34 @@ namespace DieselBundleViewer.Models
             set => _fullpath = value;
         }
 
+        /// <summary>
+        /// Like SavePath but only name without full path.
+        /// </summary>
+        public string SaveName => Path.GetFileName(SavePath);
+
+        /// <summary>
+        /// Gets the path of the file for saving purposes.
+        /// </summary>
+        public string SavePath
+        {
+            get
+            {
+                var extReplacers = Settings.Data.ExtReplacers;
+                bool append = Settings.Data.ExtReplacerAppend;
+                foreach (var replacer in extReplacers)
+                {
+                    if (replacer[0] == Type)
+                    {
+                        if (append)
+                            return EntryPath + "." + replacer[1];
+                        else
+                            return EntryPath.Replace(Type, replacer[1]);
+                    }
+                }
+                return EntryPath;
+            }
+        }
+
         public string Name
         {
             get

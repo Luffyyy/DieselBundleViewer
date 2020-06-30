@@ -95,7 +95,7 @@ namespace DieselBundleViewer.Services
             if (parent.BundleEntries.Count == 0)
                 return;
 
-            string name = parent.EntryPath;
+            string name = parent.SavePath;
             if (!OutputFullPaths && !string.IsNullOrEmpty(removeDirectory))
                 name = name.Replace(removeDirectory, "");
 
@@ -120,7 +120,7 @@ namespace DieselBundleViewer.Services
                         if (Progress.IsClosed)
                             throw new Exception(); //No clue how to really stop that other than exceptions lol.
                         else
-                            Progress.SetProgress($"Copying {parent.EntryPath}", i, files.Count);
+                            Progress.SetProgress($"Copying {parent.SavePath}", i, files.Count);
                     }
                 }
             });
