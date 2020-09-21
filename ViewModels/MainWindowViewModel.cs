@@ -29,7 +29,7 @@ namespace DieselBundleViewer.ViewModels
     {
         #region Properties / Fields
         private string _title = "Diesel Bundle Viewer";
-        private PackageDatabase db;
+        public PackageDatabase DB { get; set; }
         public TreeEntryViewModel Root { get; set; }
 
         public string Title { get => _title; set => SetProperty(ref _title, value); }
@@ -333,7 +333,7 @@ namespace DieselBundleViewer.ViewModels
                 Bundles = null;
                 FileEntries = null;
                 Root = null;
-                db = null;
+                DB = null;
                 PackageHeaders.Clear();
                 ToRender.Clear();
                 FoldersToRender.Clear();
@@ -372,12 +372,12 @@ namespace DieselBundleViewer.ViewModels
                 AssetsDir = Path.GetDirectoryName(filePath);
                 Status = "Reading blb file";
 
-                db = new PackageDatabase(filePath);
+                DB = new PackageDatabase(filePath);
                 Status = "Getting bundle headers";
 
                 List<string> Files = Directory.EnumerateFiles(AssetsDir, "*.bundle").ToList();
 
-                var entries = db.GetDatabaseEntries();
+                var entries = DB.GetDatabaseEntries();
                 FileEntries = DatabaseEntryToFileEntry(entries);
 
                 bool foundHashlist = false;
@@ -412,7 +412,7 @@ namespace DieselBundleViewer.ViewModels
 
                         if (!foundHashlist)
                         {
-                            DatabaseEntry ne = db.EntryFromID(be.ID);
+                            DatabaseEntry ne = DB.EntryFromID(be.ID);
                             if (ne._path == 0x9234DD22C60D71B8)
                             {
                                 Console.WriteLine("Found hashlist, loading...");
