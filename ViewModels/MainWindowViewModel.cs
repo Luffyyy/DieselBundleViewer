@@ -29,7 +29,7 @@ namespace DieselBundleViewer.ViewModels
     {
         #region Properties / Fields
         private string _title = "Diesel Bundle Viewer";
-        public PackageDatabase DB { get; set; }
+        public PackageDatabase DB { get; private set; }
         public TreeEntryViewModel Root { get; set; }
 
         public string Title { get => _title; set => SetProperty(ref _title, value); }
