@@ -12,6 +12,7 @@ namespace DieselBundleViewer.ViewModels
 {
     public class ListBundle : ListItemViewModelBase
     {
+        public string Name { get; set; }
         public Idstring Ids { get; set; }
         public ListBundle(Idstring ids)
         {

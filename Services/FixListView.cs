@@ -20,7 +20,6 @@ namespace DieselBundleViewer.ViewModels
     {
         protected bool isSelected;
         public virtual bool IsSelected { get => isSelected; set => SetProperty(ref isSelected, value); }
-        public virtual string Name { get; set; } = "-";
     }
 
     public class FixListView

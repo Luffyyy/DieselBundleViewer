@@ -34,7 +34,7 @@
                 </Style>
             </ListBox.ItemContainerStyle>
         </ListBox>
-        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center">
+            <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center">
             <Button Content="Confirm" Padding="8" Command="{Binding CloseDialog}" CommandParameter="True"/>
             <Button Margin="2 0" Padding="8" Content="Cancel" Command="{Binding CloseDialog}" IsCancel="true" CommandParameter="False"/>
         </StackPanel>

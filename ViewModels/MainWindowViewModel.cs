@@ -611,7 +611,7 @@ namespace DieselBundleViewer.ViewModels
 
             if (found)
             {
-                if (entry is FileEntry file && file.IsVisible())
+                if (entry is FileEntry file && file.HasData())
                     files.Add(file);
                 else if (entry is FolderEntry folder && folder.HasVisibleFiles())
                     folders.Add(folder);

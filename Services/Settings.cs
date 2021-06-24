@@ -11,15 +11,10 @@ namespace DieselBundleViewer.Services
 {
     public class SettingsData
     {
-        public bool DisplayEmptyFiles = false;
-        public bool ExtractFullDir = false;
-        public bool DarkMode = true;
-        public bool ExtReplacerAppend = true;
-        public bool AutoConvertFiles = false;
-
+        public bool DisplayEmptyFiles { get; set; } = false;
+        public bool ExtractFullDir { get; set; } = false;
+        public bool DarkMode { get; set; }  = true;
         public List<string> RecentFiles = new List<string>();
-        public List<string> SelectedExtensions = new List<string>(); //Probably will not be an option.
-        public List<string[]> ExtReplacers = new List<string[]>();
     }
 
     public static class Settings
