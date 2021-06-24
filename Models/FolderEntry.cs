@@ -41,10 +41,6 @@ namespace DieselBundleViewer.Models
 
         public string Type => "File folder";
 
-        public string SaveName => Name;
-
-        public string SavePath => EntryPath;
-
         private uint folderLevel;
 
         public FolderEntry(uint level = 0) {

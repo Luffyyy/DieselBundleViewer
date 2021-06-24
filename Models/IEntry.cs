@@ -9,10 +9,6 @@ namespace DieselBundleViewer.Models
         string Name { get; }
         string Type { get; }
         uint Size { get; }
-
-        string SaveName { get; }
-        string SavePath { get; }
-
         string EntryPath { get; }
         FolderEntry Parent { get; set; }
 

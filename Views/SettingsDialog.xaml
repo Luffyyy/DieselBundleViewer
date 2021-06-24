@@ -3,43 +3,24 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
-             prism:ViewModelLocator.AutoWireViewModel="True">
-    <prism:Dialog.WindowStyle>
-        <Style TargetType="Window">
-            <Setter Property="Width" Value="600"/>
-            <Setter Property="MinWidth" Value="400"/>
-            <Setter Property="Height" Value="600"/>
-            <Setter Property="MinHeight" Value="600"/>
-        </Style>
-    </prism:Dialog.WindowStyle>
-    <Grid Margin="8">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="45"/>
-        </Grid.RowDefinitions>
-        <Border BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer1BorderBrush}}" BorderThickness="0 0 0 2"/>
-        <Border BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer1BorderBrush}}" BorderThickness="0 0 0 2" Grid.Row="1"/>
-        <Border BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer1BorderBrush}}" BorderThickness="0 0 0 2" Grid.Row="2"/>
-
-        <StackPanel Margin="8">
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             Width="600" Height="540">
+    <DockPanel Margin="8" LastChildFill="False">
+        <StackPanel DockPanel.Dock="Top">
             <CheckBox FontSize="14" Content="Extract the full directory of files when saving" IsChecked="{Binding ExtractFullDir, Mode=TwoWay}"/>
             <CheckBox FontSize="14" Content="Display 0 byte files (cooked__physics are always shown)" IsChecked="{Binding DisplayEmptyFiles, Mode=TwoWay}">
                 <CheckBox.ToolTip>
-                There are certain files that show up inside the game but they don't really exist in the bundles. The option toggles their visiblity.
+                    There are certain files that show up inside the game but they don't really exist in the bundles. The option toggles their visiblity.
                 </CheckBox.ToolTip>
             </CheckBox>
             <CheckBox FontSize="14" Content="Dark Mode" IsChecked="{Binding DarkMode, Mode=TwoWay}"/>
             <CheckBox FontSize="14" Content="Automatically Convert When Extracting/Drag and Dropping" IsChecked="{Binding AutoConvertFiles, Mode=TwoWay}"/>
-        </StackPanel>
-        <StackPanel Grid.Row="1" Margin="8">
             <TextBlock Text="Filter Extensions" Margin="0 8" FontSize="16">
                 <TextBlock.ToolTip>
                     Decide which extnesions the viewer should display. Select none to select all.
                 </TextBlock.ToolTip>
             </TextBlock>
-            <ListBox Margin="0 8" SelectionMode="Extended" ItemsSource="{Binding Types}" MinHeight="150" DisplayMemberPath="Name">
+            <ListBox Margin="0 8" SelectionMode="Extended" ItemsSource="{Binding Types}" Height="170" DisplayMemberPath="Name">
                 <ListBox.ItemContainerStyle>
                     <Style TargetType="{x:Type ListBoxItem}">
                         <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
@@ -47,30 +28,21 @@
                     </Style>
                 </ListBox.ItemContainerStyle>
             </ListBox>
-        </StackPanel>
-        <DockPanel Grid.Row="2" Margin="8" LastChildFill="False">
-            <StackPanel DockPanel.Dock="Top">
-                <TextBlock Text="Extension Replacer" Margin="0 8" FontSize="16">
-                    <TextBlock.ToolTip>
-                        Ported from bundle modder. Replace extensions if you wish to do so. Example, you want every .unit file to be .xml.
-                    </TextBlock.ToolTip>
-                </TextBlock>
-                <CheckBox FontSize="14" Content="Append Mode" IsChecked="{Binding ExtReplacerAppend, Mode=TwoWay}">
-                    <CheckBox.ToolTip>
-                        If Append Mode is on, the replacer will only append the extension. This is recommend to keep since many files in the game share the same name just different type.
-                        On by default.
-                    </CheckBox.ToolTip>
-                </CheckBox>
-                <ListView Margin="0 8" ItemsSource="{Binding ExtReplacers}" SelectedItem="{Binding SelectedExtReplacer, Mode=TwoWay}">
-                    <ListView.View>
-                        <GridView>
-                            <GridViewColumn Header="Extension" Width="200" DisplayMemberBinding="{Binding Extension}"/>
-                            <GridViewColumn Header="Replace With" Width="200" DisplayMemberBinding="{Binding ReplaceWith}"/>
-                        </GridView>
-                    </ListView.View>
-                </ListView>
-            </StackPanel>
-            <DockPanel DockPanel.Dock="Bottom" LastChildFill="False">
+
+            <TextBlock Text="Extension Replacer" Margin="0 8" FontSize="16">
+                <TextBlock.ToolTip>
+                    Ported from bundle modder. Replace extensions if you wish to do so. Example, you want every .unit file to be .xml.
+                </TextBlock.ToolTip>
+            </TextBlock>
+            <ListView Height="130" ItemsSource="{Binding ExtReplacers}" SelectedItem="{Binding SelectedExtReplacer, Mode=TwoWay}">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Extension" Width="200" DisplayMemberBinding="{Binding Extension}"/>
+                        <GridViewColumn Header="Replace With" Width="200" DisplayMemberBinding="{Binding ReplaceWith}"/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+            <DockPanel LastChildFill="False">
                 <TextBlock Text="Extension:" VerticalAlignment="Center"/>
                 <TextBox Width="100" Margin="8 0" Text="{Binding ExtensionTextBox}"></TextBox>
                 <TextBlock Text="Replace With:" VerticalAlignment="Center"/>
@@ -78,10 +50,10 @@
                 <Button Content="Remove" DockPanel.Dock="Right" Command="{Binding RemoveExtReplacer, Mode=TwoWay}"/>
                 <Button Content="Add/Apply" DockPanel.Dock="Right" Command="{Binding ApplyExtReplacer, Mode=TwoWay}"/>
             </DockPanel>
-        </DockPanel>
-        <StackPanel Grid.Row="3" Margin="8" Orientation="Horizontal" HorizontalAlignment="Center">
-            <Button Content="Save" Command="{Binding CloseDialog}" CommandParameter="True"/>
-            <Button Margin="4 0" Content="Cancel" Command="{Binding CloseDialog}" IsCancel="true" CommandParameter="False"/>
         </StackPanel>
-    </Grid>
+        <StackPanel Orientation="Horizontal"  HorizontalAlignment="Center" DockPanel.Dock="Bottom">
+            <Button Content="Save" Padding="8" Command="{Binding CloseDialog}" CommandParameter="True"/>
+            <Button Margin="4 0" Padding="8" Content="Cancel" Command="{Binding CloseDialog}" IsCancel="true" CommandParameter="False"/>
+        </StackPanel>
+    </DockPanel>
 </UserControl>
