@@ -1,16 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <AssemblyName>DieselBundleViewer</AssemblyName>
     <ApplicationIcon>favicon.ico</ApplicationIcon>
     <StartupObject>DieselBundleViewer.App</StartupObject>
-    <Version>1.1.1</Version>
+    <Version>1.1.2</Version>
     <Company>ModWorkshop</Company>
     <Authors>https://github.com/Luffyyy</Authors>
     <UseWindowsForms>true</UseWindowsForms>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <RollForward>Major</RollForward>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Assets\arrow-left-dark.png" />
