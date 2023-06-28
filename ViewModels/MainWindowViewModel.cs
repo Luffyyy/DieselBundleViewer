@@ -314,8 +314,14 @@ namespace DieselBundleViewer.ViewModels
 
         public void ExtractAllExec()
         {
-            if(Root != null)
-                FileManager.SaveMultiple(Root.Owner.GetAllChildren(), CurrentDir);
+            if (Root == null) return;
+
+            var fbd = new System.Windows.Forms.FolderBrowserDialog();
+            if (fbd.ShowDialog() != System.Windows.Forms.DialogResult.OK) return;
+
+            ProgressDialogViewModel.RunOperation((progress, ct) =>
+                FileManager.ExtractAll(fbd.SelectedPath, Root.Owner.GetAllChildren(), CurrentDir, progress, ct)
+            );
         }
 
         public void CloseBLBExec()
