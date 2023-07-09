@@ -302,6 +302,100 @@ namespace DieselBundleViewer.Services
             }
         }
 
+        public static async Task ExtractAll(string outputDir, List<IEntry> files, string removeDirectory, IProgress<ProgressRecord> progress, CancellationToken ct)
+        {
+            progress.Report(new ProgressRecord("Determining working order", 0, 0));
+
+            var filesToProcess = files.OfType<FileEntry>()
+                .Select<FileEntry, (FileEntry fe, PackageFileEntry pfe, string BundleName)>(fe =>
+                {
+                    var bh = fe.MaxBundleEntry();
+                    return (fe, bh, bh.Parent.BundleName);
+                })
+                .GroupBy(i => i.BundleName)
+                .ToDictionary(t => t.Key, t => t.OrderBy(e => e.pfe.Address).ToList());
+
+            var dirsToCreate = files.OfType<FolderEntry>().OrderBy(fe => fe.EntryPath).ToList();
+            int total = dirsToCreate.Count;
+            int currNum = 0;
+            foreach(var entry in dirsToCreate)
+            {
+                progress.Report(new ProgressRecord("Creating directory tree", total, currNum));
+
+                string entryPath = entry.EntryPath.Replace("/", "\\");
+                if (!Settings.Data.ExtractFullDir && !string.IsNullOrEmpty(removeDirectory))
+                    entryPath = entryPath.Replace(removeDirectory.Replace("/", "\\") + "\\", "");
+                string path = Path.Combine(outputDir, entryPath);
+                Directory.CreateDirectory(path);
+
+                currNum++;
+            }
+
+            total = filesToProcess.Select(kv => kv.Value.Count).Sum();
+            currNum = 0;
+            foreach (var (bundleName, fileList) in filesToProcess)
+            {
+                if (ct.IsCancellationRequested) { return; }
+
+                string bundle_path = Path.Combine(Utils.CurrentWindow.AssetsDir, bundleName + ".bundle");
+                if (!File.Exists(bundle_path))
+                {
+                    Console.WriteLine("Bundle: {0}, does not exist!", bundle_path);
+                    continue;
+                }
+
+                if (fileList.Count == 0) { continue; }
+
+                using var fs = new FileStream(bundle_path, FileMode.Open, FileAccess.Read, FileShare.Read, 16834, true);
+
+                if (fileList.Select(i => i.pfe.Length).Sum() > (fs.Length / 2))
+                {
+                    progress.Report(new ProgressRecord("Reading bundle", total, currNum));
+                    var entireBundle = new byte[fs.Length];
+                    await fs.ReadAsync(entireBundle, 0, (int)fs.Length, ct);
+
+                    foreach (var (entry, pfe, bn) in fileList)
+                    {
+                        progress.Report(new ProgressRecord($"Copying {entry.EntryPath}", total, currNum));
+                        if (ct.IsCancellationRequested) { return; }
+
+                        string entryPath = entry.EntryPath.Replace("/", "\\");
+                        if (!Settings.Data.ExtractFullDir && !string.IsNullOrEmpty(removeDirectory))
+                            entryPath = entryPath.Replace(removeDirectory.Replace("/", "\\") + "\\", "");
+                        string path = Path.Combine(outputDir, entryPath);
+
+                        using var outfile = File.Create(path);
+                        await outfile.WriteAsync(entireBundle, (int)pfe.Address, (int)pfe.Length);
+
+                        currNum++;
+                    }
+                }
+                else
+                {
+                    List<Task> writes = new List<Task>(fileList.Count);
+                    foreach (var (entry, pfe, bn) in fileList)
+                    {
+                        progress.Report(new ProgressRecord($"Copying {entry.EntryPath}", total, currNum));
+
+                        string entryPath = entry.EntryPath.Replace("/", "\\");
+                        if (!Settings.Data.ExtractFullDir && !string.IsNullOrEmpty(removeDirectory))
+                            entryPath = entryPath.Replace(removeDirectory.Replace("/", "\\") + "\\", "");
+                        string path = Path.Combine(outputDir, entryPath);
+
+                        using var outfile = File.Create(path);
+                        var buf = new byte[pfe.Length];
+                        fs.Seek(pfe.Address, SeekOrigin.Begin);
+                        await fs.ReadAsync(buf, 0, pfe.Length);
+                        await outfile.WriteAsync(buf, 0, pfe.Length);
+
+                        currNum++;
+                    }
+                }
+            }
+
+            progress.Report(new ProgressRecord($"Done", total, total));
+        }
+
         public static void ViewFile(FileEntry entry, PackageFileEntry be = null)
         {
             ConvertFile(entry, converter => DoViewFile(entry, be, converter));
