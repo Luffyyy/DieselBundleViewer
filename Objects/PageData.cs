@@ -11,9 +11,9 @@ namespace DieselBundleViewer.Objects
         Size
     }
 
-    public class PageData
+    public class PageData(string path)
     {
-        public string Path { get; set; }
+        public string Path { get; set; } = path;
         public string Search { get; set; }
         public bool MatchWord { get; set; }
         public bool UseRegex { get; set; }
@@ -21,9 +21,5 @@ namespace DieselBundleViewer.Objects
         public bool FullPath { get; set; }
         public Sorting SortBy { get; set; } = Sorting.Name;
         public bool Ascending { get; set; } = true;
-        public PageData(string path)
-        {
-            Path = path;
-        }
     }
 }

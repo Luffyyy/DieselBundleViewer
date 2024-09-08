@@ -1,13 +1,10 @@
 ﻿using DieselBundleViewer.ViewModels;
-using DieselBundleViewer.Views;
-using Prism.Ioc;
-using Prism.Services.Dialogs;
+using Prism.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Windows;
 
 namespace DieselBundleViewer.Services
@@ -97,7 +94,7 @@ namespace DieselBundleViewer.Services
         public static string GetDirectory(string path)
         {
             string[] splt = path.Split("/");
-            return string.Join("/", splt.Take(splt.Count() - 1));
+            return string.Join("/", splt.Take(splt.Length - 1));
         }
 
         /// <summary>

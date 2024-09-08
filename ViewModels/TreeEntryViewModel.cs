@@ -60,7 +60,7 @@ namespace DieselBundleViewer.ViewModels
                 IsExpanded = currentDir.StartsWith(Owner.EntryPath);
 
             if(wasExpanded != IsExpanded)
-                RaisePropertyChanged("IsExpanded");
+                RaisePropertyChanged(nameof(IsExpanded));
 
             if(isSelected != IsSelected)
                 IsSelected = currentDir == Owner.EntryPath;

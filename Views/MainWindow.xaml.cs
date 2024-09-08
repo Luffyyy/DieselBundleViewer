@@ -1,12 +1,7 @@
 ﻿using AdonisUI.Controls;
 using DieselBundleViewer.Services;
 using DieselBundleViewer.ViewModels;
-using System;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Input;
 
 namespace DieselBundleViewer.Views

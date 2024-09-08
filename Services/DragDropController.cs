@@ -2,34 +2,25 @@
 using DieselBundleViewer.ViewModels;
 using DieselEngineFormats.Bundle;
 using Prism.Events;
-using Prism.Services.Dialogs;
+using Prism.Dialogs;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
 namespace DieselBundleViewer.Services
 {    public class StartProgress : PubSubEvent { }
 
-    class DragDropController
+    class DragDropController(bool outputFullPaths)
     {
-        public bool OutputFullPaths = false;
-        private TextBox Control { get; set; }
+        public bool OutputFullPaths = outputFullPaths;
+        private TextBox Control { get; set; } = new TextBox();
 
         private ProgressDialogViewModel Progress;
 
         private EventAggregator Aggregator;
-
-        public DragDropController(bool outputFullPaths)
-        {
-            Control = new TextBox();
-            OutputFullPaths = outputFullPaths;
-        }
 
         public void DoDragDrop(List<IEntry> entries)
         {

@@ -1,10 +1,7 @@
 ﻿using DieselBundleViewer.Services;
 using Prism.Commands;
+using Prism.Dialogs;
 using Prism.Mvvm;
-using Prism.Services.Dialogs;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DieselBundleViewer.ViewModels
 {
@@ -12,12 +9,13 @@ namespace DieselBundleViewer.ViewModels
     {
         public virtual string Title => "";
 
-        public event Action<IDialogResult> RequestClose;
         public DelegateCommand<string> CloseDialog { get; }
 
         protected IDialogParameters Params;
 
         public bool IsClosed { get; private set; }
+
+        public DialogCloseListener RequestClose { get; }
 
         public DialogBase()
         {
@@ -45,7 +43,7 @@ namespace DieselBundleViewer.ViewModels
         private void CloseDialogExec(string success)
         {
             PreCloseDialog(success);
-            RequestClose?.Invoke(new DialogResult(success == "True" ? ButtonResult.OK : ButtonResult.Cancel, Params));
+            RequestClose.Invoke(Params, success == "True" ? ButtonResult.OK : ButtonResult.Cancel);
         }
 
         protected virtual void PreCloseDialog(string success) { }

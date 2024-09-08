@@ -1,24 +1,14 @@
 ﻿using DieselEngineFormats.Bundle;
-using ImTools;
-using Prism.Commands;
-using Prism.Mvvm;
-using Prism.Services.Dialogs;
-using System;
+using Prism.Dialogs;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 
 namespace DieselBundleViewer.ViewModels
 {
-    public class ListBundle : ListItemViewModelBase
+    public class ListBundle(Idstring ids) : ListItemViewModelBase
     {
-        public string Name { get; set; }
-        public Idstring Ids { get; set; }
-        public ListBundle(Idstring ids)
-        {
-            Ids = ids;
-            Name = ids.ToString();
-        }
+        public string Name { get; set; } = ids.ToString();
+        public Idstring Ids { get; set; } = ids;
     }
     public class BundleSelectorDialogViewModel : DialogBase
     {

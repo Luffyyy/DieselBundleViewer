@@ -1,28 +1,21 @@
 ﻿using DieselBundleViewer.Models;
 using DieselEngineFormats.Bundle;
-using Prism.Commands;
-using System.Windows;
+using Prism.Dialogs;
 using Prism.Mvvm;
-using Prism.Services.Dialogs;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using DieselBundleViewer.Services;
 
 namespace DieselBundleViewer.ViewModels
 {
-    public class PackageFileViewModel : BindableBase
+    public class PackageFileViewModel(PackageFileEntry entry) : BindableBase
     {
-        private PackageFileEntry _entry;
+        private PackageFileEntry _entry = entry;
 
         public string Name => _entry.PackageName.UnHashed;
         public string HashedName => _entry.PackageName.HashedString;
         public string Size => _entry.FileSize;
         public uint Address => _entry.Address;
         public int Length => _entry.Length;
-
-        public PackageFileViewModel(PackageFileEntry entry) => _entry = entry;
     }
 
     public class PropertiesViewModel : DialogBase
@@ -89,15 +82,15 @@ namespace DieselBundleViewer.ViewModels
         protected override void PostDialogOpened(IDialogParameters pms)
         {
             entryVM = pms.GetValue<EntryViewModel>("Entry");
-            RaisePropertyChanged("FileVisibility");
-            RaisePropertyChanged("FolderVisibility");
-            RaisePropertyChanged("Name");
-            RaisePropertyChanged("Icon");
-            RaisePropertyChanged("Type");
-            RaisePropertyChanged("Size");
-            RaisePropertyChanged("EntryPath");
-            RaisePropertyChanged("HashedName");
-            RaisePropertyChanged("FolderContains");
+            RaisePropertyChanged(nameof(FileVisibility));
+            RaisePropertyChanged(nameof(FolderVisibility));
+            RaisePropertyChanged(nameof(Name));
+            RaisePropertyChanged(nameof(Icon));
+            RaisePropertyChanged(nameof(Type));
+            RaisePropertyChanged(nameof(Size));
+            RaisePropertyChanged(nameof(EntryPath));
+            RaisePropertyChanged(nameof(HashedName));
+            RaisePropertyChanged(nameof(FolderContains));
 
             IEntry entry = entryVM.Owner;
             if(entry is FileEntry)

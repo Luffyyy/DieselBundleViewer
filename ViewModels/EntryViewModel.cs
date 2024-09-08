@@ -91,7 +91,7 @@ namespace DieselBundleViewer.ViewModels
 
         void OpenFileInfoExec()
         {
-            var pms = new Prism.Services.Dialogs.DialogParameters
+            var pms = new Prism.Dialogs.DialogParameters
             {
                 { "Entry", this }
             };

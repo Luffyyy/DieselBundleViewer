@@ -648,48 +648,37 @@ namespace DieselBundleViewer.Services
         /// </remarks>
         /// <typeparam name="T1">The type of the tuple's first component.</typeparam>
         /// <typeparam name="T2">The type of the tuple's second component.</typeparam>
-        private class Tuple<T1, T2>
+        /// <remarks>
+        /// Initializes a new instance of the Tuple(T1, T2) class.
+        /// </remarks>
+        /// <param name="item1">The value of the tuple's first component.</param>
+        /// <param name="item2">The value of the tuple's second component.</param>
+        private class Tuple<T1, T2>(T1 item1, T2 item2)
         {
             /// <summary>
             /// Gets the value of the current Tuple(T1, T2) object's first component.
             /// </summary>
-            public T1 Item1 { get; private set; }
+            public T1 Item1 { get; private set; } = item1;
 
             /// <summary>
             /// Gets the value of the current Tuple(T1, T2) object's second component.
             /// </summary>
-            public T2 Item2 { get; private set; }
-
-            /// <summary>
-            /// Initializes a new instance of the Tuple(T1, T2) class.
-            /// </summary>
-            /// <param name="item1">The value of the tuple's first component.</param>
-            /// <param name="item2">The value of the tuple's second component.</param>
-            public Tuple(T1 item1, T2 item2)
-            {
-                Item1 = item1;
-                Item2 = item2;
-            }
+            public T2 Item2 { get; private set; } = item2;
         }
 
         /// <summary>
         /// Simple class that exposes a write-only IStream as a Stream.
         /// </summary>
-        private class IStreamWrapper : Stream
+        /// <remarks>
+        /// Initializes a new instance of the IStreamWrapper class.
+        /// </remarks>
+        /// <param name="iStream">IStream instance to wrap.</param>
+        private class IStreamWrapper(IStream iStream) : Stream
         {
             /// <summary>
             /// IStream instance being wrapped.
             /// </summary>
-            private IStream _iStream;
-
-            /// <summary>
-            /// Initializes a new instance of the IStreamWrapper class.
-            /// </summary>
-            /// <param name="iStream">IStream instance to wrap.</param>
-            public IStreamWrapper(IStream iStream)
-            {
-                _iStream = iStream;
-            }
+            private IStream _iStream = iStream;
 
             /// <summary>
             /// Gets a value indicating whether the current stream supports reading.

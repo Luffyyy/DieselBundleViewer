@@ -1,6 +1,5 @@
 ﻿using AdonisUI.Controls;
-using Prism.Services.Dialogs;
-using System.Windows;
+using Prism.Dialogs;
 
 namespace DieselBundleViewer.Views
 {
