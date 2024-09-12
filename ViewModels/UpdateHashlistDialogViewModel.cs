@@ -1,10 +1,6 @@
-﻿using DieselBundleViewer.Views;
+﻿using DieselBundleViewer.Services;
 using Prism.Dialogs;
 using System;
-using System.ComponentModel;
-using System.IO;
-using System.Net.Http;
-using System.Text.Json.Nodes;
 
 namespace DieselBundleViewer.ViewModels
 {
@@ -16,60 +12,38 @@ namespace DieselBundleViewer.ViewModels
         private DateTime? _latestHashlistLMD = null;
 
         private string _hashlistText = "";
-        public string HashlistVersionDifference
+        public string UpdateWindowText
         {
-            get
-            {
-                return _hashlistText;
-            }
-            set
-            {
-                SetProperty(ref _hashlistText, value);
-            }
+            get => _hashlistText;
+            set => SetProperty(ref _hashlistText, value);
         }
 
-        private bool _updateButtonEnabled = false;
-        public bool UpdateButtonEnabled
+        private bool _downloadButtonEnabled = false;
+        public bool DownloadButtonEnabled
         {
-            get
-            {
-                return _updateButtonEnabled;
-            }
-            set
-            {
-                SetProperty(ref _updateButtonEnabled, value);
-            }
+            get => _downloadButtonEnabled;
+            set => SetProperty(ref _downloadButtonEnabled, value);
         }
 
         protected override void PostDialogOpened(IDialogParameters pms)
         {
             base.PostDialogOpened(pms);
 
-            if (File.Exists("Data/hashlist"))
-                _localHashlistLMD = File.GetLastWriteTime("Data/hashlist");
+            var hashlistStatus = HashlistUpdater.IsHashlistUpToDate();
 
-            using var client = new HttpClient();
-            // GitHub API has a free limit but not having a User-Agent excludes you from even that
-            client.DefaultRequestHeaders.Add(
-                "User-Agent",
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:129.0) Gecko/20100101 Firefox/129.0"
-            );
-
-            var response = client.GetStringAsync("https://api.github.com/repos/Luffyyy/PAYDAY-2-Hashlist/branches/master");
-            var branchInfo = JsonNode.Parse(response.Result.ToString());
-
-            var latestDate = branchInfo?["commit"]["commit"]["author"]["date"]?.ToString();
-            if (latestDate != null)
-                _latestHashlistLMD = DateTime.Parse(latestDate);
-
-            if (!_localHashlistLMD.HasValue)
-                HashlistVersionDifference = "No hashlist found locally.";
-            else if (_latestHashlistLMD.HasValue && _localHashlistLMD >= _latestHashlistLMD)
-                HashlistVersionDifference = "Hashlist is up to date.";
+            if (hashlistStatus == null)
+            {
+                UpdateWindowText = "No hashlist found locally.";
+                DownloadButtonEnabled = true;
+            }
+            else if (hashlistStatus == true)
+            {
+                UpdateWindowText = "Hashlist is up to date.";
+            }
             else
             {
-                HashlistVersionDifference = "Hashlist update found.";
-                UpdateButtonEnabled = true;
+                UpdateWindowText = "Hashlist update found. Please download.";
+                DownloadButtonEnabled = true;
             }
         }
     }

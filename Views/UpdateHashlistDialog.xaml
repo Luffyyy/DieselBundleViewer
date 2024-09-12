@@ -4,17 +4,11 @@
              xmlns:prism="http://prismlibrary.com/" 
              xmlns:viewmodels="clr-namespace:DieselBundleViewer.ViewModels" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             prism:ViewModelLocator.AutoWireViewModel="True" Width="350" Height="200">
+             prism:ViewModelLocator.AutoWireViewModel="True" Width="350" Height="160">
     <Grid Margin="16">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="32"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="24"/>
-        </Grid.RowDefinitions>
-        <TextBlock TextAlignment="Center" Grid.Row="0" DockPanel.Dock="Top" FontSize="24" Text="Checking for Update..."/>
-        <StackPanel Grid.Row="1">
-            <TextBlock x:Name="UpdateNeededText" TextAlignment="Center" FontSize="18" Text="{Binding HashlistVersionDifference, UpdateSourceTrigger=PropertyChanged}" Margin="0,20,0,0"/>
-            <Button x:Name="UpdateButton" Height="30" Width="80" Margin="0,20,0,0" Content="Update" Visibility="{Binding UpdateButtonEnabled, Converter={StaticResource BoolToVis}}" CommandParameter="False" Click="Update_Click"/>
+        <StackPanel>
+            <TextBlock TextAlignment="Center" FontSize="24" Text="{Binding UpdateWindowText, UpdateSourceTrigger=PropertyChanged}" Margin="0,20,0,0"/>
+            <Button Height="30" Width="80" Margin="0,20,0,0" Content="Download" Visibility="{Binding DownloadButtonEnabled, Converter={StaticResource BoolToVis}}" CommandParameter="False" Click="Click_DownloadButton" />
         </StackPanel>
     </Grid>
 </UserControl>

@@ -152,5 +152,5 @@ namespace DieselBundleViewer.Services
             else
                 return false;
         }
-}
+    }
 }

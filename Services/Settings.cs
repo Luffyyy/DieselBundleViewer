@@ -1,10 +1,6 @@
-﻿using AdonisUI.Controls;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Xml;
 using System.Xml.Serialization;
 
 namespace DieselBundleViewer.Services
@@ -13,8 +9,9 @@ namespace DieselBundleViewer.Services
     {
         public bool DisplayEmptyFiles { get; set; } = false;
         public bool ExtractFullDir { get; set; } = false;
-        public bool DarkMode { get; set; }  = true;
-        public List<string> RecentFiles = new List<string>();
+        public bool DarkMode { get; set; } = true;
+        public List<string> RecentFiles = [];
+        public DateTime HaslistLastUpdate { get; set; }
     }
 
     public static class Settings
@@ -39,11 +36,12 @@ namespace DieselBundleViewer.Services
                 try
                 {
                     Data = (SettingsData)xml.Deserialize(fs);
-                } catch (Exception e)
-                {
-                    Console.WriteLine("Error while reading settings file: "+e.Message);
                 }
-                if(Data == null)
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error while reading settings file: " + e.Message);
+                }
+                if (Data == null)
                 {
                     Console.WriteLine("Settings file is corrupted. Creating a new one.");
                     SaveSettings();
@@ -65,7 +63,8 @@ namespace DieselBundleViewer.Services
                 using var fs = new FileStream(FILE, FileMode.Create, FileAccess.Write);
                 xml.Serialize(fs, Data);
                 Console.WriteLine("Saved settings");
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 Console.WriteLine("Failed saving settings " + e.Message);
             }
