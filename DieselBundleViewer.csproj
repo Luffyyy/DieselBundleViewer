@@ -72,9 +72,4 @@
 	<ItemGroup>
 		<Folder Include="Converter\" />
 	</ItemGroup>
-	<ItemGroup>
-	  <Compile Update="ViewModels\UpdateHashlistDialogViewModel.cs">
-	    <Generator>MSBuild:Compile</Generator>
-	  </Compile>
-	</ItemGroup>
 </Project>
