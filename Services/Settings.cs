@@ -11,7 +11,6 @@ namespace DieselBundleViewer.Services
         public bool ExtractFullDir { get; set; } = false;
         public bool DarkMode { get; set; } = true;
         public List<string> RecentFiles = [];
-        public DateTime HaslistLastUpdate { get; set; }
     }
 
     public static class Settings
