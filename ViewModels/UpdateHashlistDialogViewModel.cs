@@ -1,15 +1,13 @@
 ﻿using DieselBundleViewer.Services;
 using Prism.Dialogs;
 using System;
+using System.Windows;
 
 namespace DieselBundleViewer.ViewModels
 {
     public partial class UpdateHashlistDialogViewModel : DialogBase
     {
         public override string Title => "Hashlist Updater";
-
-        private DateTime? _localHashlistLMD = null;
-        private DateTime? _latestHashlistLMD = null;
 
         private string _hashlistText = "";
         public string UpdateWindowText
@@ -31,20 +29,36 @@ namespace DieselBundleViewer.ViewModels
 
             var hashlistStatus = HashlistUpdater.IsHashlistUpToDate();
 
-            if (hashlistStatus == null)
-            {
-                UpdateWindowText = "No hashlist found locally.";
-                DownloadButtonEnabled = true;
-            }
-            else if (hashlistStatus == true)
+            if (hashlistStatus == true)
             {
                 UpdateWindowText = "Hashlist is up to date.";
+                return;
+            }
+            else if (hashlistStatus == false)
+            {
+                UpdateWindowText = "Hashlist update found.";
             }
             else
             {
-                UpdateWindowText = "Hashlist update found. Please download.";
-                DownloadButtonEnabled = true;
+                UpdateWindowText = "No hashlist found locally.";
             }
+
+            DownloadButtonEnabled = true;
+        }
+
+        public async void Click_DownloadHashlist()
+        {
+            UpdateWindowText = "Downloading... please wait...";
+            DownloadButtonEnabled = false;
+
+            await HashlistUpdater.DownloadLatestHashlist();
+
+            UpdateWindowText = "Updated Hashlist.";
+
+            // Clear the Tree view if it was opened without- or with an old hashlist
+            var mainWindowViewModel = (MainWindowViewModel)Application.Current.MainWindow.DataContext;
+            if (mainWindowViewModel != null && mainWindowViewModel.Bundles != null && mainWindowViewModel.Bundles.Count > 0)
+                mainWindowViewModel.CloseBLB.Execute();
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using DieselBundleViewer.Services;
+﻿using DieselBundleViewer.ViewModels;
 using System.Windows.Controls;
 
 namespace DieselBundleViewer.Views
@@ -13,9 +13,9 @@ namespace DieselBundleViewer.Views
             InitializeComponent();
         }
 
-        private async void Click_DownloadButton(object sender, System.Windows.RoutedEventArgs e)
+        private void Click_DownloadButton(object sender, System.Windows.RoutedEventArgs e)
         {
-            await HashlistUpdater.DownloadLatestHashlist();
+            (DataContext as UpdateHashlistDialogViewModel).Click_DownloadHashlist();
         }
     }
 }
