@@ -24,7 +24,7 @@ namespace DieselBundleViewer.Services
             {
                 StringBuilder indentation = new StringBuilder();
                 for (int i = 0; i < this.indent; i++)
-                    indentation.Append("\t");
+                    indentation.Append('\t');
 
                 StringBuilder sb = new StringBuilder();
 
@@ -58,7 +58,7 @@ namespace DieselBundleViewer.Services
 
                     if (kvp.Value is float[])
                     {
-                        sb.Append("\"");
+                        sb.Append('"');
                         float[] vals = kvp.Value as float[];
 
                         if (vals.Length == 3)
@@ -78,7 +78,7 @@ namespace DieselBundleViewer.Services
 
                             //sb.Append("Rotation(" + (-vec.x).ToString() + ", " + vec.y.ToString() + ", " + (-vec.z).ToString() + ")");
                         }
-                        sb.Append("\"");
+                        sb.Append('"');
                     }
                     else if (kvp.Value is bool)
                         sb.Append(((bool)kvp.Value ? "true" : "false"));

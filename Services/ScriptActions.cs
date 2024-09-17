@@ -1,4 +1,5 @@
-﻿using CSScriptLib;
+﻿using CSScripting;
+using CSScriptLib;
 using DieselBundleViewer.Models;
 using IronPython.Hosting;
 using Microsoft.Scripting.Hosting;
@@ -15,8 +16,8 @@ namespace DieselBundleViewer.Services
 {
     public static class ScriptActions
     {
-        public static Dictionary<string, Dictionary<string, FormatConverter>> Converters = new Dictionary<string, Dictionary<string, FormatConverter>>();
-        public static List<Script> Scripts = new List<Script>();
+        public static Dictionary<string, Dictionary<string, FormatConverter>> Converters = [];
+        public static List<Script> Scripts = [];
         public static ScriptEngine PythonEngine;
 
         public static string ScriptsFolder = "Scripts";
@@ -33,10 +34,10 @@ namespace DieselBundleViewer.Services
 
             var folders = Directory.EnumerateDirectories(ScriptsFolder);
             
-            if (folders.Count() == 0)
+            if (!folders.Any())
                 return;
 
-            Stopwatch watch = new Stopwatch();
+            Stopwatch watch = new();
             watch.Start();
             Console.WriteLine("Attempting to load scripts...");
 
@@ -48,8 +49,7 @@ namespace DieselBundleViewer.Services
                     if (File.Exists(main_path = Path.Combine(folder, "main.py")))
                     {
                         Console.WriteLine(".???");
-                        if (PythonEngine == null)
-                            PythonEngine = Python.CreateEngine();
+                        PythonEngine ??= Python.CreateEngine();
 
                         dynamic scope = PythonEngine.CreateScope();
                         foreach (string file in Directory.GetFiles(folder))
@@ -100,7 +100,7 @@ namespace DieselBundleViewer.Services
             }
 
             if (!Converters.ContainsKey(format.Type))
-                Converters.Add(format.Type, new Dictionary<string, FormatConverter>());
+                Converters.Add(format.Type, []);
 
             if (Converters[format.Type].ContainsKey(format.Key))
             {
@@ -138,10 +138,10 @@ namespace DieselBundleViewer.Services
 
         public static FormatConverter GetConverter(string type, string key)
         {
-            if (!Converters.ContainsKey(type) || !Converters[type].ContainsKey(key))
+            if (!Converters.TryGetValue(type, out Dictionary<string, FormatConverter> value) || !value.ContainsKey(key))
                 return null;
 
-            return Converters[type][key];
+            return value[key];
         }
     }
 

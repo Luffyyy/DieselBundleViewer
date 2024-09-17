@@ -113,10 +113,9 @@ namespace DieselBundleViewer.Views
                     int itemIndex = firstVisibleItemIndex;
                     while (itemIndex <= lastVisibleItemIndex)
                     {
-                        bool newlyRealized = false;
 
                         // Get or create the child
-                        UIElement child = generator.GenerateNext(out newlyRealized) as UIElement;
+                        UIElement child = generator.GenerateNext(out bool newlyRealized) as UIElement;
                         if (newlyRealized)
                         {
                             // Figure out if we need to insert the child at the end or somewhere in the middle
@@ -328,7 +327,7 @@ namespace DieselBundleViewer.Views
             int row = itemIndex / childrenPerRow;
             int column = itemIndex % childrenPerRow;
 
-            double xCoordForItem = 0;
+            double xCoordForItem;
             if (HorizontalContentAlignment == WrapPanelAlignment.Left)
             {
                 xCoordForItem = column * this.ChildWidth;
@@ -398,20 +397,14 @@ namespace DieselBundleViewer.Views
             if (extent != this.extent)
             {
                 this.extent = extent;
-                if (this.owner != null)
-                {
-                    this.owner.InvalidateScrollInfo();
-                }
+                this.owner?.InvalidateScrollInfo();
             }
 
             // Update viewport
             if (availableSize != this.viewport)
             {
                 this.viewport = availableSize;
-                if (this.owner != null)
-                {
-                    this.owner.InvalidateScrollInfo();
-                }
+                this.owner?.InvalidateScrollInfo();
             }
         }
 
@@ -572,10 +565,7 @@ namespace DieselBundleViewer.Views
 
             this.offset.Y = offset;
 
-            if (this.owner != null)
-            {
-                this.owner.InvalidateScrollInfo();
-            }
+            this.owner?.InvalidateScrollInfo();
         }
     }
 }

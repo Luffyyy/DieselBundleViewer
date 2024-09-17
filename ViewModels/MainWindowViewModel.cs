@@ -7,15 +7,14 @@ using DieselEngineFormats.Bundle;
 using DieselEngineFormats.Utils;
 using Microsoft.Win32;
 using Prism.Commands;
+using Prism.Dialogs;
 using Prism.Mvvm;
-using Prism.Services.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -55,20 +54,21 @@ namespace DieselBundleViewer.ViewModels
         public ObservableCollection<EntryViewModel> ToRender { get; set; }
         public ObservableCollection<TreeEntryViewModel> FoldersToRender { get; set; }
 
-        public List<Script> Scripts => ScriptActions.Scripts;
-        public bool ScriptsVisible => Scripts.Count > 0;
+        public static List<Script> Scripts => ScriptActions.Scripts;
+        public static bool ScriptsVisible => Scripts.Count > 0;
         public ObservableCollection<string> RecentFiles { get; set; }
         public bool RecentFilesVis => RecentFiles.Count > 0;
 
         public List<Idstring> Bundles { get; set; }
         public List<Idstring> SelectedBundles { get; set; }
 
-        public LinkedList<PageData> Pages = new LinkedList<PageData>();
+        public LinkedList<PageData> Pages = new();
         public LinkedListNode<PageData> CurrentPage;
         public string CurrentDir { get => CurrentPage?.Value.Path; set => Navigate(value); }
 
         public DelegateCommand OpenFileDialog { get; }
         public DelegateCommand<string> OpenFile { get; }
+        public DelegateCommand OpenUpdateHashlistDialog { get; }
         public DelegateCommand OpenAboutDialog { get; }
         public DelegateCommand OpenSettingsDialog { get; }
         public DelegateCommand OpenFindDialog { get; }
@@ -99,12 +99,12 @@ namespace DieselBundleViewer.ViewModels
             Utils.CurrentWindow = this;
 
             //Lists and stuff for the bundles/files/etc
-            PackageHeaders = new Dictionary<Idstring, PackageHeader>();
-            Bundles = new List<Idstring>();
-            ToRender = new ObservableCollection<EntryViewModel>();
-            FoldersToRender = new ObservableCollection<TreeEntryViewModel>();
-            SelectedBundles = new List<Idstring>();
-            RawFiles = new Dictionary<Tuple<Idstring, Idstring, Idstring>, FileEntry>();
+            PackageHeaders = [];
+            Bundles = [];
+            ToRender = [];
+            FoldersToRender = [];
+            SelectedBundles = [];
+            RawFiles = [];
             RecentFiles = new ObservableCollection<string>(Settings.Data.RecentFiles);
 
             //Commands / Events
@@ -117,6 +117,7 @@ namespace DieselBundleViewer.ViewModels
             ForwardDir = new DelegateCommand(ForwardDirExec, ()=> CurrentPage?.Next != null);
             OnKeyDown = new DelegateCommand(OnKeyDownExec);
             SetViewStyle = new DelegateCommand<string>(style => SetViewStyleExec(style, true));
+            OpenUpdateHashlistDialog = new DelegateCommand(() => Utils.ShowDialog("UpdateHashlistDialog", null, true));
             OpenAboutDialog = new DelegateCommand(() => Utils.ShowDialog("AboutDialog", null, true));
             OpenSettingsDialog = new DelegateCommand(() => Utils.ShowDialog("SettingsDialog", r => UpdateSettings()));
             OpenHowToUse = new DelegateCommand(() => Utils.OpenURL("https://github.com/Luffyyy/DieselBundleViewer/wiki/How-to-Use"));
@@ -180,7 +181,7 @@ namespace DieselBundleViewer.ViewModels
 
         void OpenBundleSelectorDialogExec()
         {
-            DialogParameters pms = new DialogParameters
+            DialogParameters pms = new()
             {
                 { "Bundles", Bundles }
             };
@@ -236,12 +237,12 @@ namespace DieselBundleViewer.ViewModels
 
         public void OnMouseMoved(Point pos)
         {
-            Point diff = new Point(pos.X - DragStartLocation.X, pos.Y - DragStartLocation.Y);
+            Point diff = new(pos.X - DragStartLocation.X, pos.Y - DragStartLocation.Y);
             if (DragStart)
             {
                 if (Math.Abs(diff.X) > 4 && Math.Abs(diff.Y) > 4)
                 {
-                    DragDropController controller = new DragDropController(Settings.Data.ExtractFullDir);
+                    DragDropController controller = new(Settings.Data.ExtractFullDir);
                     var selected = new List<IEntry>();
                     foreach(var vm in ToRender)
                     {
@@ -270,7 +271,7 @@ namespace DieselBundleViewer.ViewModels
 
         public async void OpenFileDialogExec()
         {
-            OpenFileDialog ofd = new OpenFileDialog { Filter = "Bundle Database File (*.blb)|*.blb"};
+            OpenFileDialog ofd = new() { Filter = "Bundle Database File (*.blb)|*.blb"};
             
             //Here we try to default to 2 very possible directories of PD2 which most users will use it for.
             if(!RecentFilesVis)
@@ -293,15 +294,14 @@ namespace DieselBundleViewer.ViewModels
                 string fileName = ofd.FileName;
 
                 //If the file already exists in the recents, bump it.
-                if (RecentFiles.Contains(fileName))
-                    RecentFiles.Remove(fileName);
+                RecentFiles.Remove(fileName);
 
                 RecentFiles.Insert(0, fileName);
 
-                Settings.Data.RecentFiles = RecentFiles.ToList();
+                Settings.Data.RecentFiles = [.. RecentFiles];
                 Settings.SaveSettings();
 
-                RaisePropertyChanged("RecentFilesVis");
+                RaisePropertyChanged(nameof(RecentFilesVis));
 
                 await OpenBLBFile(fileName);
             }
@@ -326,8 +326,7 @@ namespace DieselBundleViewer.ViewModels
 
         public void CloseBLBExec()
         {
-            if (cancelLastTask != null)
-                cancelLastTask.Cancel();
+            cancelLastTask?.Cancel();
 
             Status = "Start by opening a blb file. Press 'File->Open' and navigate to the assets directory of the game";
             Pages.Clear();
@@ -356,12 +355,12 @@ namespace DieselBundleViewer.ViewModels
 
         public async Task OpenBLBFile(string filePath)
         {
-            Stopwatch timer = new Stopwatch();
+            Stopwatch timer = new();
             timer.Start();
 
             CloseBLBExec();
 
-            CancellationTokenSource CancelSource = new CancellationTokenSource();
+            CancellationTokenSource CancelSource = new();
             cancelLastTask = CancelSource;
 
             CloseBLB.RaiseCanExecuteChanged();
@@ -388,7 +387,7 @@ namespace DieselBundleViewer.ViewModels
 
                 bool foundHashlist = false;
 
-                List<string> FilterFiles = new List<string>();
+                List<string> FilterFiles = [];
                 for (int i = 0; i < Files.Count; i++)
                 {
                     if (CancelSource.IsCancellationRequested)
@@ -407,7 +406,7 @@ namespace DieselBundleViewer.ViewModels
 
                     Status = string.Format("Loading bundle {0} {1}/{2}", file, i, FilterFiles.Count);
 
-                    PackageHeader bundle = new PackageHeader();
+                    PackageHeader bundle = new();
                     if (!bundle.Load(file))
                         continue;
 
@@ -427,9 +426,9 @@ namespace DieselBundleViewer.ViewModels
                             }
                         }
 
-                        if (FileEntries.ContainsKey(be.ID))
+                        if (FileEntries.TryGetValue(be.ID, out FileEntry value))
                         {
-                            FileEntry fileEntry = FileEntries[be.ID];
+                            FileEntry fileEntry = value;
                             fileEntry.AddBundleEntry(be);
                             FolderEntry folderEntry = fileEntry.Parent;
                         }
@@ -445,8 +444,7 @@ namespace DieselBundleViewer.ViewModels
 
                     fe.LoadPath();
                     RawFiles.Add(new Tuple<Idstring, Idstring, Idstring>(fe.PathIds, fe.LanguageIds, fe.ExtensionIds), fe);
-                    if(Root != null)
-                        Root.Owner.AddFileEntry(fe);
+                    Root?.Owner.AddFileEntry(fe);
                 }
 
                 GC.Collect();
@@ -466,7 +464,7 @@ namespace DieselBundleViewer.ViewModels
 
             Status = $"Done. Took {timer.ElapsedMilliseconds / 1000} seconds";
 
-            Bundles = PackageHeaders.Keys.ToList();
+            Bundles = [.. PackageHeaders.Keys];
             FoldersToRender.Clear();
             FoldersToRender.Add(Root);
 
@@ -502,7 +500,7 @@ namespace DieselBundleViewer.ViewModels
 
         public void SetDir(LinkedListNode<PageData> dir)
         {
-            SetProperty(ref CurrentPage, dir, "CurrentDir");
+            SetProperty(ref CurrentPage, dir, nameof(CurrentDir));
             DirChanged();
         }
 
@@ -551,8 +549,8 @@ namespace DieselBundleViewer.ViewModels
 
             if (cancelLastTask == null)
             {
-                List<FileEntry> files = new List<FileEntry>();
-                List<FolderEntry> folders = new List<FolderEntry>();
+                List<FileEntry> files = [];
+                List<FolderEntry> folders = [];
 
                 PageData page = CurrentPage.Value;
 
@@ -564,7 +562,7 @@ namespace DieselBundleViewer.ViewModels
                 folders.Sort(SortEntry);
                 files.Sort(SortEntry);
 
-                List<EntryViewModel> list = new List<EntryViewModel>();
+                List<EntryViewModel> list = [];
                 bool firstFiles = page.SortBy != Sorting.Type && !page.Ascending;
                 if (firstFiles)
                 {
@@ -631,9 +629,7 @@ namespace DieselBundleViewer.ViewModels
 
             if (!asc)
             {
-                IEntry move = a;
-                a = b;
-                b = move;
+                (b, a) = (a, b);
             }
 
             int check = sortBy switch
@@ -651,11 +647,11 @@ namespace DieselBundleViewer.ViewModels
 
         public Dictionary<uint, FileEntry> DatabaseEntryToFileEntry(List<DatabaseEntry> entries)
         {
-            Dictionary<uint, FileEntry> fileEntries = new Dictionary<uint, FileEntry>();
+            Dictionary<uint, FileEntry> fileEntries = [];
 
             foreach (DatabaseEntry ne in entries)
             {
-                FileEntry fe = new FileEntry(ne);
+                FileEntry fe = new(ne);
                 fileEntries.Add(ne.ID, fe);
             }
             return fileEntries;
@@ -679,7 +675,7 @@ namespace DieselBundleViewer.ViewModels
 
         public List<EntryViewModel> SelectedEntries()
         {
-            List<EntryViewModel> list = new List<EntryViewModel>();
+            List<EntryViewModel> list = [];
             foreach(var entry in ToRender)
             {
                 if(entry.IsSelected)

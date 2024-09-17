@@ -69,8 +69,9 @@
                     <MenuItem Header="Extract All" Command="{Binding ExtractAll}"/>
                 </MenuItem>
                 <MenuItem Header="Help">
-                    <MenuItem Header="About" Command="{Binding OpenAboutDialog}"/>
+                    <MenuItem Header="Update Hashlist" Command="{Binding OpenUpdateHashlistDialog}"/>
                     <MenuItem Header="How to Use" Command="{Binding OpenHowToUse}"/>
+                    <MenuItem Header="About" Command="{Binding OpenAboutDialog}"/>
                 </MenuItem>
             </Menu>
         </Canvas>

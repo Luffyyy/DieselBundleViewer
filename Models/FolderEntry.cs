@@ -11,9 +11,9 @@ using System.Text;
 
 namespace DieselBundleViewer.Models
 {
-    public class FolderEntry : IEntry
+    public class FolderEntry(uint level = 0) : IEntry
     {
-        public SortedDictionary<string, IEntry> Children { get; set; }
+        public SortedDictionary<string, IEntry> Children { get; set; } = new SortedDictionary<string, IEntry>();
 
         public FolderEntry Parent { get; set; }
         public string EntryPath { get; set; }
@@ -41,12 +41,7 @@ namespace DieselBundleViewer.Models
 
         public string Type => "File folder";
 
-        private uint folderLevel;
-
-        public FolderEntry(uint level = 0) {
-            folderLevel = level;
-            Children = new SortedDictionary<string, IEntry>();
-        }
+        private uint folderLevel = level;
 
         public FolderEntry(FileEntry entry, uint level = 0) : this(level)
         {

@@ -55,6 +55,7 @@ namespace DieselBundleViewer
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
             containerRegistry.RegisterDialog<ConvertFileDialog, ConvertFileDialogViewModel>();
+            containerRegistry.RegisterDialog<UpdateHashlistDialog, UpdateHashlistDialogViewModel>();
             containerRegistry.RegisterDialog<AboutDialog, AboutDialogViewModel>();
             containerRegistry.RegisterDialog<SettingsDialog, SettingsDialogViewModel>();
             containerRegistry.RegisterDialog<FindDialog, FindDialogViewModel>();
@@ -193,13 +194,13 @@ namespace DieselBundleViewer
                     for (int i = 0; i < str.LocalizationStrings.Count; i++)
                     {
                         StringEntry entry = str.LocalizationStrings[i];
-                        builder.Append("\t");
+                        builder.Append('\t');
                         builder.Append("\"" + entry.ID + "\" : \"" + entry.Text + "\"");
                         if (i < str.LocalizationStrings.Count - 1)
-                            builder.Append(",");
-                        builder.Append("\n");
+                            builder.Append(',');
+                        builder.Append('\n');
                     }
-                    builder.Append("}");
+                    builder.Append('}');
                     Console.WriteLine(builder.ToString());
                     return builder.ToString();
                 },

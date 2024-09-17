@@ -1,31 +1,20 @@
 ﻿using DieselBundleViewer.Services;
-using DieselBundleViewer.Views;
 using Prism.Commands;
-using Prism.Events;
-using Prism.Mvvm;
-using Prism.Services.Dialogs;
+using Prism.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
 namespace DieselBundleViewer.ViewModels
 {
-    public class ProgressRecord
+    public class ProgressRecord(string status, int total, int completed)
     {
-        public string Status { get; private set; }
-        public int Total { get; private set; }
-        public int Completed { get; private set; }
-
-        public ProgressRecord(string status, int total, int completed)
-        {
-            Status = status;
-            Total = total;
-            Completed = completed;
-        }
+        public string Status { get; private set; } = status;
+        public int Total { get; private set; } = total;
+        public int Completed { get; private set; } = completed;
     }
 
     public class ProgressDialogViewModel : DialogBase

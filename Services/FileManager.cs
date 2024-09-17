@@ -1,15 +1,12 @@
 ﻿using DieselBundleViewer.Models;
 using DieselBundleViewer.ViewModels;
-using DieselBundleViewer.Views;
 using DieselEngineFormats.Bundle;
-using Prism.Events;
-using Prism.Services.Dialogs;
+using Prism.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -58,6 +55,8 @@ namespace DieselBundleViewer.Services
 
             public void Dispose()
             {
+                GC.SuppressFinalize(this);
+
                 if (Disposed)
                     return;
 
@@ -153,9 +152,9 @@ namespace DieselBundleViewer.Services
 
             string typ = Definitions.TypeFromExtension(entry.ExtensionIds.ToString());
 
-            if (ScriptActions.Converters.ContainsKey(typ))
+            if (ScriptActions.Converters.TryGetValue(typ, out Dictionary<string, FormatConverter> value))
             {
-                var convs = ScriptActions.Converters[typ];
+                var convs = value;
 
                 //Don't open the dialog for things that are just an extension change
                 if(convs.Count == 1)
@@ -194,9 +193,9 @@ namespace DieselBundleViewer.Services
             SaveFileDialog sfd = new SaveFileDialog { FileName = file.Name };
 
             string typ = Definitions.TypeFromExtension(file.ExtensionIds.ToString());
-            if (ScriptActions.Converters.ContainsKey(typ))
+            if (ScriptActions.Converters.TryGetValue(typ, out Dictionary<string, FormatConverter> value))
             {
-                var convs = ScriptActions.Converters[typ];
+                var convs = value;
                 string filter = "";
                 var conerters = new List<FormatConverter>();
                 foreach (var pair in convs)
@@ -352,7 +351,7 @@ namespace DieselBundleViewer.Services
                 {
                     progress.Report(new ProgressRecord("Reading bundle", total, currNum));
                     var entireBundle = new byte[fs.Length];
-                    await fs.ReadAsync(entireBundle, 0, (int)fs.Length, ct);
+                    await fs.ReadAsync(entireBundle.AsMemory(0, (int)fs.Length), ct);
 
                     foreach (var (entry, pfe, bn) in fileList)
                     {
@@ -365,7 +364,7 @@ namespace DieselBundleViewer.Services
                         string path = Path.Combine(outputDir, entryPath);
 
                         using var outfile = File.Create(path);
-                        await outfile.WriteAsync(entireBundle, (int)pfe.Address, (int)pfe.Length);
+                        await outfile.WriteAsync(entireBundle.AsMemory((int)pfe.Address, (int)pfe.Length), ct);
 
                         currNum++;
                     }
@@ -385,8 +384,8 @@ namespace DieselBundleViewer.Services
                         using var outfile = File.Create(path);
                         var buf = new byte[pfe.Length];
                         fs.Seek(pfe.Address, SeekOrigin.Begin);
-                        await fs.ReadAsync(buf, 0, pfe.Length);
-                        await outfile.WriteAsync(buf, 0, pfe.Length);
+                        await fs.ReadAsync(buf.AsMemory(0, pfe.Length), ct);
+                        await outfile.WriteAsync(buf.AsMemory(0, pfe.Length), ct);
 
                         currNum++;
                     }
@@ -414,8 +413,7 @@ namespace DieselBundleViewer.Services
                 proc.StartInfo.FileName = "explorer";
                 proc.StartInfo.Arguments = $"\"{temp.FilePath}\"";
                 proc.Start();
-                if (!TempFiles.ContainsKey(entry))
-                    TempFiles.Add(entry, temp);
+                TempFiles.TryAdd(entry, temp);
             }
             catch (Exception exc)
             {
@@ -437,7 +435,7 @@ namespace DieselBundleViewer.Services
         public static TempFile GetTempFile(FileEntry file, PackageFileEntry entry = null, FormatConverter exporter = null)
         {
             TempFile path;
-            if (!TempFiles.ContainsKey(file) || TempFiles[file].Disposed || !File.Exists(TempFiles[file].FilePath) || (exporter != null && TempFiles[file].ExporterKey != exporter.Key) || TempFiles[file].Entry != entry)
+            if (!TempFiles.TryGetValue(file, out TempFile value) || value.Disposed || !File.Exists(value.FilePath) || (exporter != null && value.ExporterKey != exporter.Key) || value.Entry != entry)
             {
                 if (TempFiles.ContainsKey(file))
                     DeleteTempFile(file);
@@ -445,17 +443,17 @@ namespace DieselBundleViewer.Services
                 path = CreateTempFile(file, entry, exporter);
             }
             else
-                path = TempFiles[file];
+                path = value;
 
             return path;
         }
 
         public static void DeleteTempFile(FileEntry entry)
         {
-            if (!TempFiles.ContainsKey(entry))
+            if (!TempFiles.TryGetValue(entry, out TempFile value))
                 return;
 
-            TempFile temp_file = TempFiles[entry];
+            TempFile temp_file = value;
 
             temp_file.Dispose();
 
