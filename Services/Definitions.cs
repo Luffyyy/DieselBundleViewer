@@ -32,7 +32,9 @@ namespace DieselBundleViewer.Services
             "achievment",
             "controller_settings",
             "world_sounds",
-            "blacklist"
+            "blacklist",
+            "drama_index",
+            "drama"
         };
 
         public static string[] RawTextExtension =
