@@ -1,3 +1,7 @@
+
+# Notice about Diesel V3
+This project is no longer going to be updated, you should use the new and better Diesel Crate Browser https://modworkshop.net/mod/57750
+
 # DieselBundleViewer
 
 DieselBundleViewer is a program that allows you to view the files of all diesel games (PDTH, PD2, and RWW2)
